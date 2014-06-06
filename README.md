@@ -1,4 +1,4 @@
 Engine-DX11-
 ============
 
-Same project than Engine but in DirectX11 API!
+Small Engine in DX11 for training
