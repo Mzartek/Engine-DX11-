@@ -1,0 +1,11 @@
+﻿La génération a démarré 03/06/2014 16:11:23.
+     1>Projet "C:\Users\Mzartek\Desktop\Programmation\Demo(DX11)\Demo\Demo.vcxproj" sur le nœud 2 (Build cible(s)).
+     1>Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Mzartek\Desktop\Programmation\Demo(DX11)\x64\Debug\Demo.exe" /INCREMENTAL /NOLOGO d3d11.lib d3dcompiler.lib Engine.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Mzartek\Desktop\Programmation\Demo(DX11)\x64\Debug\Demo.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Mzartek\Desktop\Programmation\Demo(DX11)\x64\Debug\Demo.lib" /MACHINE:X64 x64\Debug\graphics.obj
+         x64\Debug\main.obj
+         Demo.vcxproj -> C:\Users\Mzartek\Desktop\Programmation\Demo(DX11)\x64\Debug\Demo.exe
+     1>Génération du projet "C:\Users\Mzartek\Desktop\Programmation\Demo(DX11)\Demo\Demo.vcxproj" terminée (Build cible(s)).
+
+La génération a réussi.
+
+Temps écoulé 00:00:00.69
