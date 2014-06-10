@@ -1,70 +1,135 @@
 #include <Engine/Model.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
 
 engine::Model::Model(void)
 {
-	isMirror = GL_FALSE;
 	_tObject = NULL;
+	_pConstantBuffer = NULL;
 	_program = NULL;
+	_info = (struct uniform *)_aligned_malloc(sizeof *_info, 16);
+	_modelMatrix = (DirectX::XMMATRIX *) _aligned_malloc(sizeof *_modelMatrix, 16);
+
 	matIdentity();
 }
 
 engine::Model::~Model(void)
 {
-	GLuint i;
-	if(_tObject != NULL && isMirror == GL_FALSE)
+	UINT i;
+
+	if(_tObject != NULL && isMirror == FALSE)
 	{		
 		for(i=0 ; i<_tObject->size(); i++)
 			delete (*_tObject)[i];
 		delete _tObject;
 	}
+
+	if (_pConstantBuffer)
+		_pConstantBuffer->Release();
+
+	_aligned_free(_info);
+	_aligned_free(_modelMatrix);
 }
 
 void engine::Model::initObjectArray(void)
 {
-	GLuint i;
-	if(_tObject != NULL && isMirror == GL_FALSE)
+	UINT i;
+	if(_tObject != NULL && isMirror == FALSE)
 	{		
 		for(i=0 ; i<_tObject->size(); i++)
 			delete (*_tObject)[i];
 		delete _tObject;
 	}
+	isMirror = FALSE;
 	_tObject = new std::vector<Object *>;
 }
 
 void engine::Model::initObjectMirror(Model *m)
 {
-	isMirror = GL_TRUE;
+	isMirror = TRUE;
 	_tObject = m->_tObject;
 }
 
-void engine::Model::config(ShaderProgram *program)
+HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 {
+	HRESULT hr;
+
 	_program = program;
-	_screenWidthLocation = glGetUniformLocation(_program->getId(), "screenWidth");
-	_screenHeightLocation = glGetUniformLocation(_program->getId(), "screenHeight");
-	_MVPLocation = glGetUniformLocation(_program->getId(), "MVP");
+
+	// Create uniform
+	D3D11_BUFFER_DESC bd;
+	ZeroMemory(&bd, sizeof(bd));
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(*_info);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer);
+
+	return hr;
 }
 
-void engine::Model::createObject(const GLsizei &sizeVertexArray, const GLfloat *vertexArray,
-				 const GLsizei &sizeIndexArray, const GLuint *indexArray,
-				 const std::string pathTexture,
-				 const GLfloat *ambient, const GLfloat *diffuse, const GLfloat *specular, const GLfloat *shininess)
+HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
+	const UINT &sizeIndexArray, const UINT *indexArray,
+	const std::string pathTexture,
+	const FLOAT *ambient, const FLOAT *diffuse, const FLOAT *specular, const FLOAT *shininess,
+	ID3D11Device *pd3dDevice)
 {
-	Object *newone = new Object();
-	GLuint texture;
+	HRESULT hr;
+	Object *newone = new Object;
+	ID3D11ShaderResourceView *ptex;
+	ID3D11SamplerState *psam;
   
-	loadTextureFromFile(pathTexture, &texture);
+	hr = loadTextureFromFile(pathTexture, &ptex, &psam, pd3dDevice);
+	if (FAILED(hr))
+		return hr;
 
-	newone->setShaderProgram(_program);
-	newone->setTexture(texture);
+	hr = newone->setShaderProgram(_program, pd3dDevice);
+	if (FAILED(hr))
+		return hr;
+
+	newone->setTexture(ptex, psam);
 	newone->setAmbient(ambient[0], ambient[1], ambient[2], ambient[3]);
 	newone->setDiffuse(diffuse[0], diffuse[1], diffuse[2], diffuse[3]);
 	newone->setSpecular(specular[0], specular[1], specular[2], specular[3]);
 	newone->setShininess(shininess[0]);
-	newone->load(sizeVertexArray, vertexArray,
-		     sizeIndexArray, indexArray);
+	hr = newone->load(sizeVertexArray, vertexArray,
+		sizeIndexArray, indexArray,
+		pd3dDevice);
+	if (FAILED(hr))
+		return hr;
   
 	_tObject->push_back(newone);
+
+	return S_OK;
+}
+
+void engine::Model::InitMesh(UINT i, const aiMesh* paiMesh)
+{
+
+}
+
+HRESULT engine::Model::loadFromFile(const std::string szFileName)
+{
+	Assimp::Importer Importer;
+	const aiScene *pScene = NULL;
+	UINT numMeshes, numMaterials, i;
+
+	pScene = Importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
+
+	if (!pScene)
+		return E_FAIL; 
+	
+	numMeshes = pScene->mNumMeshes;
+	numMaterials = pScene->mNumMaterials;
+
+	for (i = 0; i < numMeshes; i++) 
+	{
+		const aiMesh *paiMesh = pScene->mMeshes[i];
+		InitMesh(i, paiMesh);
+	}
+
+	return S_OK;
 }
 
 void engine::Model::sortObject(void)
@@ -74,74 +139,79 @@ void engine::Model::sortObject(void)
 
 void engine::Model::matIdentity(void)
 {
-	matrixLoadIdentity(_modelMatrix);
+	*_modelMatrix = XMMatrixTranspose(DirectX::XMMatrixIdentity());
 }
 
-void engine::Model::matTranslate(const GLfloat &x, const GLfloat &y, const GLfloat &z)
+void engine::Model::matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	matrixTranslate(_modelMatrix, x, y, z);
+	*_modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixTranslation(x, y, z));
 }
 
-void engine::Model::matRotate(const GLfloat &angle, const GLfloat &x, const GLfloat &y, const GLfloat &z)
+void engine::Model::matRotate(const FLOAT &angle, const BOOL &x, const BOOL &y, const BOOL &z)
 {
-	matrixRotate(_modelMatrix, angle, x, y, z);
+	if (x)
+		*_modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationX(angle));
+	if (y)
+		*_modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationY(angle));
+	if (z)
+		*_modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationZ(angle));
 }
 
-void engine::Model::matScale(const GLfloat &x, const GLfloat &y, const GLfloat &z)
+void engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	matrixScale(_modelMatrix, x, y, z);
+	*_modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixScaling(x, y, z));
 }
 
-engine::Vector3D<GLfloat> engine::Model::getPosition(void) const
+DirectX::XMFLOAT3 engine::Model::getPosition(void) const
 {
-	engine::Vector3D<GLfloat> tmp;
-	tmp.x = _modelMatrix[12];
-	tmp.y = _modelMatrix[13];
-	tmp.z = _modelMatrix[14];
+	DirectX::XMFLOAT3 tmp;
+	tmp.x = DirectX::XMVectorGetZ(_modelMatrix->r[0]);
+	tmp.y = DirectX::XMVectorGetZ(_modelMatrix->r[1]);
+	tmp.z = DirectX::XMVectorGetZ(_modelMatrix->r[2]);
+
 	return tmp;
 }
 
-engine::Object *engine::Model::getObject(GLuint num) const
+engine::Object *engine::Model::getObject(UINT num) const
 {
 	if(num>=_tObject->size())
 	{
-		std::cerr << "Bad num Object" << std::endl;
-		return NULL;
+		MessageBox(NULL, "Bad num Object!", "Error", MB_OK);
+		exit(1);
 	}
 	return (*_tObject)[num];
 }
   
-void engine::Model::display(Window *win, Camera *cam, LBuffer *l) const
+void engine::Model::display(Window *win, Camera *cam)// , LBuffer *l) const
 {
-	GLuint i;
-	GLfloat tmp[16];
+	UINT i;
   
 	if(_program == NULL)
 	{
-		std::cerr << "You need to configure the Model before" << std::endl;
-		return;
+		MessageBox(NULL, "Bad num Object!", "Error", MB_OK);
+		exit(1);
 	}
 	if(cam == NULL)
 	{
-		std::cerr << "Bad Camera" << std::endl;
-		return;
+		MessageBox(NULL, "Bad Camera!", "Error", MB_OK);
+		exit(1);
 	}
-  
-	glUseProgram(_program->getId());
 
-	glUniform1f(_screenWidthLocation, (GLfloat)win->getWidth());
-	glUniform1f(_screenHeightLocation, (GLfloat)win->getHeight());
+	_info->screenWidth = (FLOAT)win->getWidth();
+	_info->screenHeight = (FLOAT)win->getHeight();
+	_info->MVP = *cam->getMatrix() * *_modelMatrix;
   
-	matrixMultiply(tmp, cam->getMatrix(), _modelMatrix);
-	glUniformMatrix4fv(_MVPLocation, 1, GL_FALSE, tmp);
-  
-	glUseProgram(0);
+	win->getImmediateContext()->UpdateSubresource(_pConstantBuffer, 0, NULL, _info, 0, 0);
+	win->getImmediateContext()->VSSetConstantBuffers(1, 1, &_pConstantBuffer);
   
 	for(i=0 ; i<_tObject->size(); i++)
-		(*_tObject)[i]->display(l);
+		(*_tObject)[i]->display(win);
+
+	// For Deffered Lighting
+	// (*_tObject)[i]->display(win, l);
 }
 
-void engine::Model::displayOnGBuffer(Camera *cam, GBuffer *g) const
+/*void engine::Model::displayOnGBuffer(Camera *cam, GBuffer *g) const
 {
 	GLuint i;
 	GLfloat tmp[16];
@@ -195,4 +265,4 @@ void engine::Model::displayShadow(Light *l) const
 	glUseProgram(0);
 	for(i=0 ; i<_tObject->size(); i++)
 		(*_tObject)[i]->displayShadow(l);
-}
+}*/

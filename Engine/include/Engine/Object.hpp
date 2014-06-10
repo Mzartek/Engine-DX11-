@@ -17,11 +17,6 @@ namespace engine
 			FLOAT ambient[4];
 			FLOAT diffuse[4];
 			FLOAT specular[4];
-			FLOAT shininess[1];
-			// Create a new uniform in Model
-			FLOAT screenWidth;
-			FLOAT screenHeight;
-			DirectX::XMMATRIX MVP;
 		};
 
 		ID3D11ShaderResourceView *_pTexture;
@@ -33,6 +28,7 @@ namespace engine
 		ShaderProgram *_program;
 		UINT _numElement;
 		struct uniform _material;
+		FLOAT shininess[1];
 	public:
 		Object(void);
 		~Object(void);
@@ -46,7 +42,7 @@ namespace engine
 		HRESULT load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 			const UINT &sizeIndexArray, const UINT *indexArray,
 			ID3D11Device *pd3dDevice);
-		HRESULT display(Window *win) const;//LBuffer *l) const;
+		void display(Window *win) const;//LBuffer *l) const;
 		//void displayOnGBuffer(GBuffer *g) const;
 		//void displayShadow(Light *l) const;
 	};

@@ -7,6 +7,8 @@
 #define DLLAPI __declspec(dllimport)
 #endif
 
+#include <vector>
+#include <string>
 #include <Windows.h>
 #include <malloc.h>
 #include <tchar.h>
@@ -25,7 +27,7 @@ namespace engine
 	};
 	typedef struct vertex vertex;
 
-	extern DLLAPI HRESULT loadTextureFromFile(const char *szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice);
+	extern DLLAPI HRESULT loadTextureFromFile(const std::string szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice);
 	extern DLLAPI HRESULT loadDDSTexture(const WCHAR *szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice);
 }
 

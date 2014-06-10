@@ -1,9 +1,9 @@
-#include <iostream>
-#include "include/graphics.h"
+#include "include/config.h"
 
 // Globales variables
 engine::Window*				window = NULL;
 engine::Camera*				cam = NULL;
+engine::Model*				sol = NULL;
 engine::ShaderProgram*		mainProgram = NULL;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -30,33 +30,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void display(void)
 {
+	cam->position();
 
 	window->clear();
 
+	sol->display(window, cam);
 
 	window->getSwapChain()->Present(0, 0);
 }
 
 void idle(void)
 {
-	static FLOAT i = 0;
-	ConstantBuffer cb;
-	DirectX::XMMATRIX modelMatrix;
 	cam->setPositionCamera(5.0f, 5.0f, -5.0f);
 	cam->setPositionTarget(0.0f, 0.0f, 0.0f);
 
-	modelMatrix = DirectX::XMMatrixIdentity();
-
-	cam->position();
-	cb.MVP = *(cam->getMatrix()) * XMMatrixTranspose(modelMatrix);
-	cb.MVP = cb.MVP * XMMatrixTranspose(DirectX::XMMatrixRotationZ(i));
-	i += 0.001f;
-
+	//sol->matRotate(0.001f, FALSE, FALSE, TRUE);
 }
 
-void CleanupDevice()
+void deleteClass()
 {
 	delete mainProgram;
+	delete sol;
 	delete cam;
 	delete window;
 }
@@ -65,9 +59,10 @@ void init(void)
 {
 	window = new engine::Window;
 	cam = new engine::Camera;
+	sol = new engine::Model;
 	mainProgram = new engine::ShaderProgram;
 
-	cam->setPerspective(90, window->getWidth(), window->getHeight(), 0.01f, 1500.0f);
+	cam->setPerspective(90.0f, window->getWidth(), window->getHeight(), 0.01f, 1500.0f);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -77,22 +72,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	init();
 
-	if (FAILED(window->initWindow(hInstance, WndProc, L"Demo Class", L"Demo DirectX", 1024, 768)))
+	if (FAILED(window->initWindow(hInstance, WndProc, "Demo Class", "Demo DirectX", 1024, 768)))
 		return 1;
-	if (FAILED(mainProgram->loadProgram(L"shader/mainVertex.hlsl", L"shader/mainPixel.hlsl", window->getD3DDevice())))
+	if (FAILED(configShader()))
 		return 1;
-	if (FAILED(initShader()))
-		return 1;
-	if (FAILED(initBuffer()))
-		return 1;
-	if (FAILED(engine::loadTextureFromFile("ressources/test.png", &pTexture, &pSampler, window->getD3DDevice())))
+	if (FAILED(configSol()))
 		return 1;
 
 	window->setIdleFunc(idle);
 	window->setDisplayFunc(display);
 	window->mainLoop(nCmdShow);
 
-	CleanupDevice();
+	deleteClass();
 
 	return 0;
 }

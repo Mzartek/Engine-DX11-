@@ -15,8 +15,8 @@ engine::Camera::Camera(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
 	_pcamera = new DirectX::XMFLOAT3;
 	_ptarget = new DirectX::XMFLOAT3;
-	_projectionMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof _projectionMatrix, 16);
-	_VP = (DirectX::XMMATRIX *)_aligned_malloc(sizeof _VP, 16);
+	_projectionMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_projectionMatrix, 16);
+	_VP = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_VP, 16);
 	_pcamera->x = x;
 	_pcamera->y = y;
 	_pcamera->z = z;

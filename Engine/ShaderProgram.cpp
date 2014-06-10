@@ -51,7 +51,7 @@ HRESULT engine::ShaderProgram::loadProgram(WCHAR *vs, WCHAR *ps, ID3D11Device *p
 	hr = CompileShaderFromFile(vs, "main", "vs_4_0", &_pVSBlob);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, L"Error compiling shader.", L"Error", MB_OK);
+		MessageBox(NULL, "Error compiling shader.", "Error", MB_OK);
 		return hr;
 	}
 	hr = pDevice->CreateVertexShader(_pVSBlob->GetBufferPointer(), _pVSBlob->GetBufferSize(), NULL, &_pVertexShader);
@@ -62,7 +62,7 @@ HRESULT engine::ShaderProgram::loadProgram(WCHAR *vs, WCHAR *ps, ID3D11Device *p
 	hr = CompileShaderFromFile(ps, "main", "ps_4_0", &_pPSBlob);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, L"Error compiling shader.", L"Error", MB_OK);
+		MessageBox(NULL, "Error compiling shader.", "Error", MB_OK);
 		return hr;
 	}
 	hr = pDevice->CreatePixelShader(_pPSBlob->GetBufferPointer(), _pPSBlob->GetBufferSize(), NULL, &_pPixelShader);

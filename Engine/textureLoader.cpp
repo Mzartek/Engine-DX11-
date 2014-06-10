@@ -2,13 +2,13 @@
 #include <FreeImage.h>
 #include "DirectXTK/DDSTextureLoader.h"
 
-HRESULT engine::loadTextureFromFile(const char *szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice)
+HRESULT engine::loadTextureFromFile(const std::string szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice)
 {
 	HRESULT hr;
 	FIBITMAP *image = NULL;
 	FIBITMAP *tmp = NULL;
 
-	image = FreeImage_Load(FreeImage_GetFileType(szFileName), szFileName);
+	image = FreeImage_Load(FreeImage_GetFileType(&szFileName[0]), &szFileName[0]);
 	tmp = image;
 	image = FreeImage_ConvertTo32Bits(image);
 	FreeImage_Unload(tmp);

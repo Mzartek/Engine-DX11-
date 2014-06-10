@@ -16,7 +16,7 @@ engine::Object::Object(void)
 		_material.diffuse[i] = 1.0;
 		_material.specular[i] = 1.0;
 	}
-	_material.shininess[0] = 1.0;
+	shininess[0] = 1.0;
 }
 
 engine::Object::~Object(void)
@@ -98,7 +98,7 @@ void engine::Object::setSpecular(const FLOAT &x, const FLOAT &y, const FLOAT &z,
 
 void engine::Object::setShininess(const FLOAT &x)
 {
-	_material.shininess[0] = x;
+	shininess[0] = x;
 }
 
 FLOAT engine::Object::getTransparency(void)
@@ -145,25 +145,22 @@ HRESULT engine::Object::load(const UINT &sizeVertexArray, const FLOAT *vertexArr
 
 #undef BUFFER_OFFSET
 
-HRESULT engine::Object::display(Window *win) const
+void engine::Object::display(Window *win) const
 {
-	HRESULT hr;
 	UINT stride = 32;
 	UINT offset = 0;
 
 	if(_program == NULL)
 	{
-		MessageBox(NULL, L"You need to set the ShaderProgram before!", L"Error", MB_OK);
-		return E_FAIL;
+		MessageBox(NULL, "You need to set the ShaderProgram before!", "Error", MB_OK);
+		exit(1);
 	}
-
-	win->getImmediateContext()->UpdateSubresource(_pConstantBuffer, 0, NULL, &_material, 0, 0);
-
-	win->getImmediateContext()->IASetInputLayout(_pVertexLayout);
 
 	win->getImmediateContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	win->getImmediateContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
+	win->getImmediateContext()->IASetInputLayout(_pVertexLayout);
 
+	win->getImmediateContext()->UpdateSubresource(_pConstantBuffer, 0, NULL, &_material, 0, 0);
 	win->getImmediateContext()->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
 	win->getImmediateContext()->PSSetShaderResources(0, 1, &_pTexture);
 	win->getImmediateContext()->PSSetSamplers(0, 1, &_pSampler);

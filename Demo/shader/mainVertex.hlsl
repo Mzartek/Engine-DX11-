@@ -3,7 +3,6 @@ cbuffer materialBuffer : register(b0)
 	float4 matAmbient;
 	float4 matDiffuse;
 	float4 matSpecular;
-	float matShininess;
 }
 
 cbuffer matrixBuffer : register(b1)
