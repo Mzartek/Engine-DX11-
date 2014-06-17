@@ -6,39 +6,37 @@
 engine::Model::Model(void)
 {
 	_tObject = NULL;
-	_pConstantBuffer = NULL;
+	_pConstantBuffer0 = NULL;
+	_pConstantBuffer1 = NULL;
+	_matrix = (struct uniform0 *)_aligned_malloc(sizeof *_matrix, 16);
+	_screen = (struct uniform1 *)_aligned_malloc(sizeof *_screen, 16);
 	_program = NULL;
-	_info = (struct uniform *)_aligned_malloc(sizeof *_info, 16);
-	_modelMatrix = (DirectX::XMMATRIX *) _aligned_malloc(sizeof *_modelMatrix, 16);
 
 	matIdentity();
 }
 
 engine::Model::~Model(void)
 {
-	UINT i;
-
 	if(_tObject != NULL && isMirror == FALSE)
 	{		
-		for(i=0 ; i<_tObject->size(); i++)
-			delete (*_tObject)[i];
+		_tObject->clear();
 		delete _tObject;
 	}
 
-	if (_pConstantBuffer)
-		_pConstantBuffer->Release();
+	if (_pConstantBuffer0)
+		_pConstantBuffer0->Release();
+	if (_pConstantBuffer1)
+		_pConstantBuffer1->Release();
 
-	_aligned_free(_info);
-	_aligned_free(_modelMatrix);
+	_aligned_free(_matrix);
+	_aligned_free(_screen);
 }
 
 void engine::Model::initObjectArray(void)
 {
-	UINT i;
 	if(_tObject != NULL && isMirror == FALSE)
 	{		
-		for(i=0 ; i<_tObject->size(); i++)
-			delete (*_tObject)[i];
+		_tObject->clear();
 		delete _tObject;
 	}
 	isMirror = FALSE;
@@ -61,10 +59,15 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(*_info);
+	bd.ByteWidth = sizeof(*_matrix);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer);
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer0);
+	if (FAILED(hr))
+		return hr;
+
+	bd.ByteWidth = sizeof(*_screen);
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer1);
 
 	return hr;
 }
@@ -79,14 +82,21 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 	Object *newone = new Object;
 	ID3D11ShaderResourceView *ptex;
 	ID3D11SamplerState *psam;
-  
+
 	hr = loadTextureFromFile(pathTexture, &ptex, &psam, pd3dDevice);
 	if (FAILED(hr))
+	{
+		std::string text = "Fail to load Texture: " + pathTexture;
+		MessageBox(NULL, text.c_str(), "Error", MB_OK);
 		return hr;
+	}
 
 	hr = newone->setShaderProgram(_program, pd3dDevice);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Fail to load ShaderProgram", "Error", MB_OK);
 		return hr;
+	}
 
 	newone->setTexture(ptex, psam);
 	newone->setAmbient(ambient[0], ambient[1], ambient[2], ambient[3]);
@@ -97,36 +107,106 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 		sizeIndexArray, indexArray,
 		pd3dDevice);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Fail to load an Object", "Error", MB_OK);
 		return hr;
+	}
   
 	_tObject->push_back(newone);
 
 	return S_OK;
 }
 
-void engine::Model::InitMesh(UINT i, const aiMesh* paiMesh)
+static std::string getDir(std::string file)
 {
+	UINT size, i;
+	std::string path;
 
+	for (size = i = 0; file[i] != '\0'; i++)
+		if (file[i] == '/')
+			size = i + 1;
+
+	path.insert(0, file, 0, size);
+
+	return path;
 }
 
-HRESULT engine::Model::loadFromFile(const std::string szFileName)
+HRESULT engine::Model::loadFromFile(const std::string szFileName, ID3D11Device *pd3dDevice)
 {
 	Assimp::Importer Importer;
-	const aiScene *pScene = NULL;
-	UINT numMeshes, numMaterials, i;
+	UINT i, j;
 
-	pScene = Importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
-
-	if (!pScene)
-		return E_FAIL; 
-	
-	numMeshes = pScene->mNumMeshes;
-	numMaterials = pScene->mNumMaterials;
-
-	for (i = 0; i < numMeshes; i++) 
+	if (_tObject != NULL && isMirror == FALSE)
 	{
-		const aiMesh *paiMesh = pScene->mMeshes[i];
-		InitMesh(i, paiMesh);
+		_tObject->clear();
+	}
+
+	const aiScene *pScene = Importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
+	if (!pScene)
+		return E_FAIL;
+
+	std::vector<Vertex> vertices;
+	std::vector<UINT> indices;
+	const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
+	for (i = 0; i<pScene->mNumMeshes; i++)
+	{
+		//vertices.resize(pScene->mMeshes[i]->mNumVertices);
+		for (j = 0; j<pScene->mMeshes[i]->mNumVertices; j++)
+		{
+			const aiVector3D *pPos = &(pScene->mMeshes[i]->mVertices[j]);
+			const aiVector3D *pNormal = pScene->mMeshes[i]->HasNormals() ? &(pScene->mMeshes[i]->mNormals[j]) : &Zero3D;
+			const aiVector3D *pTexCoord = pScene->mMeshes[i]->HasTextureCoords(0) ? &(pScene->mMeshes[i]->mTextureCoords[0][j]) : &Zero3D;
+
+			Vertex v = 
+			{
+				DirectX::XMFLOAT3(pPos->x, pPos->y, pPos->z), 
+				DirectX::XMFLOAT2(pTexCoord->x, pTexCoord->y), 
+				DirectX::XMFLOAT3(pNormal->x, pNormal->y, pNormal->z)
+			};
+
+			vertices.push_back(v);
+		}
+
+		//vertices.resize(pScene->mMeshes[i]->mNumFaces * 3);
+		for (j = 0; j < pScene->mMeshes[i]->mNumFaces; j++)
+		{
+			indices.push_back(pScene->mMeshes[i]->mFaces[j].mIndices[0]);
+			indices.push_back(pScene->mMeshes[i]->mFaces[j].mIndices[1]);
+			indices.push_back(pScene->mMeshes[i]->mFaces[j].mIndices[2]);
+		}
+
+		aiString path;
+		std::string fullPath;
+		if (pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
+			fullPath = getDir(szFileName) + path.data;
+		else
+			fullPath = "resources/none.png";
+
+		aiColor4D mat_ambient;
+		aiColor4D mat_diffuse;
+		aiColor4D mat_specular;
+		FLOAT mat_shininess;
+		FLOAT opacity;
+
+		pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_AMBIENT, mat_ambient);
+		pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, mat_diffuse);
+		pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_SPECULAR, mat_specular);
+		pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_SHININESS, mat_shininess);
+		pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_OPACITY, opacity);
+		mat_ambient.a = opacity;
+		mat_diffuse.a = opacity;
+		mat_specular.a = opacity;
+
+		if (FAILED(createObject(vertices.size() * sizeof(Vertex), (FLOAT *)&vertices[0],
+			indices.size() * sizeof(UINT), &indices[0],
+			fullPath,
+			(FLOAT *)&mat_ambient, (FLOAT *)&mat_diffuse, (FLOAT *)&mat_specular,
+			&mat_shininess,
+			pd3dDevice)))
+			return E_FAIL;
+
+		vertices.clear();
+		indices.clear();
 	}
 
 	return S_OK;
@@ -139,35 +219,35 @@ void engine::Model::sortObject(void)
 
 void engine::Model::matIdentity(void)
 {
-	*_modelMatrix = XMMatrixTranspose(DirectX::XMMatrixIdentity());
+	_matrix->modelMatrix = XMMatrixTranspose(DirectX::XMMatrixIdentity());
 }
 
 void engine::Model::matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	*_modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixTranslation(x, y, z));
+	_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixTranslation(x, y, z));
 }
 
 void engine::Model::matRotate(const FLOAT &angle, const BOOL &x, const BOOL &y, const BOOL &z)
 {
 	if (x)
-		*_modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationX(angle));
+		_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationX(angle*((float)DirectX::XM_PI / 180)));
 	if (y)
-		*_modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationY(angle));
+		_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationY(angle*((float)DirectX::XM_PI / 180)));
 	if (z)
-		*_modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationZ(angle));
+		_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationZ(angle*((float)DirectX::XM_PI / 180)));
 }
 
 void engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	*_modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixScaling(x, y, z));
+	_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixScaling(x, y, z));
 }
 
 DirectX::XMFLOAT3 engine::Model::getPosition(void) const
 {
 	DirectX::XMFLOAT3 tmp;
-	tmp.x = DirectX::XMVectorGetZ(_modelMatrix->r[0]);
-	tmp.y = DirectX::XMVectorGetZ(_modelMatrix->r[1]);
-	tmp.z = DirectX::XMVectorGetZ(_modelMatrix->r[2]);
+	tmp.x = DirectX::XMVectorGetZ(_matrix->modelMatrix.r[0]);
+	tmp.y = DirectX::XMVectorGetZ(_matrix->modelMatrix.r[1]);
+	tmp.z = DirectX::XMVectorGetZ(_matrix->modelMatrix.r[2]);
 
 	return tmp;
 }
@@ -188,7 +268,7 @@ void engine::Model::display(Window *win, Camera *cam)// , LBuffer *l) const
   
 	if(_program == NULL)
 	{
-		MessageBox(NULL, "Bad num Object!", "Error", MB_OK);
+		MessageBox(NULL, "Load a program before!", "Error", MB_OK);
 		exit(1);
 	}
 	if(cam == NULL)
@@ -197,12 +277,15 @@ void engine::Model::display(Window *win, Camera *cam)// , LBuffer *l) const
 		exit(1);
 	}
 
-	_info->screenWidth = (FLOAT)win->getWidth();
-	_info->screenHeight = (FLOAT)win->getHeight();
-	_info->MVP = *cam->getMatrix() * *_modelMatrix;
+	_matrix->MVP = *cam->getMatrix() * _matrix->modelMatrix;
+
+	_screen->screenWidth = (FLOAT)win->getWidth();
+	_screen->screenHeight = (FLOAT)win->getHeight();
   
-	win->getImmediateContext()->UpdateSubresource(_pConstantBuffer, 0, NULL, _info, 0, 0);
-	win->getImmediateContext()->VSSetConstantBuffers(1, 1, &_pConstantBuffer);
+	win->getImmediateContext()->UpdateSubresource(_pConstantBuffer0, 0, NULL, _matrix, 0, 0);
+	win->getImmediateContext()->VSSetConstantBuffers(0, 1, &_pConstantBuffer0);
+	win->getImmediateContext()->UpdateSubresource(_pConstantBuffer1, 0, NULL, _screen, 0, 0);
+	win->getImmediateContext()->PSSetConstantBuffers(0, 1, &_pConstantBuffer1);
   
 	for(i=0 ; i<_tObject->size(); i++)
 		(*_tObject)[i]->display(win);

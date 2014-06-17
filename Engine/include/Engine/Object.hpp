@@ -25,9 +25,9 @@ namespace engine
 		ID3D11Buffer *_pIndexBuffer;
 		ID3D11InputLayout *_pVertexLayout;
 		ID3D11Buffer *_pConstantBuffer;
+		struct uniform *_material;
 		ShaderProgram *_program;
 		UINT _numElement;
-		struct uniform _material;
 		FLOAT shininess[1];
 	public:
 		Object(void);

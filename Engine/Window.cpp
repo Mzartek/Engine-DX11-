@@ -155,8 +155,7 @@ HRESULT engine::Window::initWindow(const HINSTANCE hInstance, LRESULT(CALLBACK *
 	rasterizerState.ScissorEnable = false;
 	rasterizerState.MultisampleEnable = false;
 	rasterizerState.AntialiasedLineEnable = false;
-	rasterizerState.ForcedSampleCount = 0,
-		hr = _pd3dDevice1->CreateRasterizerState1(&rasterizerState, &pRasterState);
+	hr = _pd3dDevice1->CreateRasterizerState1(&rasterizerState, &pRasterState);
 	if (FAILED(hr))
 		return hr;
 
@@ -168,10 +167,10 @@ HRESULT engine::Window::initWindow(const HINSTANCE hInstance, LRESULT(CALLBACK *
 	blendState.IndependentBlendEnable = false;
 	blendState.RenderTarget[0].BlendEnable = true;
 	blendState.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	blendState.RenderTarget[0].DestBlend = D3D11_BLEND_DEST_COLOR;
+	blendState.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 	blendState.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	blendState.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
-	blendState.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_DEST_ALPHA;
+	blendState.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	blendState.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	_pd3dDevice1->CreateBlendState1(&blendState, &pBlendState);
@@ -188,8 +187,8 @@ HRESULT engine::Window::initWindow(const HINSTANCE hInstance, LRESULT(CALLBACK *
 	vp.TopLeftY = 0;
 
 	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
-	_pImmediateContext->RSSetState(pRasterState);
 	_pImmediateContext->OMSetBlendState(pBlendState, NULL, 0xffffffff);
+	_pImmediateContext->RSSetState(pRasterState);
 	_pImmediateContext->RSSetViewports(1, &vp);
 
 	pBackBuffer->Release();

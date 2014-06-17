@@ -1,18 +1,8 @@
-﻿La génération a démarré 10/06/2014 22:34:04.
-     1>Projet "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Engine\Engine.vcxproj" sur le nœud 2 (Rebuild cible(s)).
+﻿La génération a démarré 17/06/2014 19:28:16.
+     1>Projet "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Engine\Engine.vcxproj" sur le nœud 2 (Build cible(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W4 /WX- /sdl /Od /Oy- /D WIN32 /D ENGINE_EXPORTS /D _WIN32_WINNT=0x0601 /D _WINDLL /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Camera.cpp DirectXTK\DDSTextureLoader.cpp FreeCam.cpp Model.cpp MovableCamera.cpp Object.cpp PlayerCam.cpp ShaderProgram.cpp textureLoader.cpp Window.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W4 /WX- /sdl /Od /Oy- /D WIN32 /D ENGINE_EXPORTS /D _WIN32_WINNT=0x0601 /D _WINDLL /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Window.cpp
          Window.cpp
-         textureLoader.cpp
-         ShaderProgram.cpp
-         PlayerCam.cpp
-         Object.cpp
-         MovableCamera.cpp
-         Model.cpp
-         FreeCam.cpp
-         DDSTextureLoader.cpp
-         Camera.cpp
-         Génération de code en cours...
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\Engine.dll" /INCREMENTAL /NOLOGO d3d11.lib d3dcompiler.lib FreeImage.lib assimp.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\Engine.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\Engine.lib" /MACHINE:X86 /DLL Debug\Camera.obj
          Debug\DDSTextureLoader.obj
@@ -24,10 +14,9 @@
          Debug\ShaderProgram.obj
          Debug\textureLoader.obj
          Debug\Window.obj
-            Création de la bibliothèque C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\Engine.lib et de l'objet C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\Engine.exp
          Engine.vcxproj -> C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\Engine.dll
-     1>Génération du projet "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Engine\Engine.vcxproj" terminée (Rebuild cible(s)).
+     1>Génération du projet "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Engine\Engine.vcxproj" terminée (Build cible(s)).
 
 La génération a réussi.
 
-Temps écoulé 00:00:48.04
+Temps écoulé 00:00:03.66

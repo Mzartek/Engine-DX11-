@@ -1,15 +1,7 @@
-cbuffer materialBuffer : register(b0)
+cbuffer matrixBuffer : register(b0)
 {
-	float4 matAmbient;
-	float4 matDiffuse;
-	float4 matSpecular;
-}
-
-cbuffer matrixBuffer : register(b1)
-{
-	float screenWidth;
-	float screenHeight;
 	matrix MVP;
+	matrix modelView;
 }
 
 struct VS_INPUT

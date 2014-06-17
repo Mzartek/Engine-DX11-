@@ -9,12 +9,14 @@ engine::Object::Object(void)
 	_pIndexBuffer = NULL;
 	_pVertexLayout = NULL;
 	_pConstantBuffer = NULL;
+	_material= (struct uniform *)_aligned_malloc(sizeof *_material, 16);
 	_program = NULL;
+
 	for (i = 0; i<4; i++)
 	{
-		_material.ambient[i] = 1.0;
-		_material.diffuse[i] = 1.0;
-		_material.specular[i] = 1.0;
+		_material->ambient[i] = 1.0;
+		_material->diffuse[i] = 1.0;
+		_material->specular[i] = 1.0;
 	}
 	shininess[0] = 1.0;
 }
@@ -33,6 +35,8 @@ engine::Object::~Object(void)
 		_pIndexBuffer->Release();
 	if (_pConstantBuffer) 
 		_pConstantBuffer->Release();
+
+	_aligned_free(_material);
 }
 
 HRESULT engine::Object::setShaderProgram(ShaderProgram *program, ID3D11Device *pd3dDevice)
@@ -58,7 +62,7 @@ HRESULT engine::Object::setShaderProgram(ShaderProgram *program, ID3D11Device *p
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(_material);
+	bd.ByteWidth = sizeof(*_material);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer);
@@ -74,26 +78,26 @@ void engine::Object::setTexture(ID3D11ShaderResourceView *pTexture, ID3D11Sample
 
 void engine::Object::setAmbient(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w)
 {
-	_material.ambient[0] = x;
-	_material.ambient[1] = y;
-	_material.ambient[2] = z;
-	_material.ambient[3] = w;
+	_material->ambient[0] = x;
+	_material->ambient[1] = y;
+	_material->ambient[2] = z;
+	_material->ambient[3] = w;
 }
 
 void engine::Object::setDiffuse(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w)
 {
-	_material.diffuse[0] = x;
-	_material.diffuse[1] = y;
-	_material.diffuse[2] = z;
-	_material.diffuse[3] = w;
+	_material->diffuse[0] = x;
+	_material->diffuse[1] = y;
+	_material->diffuse[2] = z;
+	_material->diffuse[3] = w;
 }
 
 void engine::Object::setSpecular(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w)
 {
-	_material.specular[0] = x;
-	_material.specular[1] = y;
-	_material.specular[2] = z;
-	_material.specular[3] = w;
+	_material->specular[0] = x;
+	_material->specular[1] = y;
+	_material->specular[2] = z;
+	_material->specular[3] = w;
 }
 
 void engine::Object::setShininess(const FLOAT &x)
@@ -103,10 +107,10 @@ void engine::Object::setShininess(const FLOAT &x)
 
 FLOAT engine::Object::getTransparency(void)
 {
-	return _material.diffuse[3];
+	return _material->diffuse[3];
 }
 
-#define BUFFER_OFFSET(i) ((CHAR *)NULL + (i))
+#define BUFFER_OFFSET(i) ((CHAR *)NULL + i)
 
 HRESULT engine::Object::load(const UINT &sizeVertexArray, const FLOAT *vertexArray, 
 	const UINT &sizeIndexArray, const UINT *indexArray,
@@ -160,8 +164,8 @@ void engine::Object::display(Window *win) const
 	win->getImmediateContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
 	win->getImmediateContext()->IASetInputLayout(_pVertexLayout);
 
-	win->getImmediateContext()->UpdateSubresource(_pConstantBuffer, 0, NULL, &_material, 0, 0);
-	win->getImmediateContext()->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
+	win->getImmediateContext()->UpdateSubresource(_pConstantBuffer, 0, NULL, _material, 0, 0);
+	win->getImmediateContext()->PSSetConstantBuffers(1, 1, &_pConstantBuffer);
 	win->getImmediateContext()->PSSetShaderResources(0, 1, &_pTexture);
 	win->getImmediateContext()->PSSetSamplers(0, 1, &_pSampler);
 
@@ -226,9 +230,9 @@ int engine::comparObject(const void *p1, const void *p2)
 	Object **obj1 = (engine::Object **)p1;
 	Object **obj2 = (engine::Object **)p2;
 
-	if ((*obj1)->_material.diffuse[3] < (*obj2)->_material.diffuse[3])
+	if ((*obj1)->_material->diffuse[3] < (*obj2)->_material->diffuse[3])
 		return 1;
-	if ((*obj1)->_material.diffuse[3] > (*obj2)->_material.diffuse[3])
+	if ((*obj1)->_material->diffuse[3] > (*obj2)->_material->diffuse[3])
 		return -1;
 	return 0;
 }

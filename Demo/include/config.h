@@ -10,9 +10,10 @@
 extern engine::Window*				window;
 extern engine::Camera*				cam;
 extern engine::Model*				sol;
+extern engine::Model*				heli;
 extern engine::ShaderProgram*		mainProgram;
 
 extern HRESULT configShader(void);
-extern HRESULT configSol(void);
+extern HRESULT configModels(void);
 
 #endif

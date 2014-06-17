@@ -19,13 +19,12 @@
 
 namespace engine
 {
-	struct vertex
+	typedef struct Vertex
 	{
 		DirectX::XMFLOAT3 position;
 		DirectX::XMFLOAT2 texCoord;
 		DirectX::XMFLOAT3 normal;
-	};
-	typedef struct vertex vertex;
+	} Vertex;
 
 	extern DLLAPI HRESULT loadTextureFromFile(const std::string szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice);
 	extern DLLAPI HRESULT loadDDSTexture(const WCHAR *szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice);
