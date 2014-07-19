@@ -17,9 +17,11 @@ engine::Model::Model(void)
 
 engine::Model::~Model(void)
 {
+	UINT i;
 	if(_tObject != NULL && isMirror == FALSE)
-	{		
-		_tObject->clear();
+	{
+		for (i = 0; i < _tObject->size(); i++)
+			delete (*_tObject)[i];
 		delete _tObject;
 	}
 
@@ -34,13 +36,15 @@ engine::Model::~Model(void)
 
 void engine::Model::initObjectArray(void)
 {
+	UINT i;
 	if(_tObject != NULL && isMirror == FALSE)
-	{		
-		_tObject->clear();
+	{
+		for (i = 0; i < _tObject->size(); i++)
+			delete (*_tObject)[i];
 		delete _tObject;
 	}
 	isMirror = FALSE;
-	_tObject = new std::vector<Object *>;
+	_tObject = new std::vector<D3DObject *>;
 }
 
 void engine::Model::initObjectMirror(Model *m)
@@ -58,10 +62,9 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 	// Create uniform
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(*_matrix);
+	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bd.CPUAccessFlags = 0;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer0);
 	if (FAILED(hr))
 		return hr;
@@ -74,19 +77,20 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 
 HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 	const UINT &sizeIndexArray, const UINT *indexArray,
-	const std::string pathTexture,
+	const TCHAR *pathTexture,
 	const FLOAT *ambient, const FLOAT *diffuse, const FLOAT *specular, const FLOAT *shininess,
 	ID3D11Device *pd3dDevice)
 {
 	HRESULT hr;
-	Object *newone = new Object;
+	D3DObject *newone = new D3DObject;
 	ID3D11ShaderResourceView *ptex;
 	ID3D11SamplerState *psam;
 
 	hr = loadTextureFromFile(pathTexture, &ptex, &psam, pd3dDevice);
 	if (FAILED(hr))
 	{
-		std::string text = "Fail to load Texture: " + pathTexture;
+		std::string text = "Fail to load Texture: ";
+		text.append(pathTexture);
 		MessageBox(NULL, text.c_str(), "Error", MB_OK);
 		return hr;
 	}
@@ -117,7 +121,7 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 	return S_OK;
 }
 
-static std::string getDir(std::string file)
+static std::string getDir(const TCHAR *file)
 {
 	UINT size, i;
 	std::string path;
@@ -131,7 +135,7 @@ static std::string getDir(std::string file)
 	return path;
 }
 
-HRESULT engine::Model::loadFromFile(const std::string szFileName, ID3D11Device *pd3dDevice)
+HRESULT engine::Model::loadFromFile(const TCHAR *szFileName, ID3D11Device *pd3dDevice)
 {
 	Assimp::Importer Importer;
 	UINT i, j;
@@ -199,7 +203,7 @@ HRESULT engine::Model::loadFromFile(const std::string szFileName, ID3D11Device *
 
 		if (FAILED(createObject(vertices.size() * sizeof(Vertex), (FLOAT *)&vertices[0],
 			indices.size() * sizeof(UINT), &indices[0],
-			fullPath,
+			fullPath.c_str(),
 			(FLOAT *)&mat_ambient, (FLOAT *)&mat_diffuse, (FLOAT *)&mat_specular,
 			&mat_shininess,
 			pd3dDevice)))
@@ -214,7 +218,7 @@ HRESULT engine::Model::loadFromFile(const std::string szFileName, ID3D11Device *
 
 void engine::Model::sortObject(void)
 {
-	qsort(&(*_tObject)[0], _tObject->size(), sizeof (*_tObject)[0], comparObject);
+	qsort(&(*_tObject)[0], _tObject->size(), sizeof (*_tObject)[0], comparD3DObject);
 }
 
 void engine::Model::matIdentity(void)
@@ -230,11 +234,11 @@ void engine::Model::matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 void engine::Model::matRotate(const FLOAT &angle, const BOOL &x, const BOOL &y, const BOOL &z)
 {
 	if (x)
-		_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationX(angle*((float)DirectX::XM_PI / 180)));
+		_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationX(angle*((FLOAT)DirectX::XM_PI / 180)));
 	if (y)
-		_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationY(angle*((float)DirectX::XM_PI / 180)));
+		_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationY(angle*((FLOAT)DirectX::XM_PI / 180)));
 	if (z)
-		_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationZ(angle*((float)DirectX::XM_PI / 180)));
+		_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationZ(angle*((FLOAT)DirectX::XM_PI / 180)));
 }
 
 void engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)
@@ -252,7 +256,7 @@ DirectX::XMFLOAT3 engine::Model::getPosition(void) const
 	return tmp;
 }
 
-engine::Object *engine::Model::getObject(UINT num) const
+engine::D3DObject *engine::Model::getD3DObject(UINT num) const
 {
 	if(num>=_tObject->size())
 	{
@@ -289,9 +293,6 @@ void engine::Model::display(Window *win, Camera *cam)// , LBuffer *l) const
   
 	for(i=0 ; i<_tObject->size(); i++)
 		(*_tObject)[i]->display(win);
-
-	// For Deffered Lighting
-	// (*_tObject)[i]->display(win, l);
 }
 
 /*void engine::Model::displayOnGBuffer(Camera *cam, GBuffer *g) const

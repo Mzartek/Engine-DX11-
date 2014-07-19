@@ -48,7 +48,7 @@ void engine::Camera::setPerspective(const FLOAT &fov, const UINT &width, const U
 {
 	_width = width;
 	_height = height;
-	*_projectionMatrix = DirectX::XMMatrixPerspectiveFovRH(fov, (FLOAT)_width / (FLOAT)_height, n, f);
+	*_projectionMatrix = DirectX::XMMatrixPerspectiveFovRH(fov*((FLOAT)DirectX::XM_PI / 180), (FLOAT)_width / (FLOAT)_height, n, f);
 }
 
 DirectX::XMFLOAT3 *engine::Camera::getPositionCamera(void) const

@@ -1,0 +1,73 @@
+#include <Engine/Input.hpp>
+
+engine::Input::Input(void)
+{
+	_pDirectInputObject = NULL;
+	_pKeyBoard = NULL;
+	_pMouse = NULL;
+}
+
+engine::Input::~Input(void)
+{
+	if (_pMouse)
+	{
+		_pMouse->Unacquire();
+		_pMouse->Release();
+	}
+	if (_pKeyBoard)
+	{
+		_pKeyBoard->Unacquire();
+		_pKeyBoard->Release();
+	}
+	if (_pDirectInputObject)
+		_pDirectInputObject->Release();
+}
+
+HRESULT engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
+{
+	HRESULT hr;
+	hr = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&_pDirectInputObject, NULL);
+	if (FAILED(hr))
+		return hr;
+
+	hr = _pDirectInputObject->CreateDevice(GUID_SysKeyboard, &_pKeyBoard, NULL);
+	if (FAILED(hr))
+		return hr;
+	hr = _pDirectInputObject->CreateDevice(GUID_SysMouse, &_pMouse, NULL);
+	if (FAILED(hr))
+		return hr;
+
+	hr = _pKeyBoard->SetDataFormat(&c_dfDIKeyboard);
+	if (FAILED(hr))
+		return hr;
+	hr = _pKeyBoard->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+	if (FAILED(hr))
+		return hr;
+
+	hr = _pMouse->SetDataFormat(&c_dfDIMouse);
+	if (FAILED(hr))
+		return hr;
+	hr = _pMouse->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+	if (FAILED(hr))
+		return hr;
+
+	_pKeyBoard->Acquire();
+	_pMouse->Acquire();
+
+	return S_OK;
+}
+
+void engine::Input::refresh(void)
+{
+	if (_pKeyBoard->GetDeviceState(sizeof(_keyState), (LPVOID)&_keyState) == DIERR_NOTACQUIRED)
+		_pKeyBoard->Acquire();
+	if (_pMouse->GetDeviceState(sizeof(_mouseState), (LPVOID)&_mouseState) == DIERR_NOTACQUIRED)
+		_pMouse->Acquire();
+}
+
+BOOL engine::Input::getKeyBoardState(const BYTE &button)
+{
+	if (_keyState[button] & 0x80)
+		return TRUE;
+	return FALSE;
+}

@@ -1,12 +1,11 @@
 #ifndef CAMERA
 #define CAMERA
 
-#include "DXHead.hpp"
 #include "ShaderProgram.hpp"
 
 namespace engine
 {
-	class DLLAPI Camera
+	class DLLAPI Camera : public Object
 	{
 	protected:
 		DirectX::XMFLOAT3 *_pcamera;

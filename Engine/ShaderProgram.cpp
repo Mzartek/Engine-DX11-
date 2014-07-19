@@ -1,6 +1,6 @@
 #include <Engine/ShaderProgram.hpp>
 
-HRESULT engine::ShaderProgram::CompileShaderFromFile(WCHAR *szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob **ppBlobOut)
+static HRESULT CompileShaderFromFile(WCHAR *szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob **ppBlobOut)
 {
 	HRESULT hr;
 	DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
@@ -26,48 +26,90 @@ HRESULT engine::ShaderProgram::CompileShaderFromFile(WCHAR *szFileName, LPCSTR s
 engine::ShaderProgram::ShaderProgram(void)
 {
 	_pVertexShader = NULL;
+	_pGeometryShader = NULL;
 	_pPixelShader = NULL;
-	_pVSBlob = NULL;
-	_pPSBlob = NULL;
+	_pBlob = NULL;
 }
 
 engine::ShaderProgram::~ShaderProgram(void)
 {
 	if (_pVertexShader) 
 		_pVertexShader->Release();
+	if (_pGeometryShader)
+		_pGeometryShader->Release();
 	if (_pPixelShader) 
 		_pPixelShader->Release();
-	if (_pVSBlob)
-		_pVSBlob->Release();
-	if (_pPSBlob)
-		_pPSBlob->Release();
+	if (_pBlob)
+		_pBlob->Release();
 }
 
-HRESULT engine::ShaderProgram::loadProgram(WCHAR *vs, WCHAR *ps, ID3D11Device *pDevice)
+HRESULT engine::ShaderProgram::loadProgram(WCHAR *vs, WCHAR *gs, WCHAR *ps, ID3D11Device *pDevice)
 {
 	HRESULT hr;
 
-	// Compile and create the vertex shader
-	hr = CompileShaderFromFile(vs, "main", "vs_4_0", &_pVSBlob);
-	if (FAILED(hr))
+	if (_pVertexShader)
 	{
-		MessageBox(NULL, "Error compiling shader.", "Error", MB_OK);
-		return hr;
+		_pVertexShader->Release();
+		_pVertexShader = NULL;
 	}
-	hr = pDevice->CreateVertexShader(_pVSBlob->GetBufferPointer(), _pVSBlob->GetBufferSize(), NULL, &_pVertexShader);
-	if (FAILED(hr))
-		return hr;
+	if (_pGeometryShader)
+	{
+		_pGeometryShader->Release();
+		_pGeometryShader = NULL;
+	}
+	if (_pPixelShader)
+	{
+		_pPixelShader->Release();
+		_pPixelShader = NULL;
+	}
 
 	// Compile and create the pixel shader
-	hr = CompileShaderFromFile(ps, "main", "ps_4_0", &_pPSBlob);
-	if (FAILED(hr))
+	if (ps != NULL)
 	{
-		MessageBox(NULL, "Error compiling shader.", "Error", MB_OK);
-		return hr;
+		if (_pBlob)
+			_pBlob->Release();
+		hr = CompileShaderFromFile(ps, "main", "ps_4_0", &_pBlob);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Error compiling Pixel Shader.", "Error", MB_OK);
+			return hr;
+		}
+		hr = pDevice->CreatePixelShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pPixelShader);
+		if (FAILED(hr))
+			return hr;
 	}
-	hr = pDevice->CreatePixelShader(_pPSBlob->GetBufferPointer(), _pPSBlob->GetBufferSize(), NULL, &_pPixelShader);
-	if (FAILED(hr))
-		return hr;
+
+	// Compile and create the geometry shader
+	if (gs != NULL)
+	{
+		if (_pBlob)
+			_pBlob->Release();
+		hr = CompileShaderFromFile(gs, "main", "gs_4_0", &_pBlob);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Error compiling Geometry Shader.", "Error", MB_OK);
+			return hr;
+		}
+		hr = pDevice->CreateGeometryShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pGeometryShader);
+		if (FAILED(hr))
+			return hr;
+	}
+
+	// Compile and create the vertex shader
+	if (vs != NULL)
+	{
+		if (_pBlob)
+			_pBlob->Release();
+		hr = CompileShaderFromFile(vs, "main", "vs_4_0", &_pBlob);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Error compiling Vertex Shader.", "Error", MB_OK);
+			return hr;
+		}
+		hr = pDevice->CreateVertexShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pVertexShader);
+		if (FAILED(hr))
+			return hr;
+	}
 
 	return S_OK;
 }
@@ -77,17 +119,22 @@ ID3D11VertexShader *engine::ShaderProgram::getVertexShader(void)
 	return _pVertexShader;
 }
 
+ID3D11GeometryShader *engine::ShaderProgram::getGeometryShader(void)
+{
+	return _pGeometryShader;
+}
+
 ID3D11PixelShader *engine::ShaderProgram::getPixelShader(void)
 {
 	return _pPixelShader;
 }
 
-ID3DBlob *engine::ShaderProgram::getVSBlob(void)
+void *engine::ShaderProgram::getEntryBufferPointer(void)
 {
-	return _pVSBlob;
+	return _pBlob->GetBufferPointer();
 }
 
-ID3DBlob *engine::ShaderProgram::getPSBlob(void)
+SIZE_T engine::ShaderProgram::getEntryBytecodeLength(void)
 {
-	return _pPSBlob;
+	return _pBlob->GetBufferSize();
 }

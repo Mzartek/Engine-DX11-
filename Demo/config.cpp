@@ -1,8 +1,8 @@
-#include "include/config.h"
+#include "include/config.hpp"
 
 HRESULT configShader(void)
 {
-	return mainProgram->loadProgram(L"shader/mainVertex.hlsl", L"shader/mainPixel.hlsl", window->getD3DDevice());
+	return mainProgram->loadProgram(L"shader/main/mainVertex.hlsl", NULL, L"shader/main/mainPixel.hlsl", window->getD3DDevice());
 }
 
 HRESULT configModels(void)
@@ -26,7 +26,6 @@ HRESULT configModels(void)
 	hr = sol->config(mainProgram, window->getD3DDevice());
 	if (FAILED(hr))
 		return hr;
-
 	hr = sol->createObject(sizeof(vertexArray), (FLOAT *)vertexArray,
 		sizeof index, index,
 		"resources/ornaments.jpg",
@@ -40,11 +39,9 @@ HRESULT configModels(void)
 	hr = heli->config(mainProgram, window->getD3DDevice());
 	if (FAILED(hr))
 		return hr;
-	//hr = heli->loadFromFile("ressources/voiture/Avent-inter.lxo", window->getD3DDevice());
 	hr = heli->loadFromFile("resources/heli/corps.obj", window->getD3DDevice());
+	heli->matTranslate(0.0f, 4.0f, 0.0f);
 	heli->sortObject();
-	heli->matTranslate(1.0f, 4.0f, -1.0f);
-	//heli->matTranslate(0.0f, -2.0f, 0.0f);
 
 	return hr;
 }

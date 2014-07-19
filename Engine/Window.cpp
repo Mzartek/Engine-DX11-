@@ -2,37 +2,35 @@
 
 engine::Window::Window(void)
 {
-	_driverType = D3D_DRIVER_TYPE_NULL;
-	_featureLevel = D3D_FEATURE_LEVEL_11_1;
+	_pd3dDevice = NULL;
+	_pImmediateContext = NULL;
+	_pSwapChain = NULL;
+	_pRenderTargetView = NULL;
+	_pDepthStencilView = NULL;
 	_display = NULL;
 	_idle = NULL;
 	_reshape = NULL;
-	_keyboard = NULL;
-	_mouseMove = NULL;
 }
 
 engine::Window::~Window(void)
 {
-	if (_pImmediateContext) 
+	if (_pImmediateContext)
 		_pImmediateContext->ClearState();
 
-	if (_pDepthStencilView) 
+	if (_pDepthStencilView)
 		_pDepthStencilView->Release();
-	if (_pRenderTargetView) 
+	if (_pRenderTargetView)
 		_pRenderTargetView->Release();
-	if (_pSwapChain) 
+	if (_pSwapChain)
 		_pSwapChain->Release();
-	if (_pImmediateContext1) 
-		_pImmediateContext1->Release();
-	if (_pImmediateContext) 
+	if (_pImmediateContext)
 		_pImmediateContext->Release();
-	if (_pd3dDevice1) 
-		_pd3dDevice1->Release();
 	if (_pd3dDevice) 
 		_pd3dDevice->Release();
 }
 
-HRESULT engine::Window::initWindow(const HINSTANCE hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), const TCHAR *szWindowClass, const TCHAR *szTitle, UINT width, UINT height)
+HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), const TCHAR *szWindowClass, 
+	const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
 {
 	HRESULT hr;
 	_width = width;
@@ -70,38 +68,26 @@ HRESULT engine::Window::initWindow(const HINSTANCE hInstance, LRESULT(CALLBACK *
 	// Init swap chain
 	DXGI_SWAP_CHAIN_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));
-	sd.BufferCount = 1;
 	sd.BufferDesc.Width = width;
 	sd.BufferDesc.Height = height;
-	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.BufferDesc.RefreshRate.Numerator = 60;
 	sd.BufferDesc.RefreshRate.Denominator = 1;
-	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.OutputWindow = _hWnd;
+	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
-	sd.Windowed = TRUE;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	sd.BufferCount = 1;
+	sd.OutputWindow = _hWnd;
+	if (fullScreen)
+		sd.Windowed = FALSE;
+	else
+		sd.Windowed = TRUE;
 
 	// Create the Device
-	D3D_FEATURE_LEVEL featureLevels[] =
-	{
-		D3D_FEATURE_LEVEL_11_1,
-		D3D_FEATURE_LEVEL_11_0,
-		D3D_FEATURE_LEVEL_10_1,
-		D3D_FEATURE_LEVEL_10_0
-	};
-	UINT numFeatureLevels = ARRAYSIZE(featureLevels);
-	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, featureLevels, numFeatureLevels, D3D11_SDK_VERSION,
-		&sd, &_pSwapChain, &_pd3dDevice, &_featureLevel, &_pImmediateContext);
+	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL, D3D11_SDK_VERSION,
+		&sd, &_pSwapChain, &_pd3dDevice, NULL, &_pImmediateContext);
 	if (FAILED(hr))
 		return hr;
-
-	// Obtain the Direct3D 11.1 versions if available
-	hr = _pd3dDevice->QueryInterface(__uuidof(ID3D11Device1), (void **)&_pd3dDevice1);
-	if (SUCCEEDED(hr))
-	{
-		_pImmediateContext->QueryInterface(__uuidof(ID3D11DeviceContext1), (void **)&_pImmediateContext1);
-	}
 
 	// Create a render target view
 	ID3D11Texture2D *pBackBuffer = NULL;
@@ -109,6 +95,7 @@ HRESULT engine::Window::initWindow(const HINSTANCE hInstance, LRESULT(CALLBACK *
 	if (FAILED(hr))
 		return hr;
 	hr = _pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &_pRenderTargetView);
+	pBackBuffer->Release();
 	if (FAILED(hr))
 		return hr;
 
@@ -125,8 +112,6 @@ HRESULT engine::Window::initWindow(const HINSTANCE hInstance, LRESULT(CALLBACK *
 	descDepth.SampleDesc.Quality = 0;
 	descDepth.Usage = D3D11_USAGE_DEFAULT;
 	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	descDepth.CPUAccessFlags = 0;
-	descDepth.MiscFlags = 0;
 	hr = _pd3dDevice->CreateTexture2D(&descDepth, NULL, &pDepthStencil);
 	if (FAILED(hr))
 		return hr;
@@ -136,44 +121,44 @@ HRESULT engine::Window::initWindow(const HINSTANCE hInstance, LRESULT(CALLBACK *
 	ZeroMemory(&descDSV, sizeof(descDSV));
 	descDSV.Format = descDepth.Format;
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Flags = 0;
 	descDSV.Texture2D.MipSlice = 0;
 	hr = _pd3dDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &_pDepthStencilView);
+	pDepthStencil->Release();
 	if (FAILED(hr))
 		return hr;
 
 	// Create rasterizerState
-	ID3D11RasterizerState1 *pRasterState = NULL;
-	D3D11_RASTERIZER_DESC1 rasterizerState;
-	ZeroMemory(&rasterizerState, sizeof(rasterizerState));
-	rasterizerState.FillMode = D3D11_FILL_SOLID;
-	rasterizerState.CullMode = D3D11_CULL_NONE;
-	rasterizerState.FrontCounterClockwise = true;
-	rasterizerState.DepthBias = false;
-	rasterizerState.DepthBiasClamp = 0;
-	rasterizerState.SlopeScaledDepthBias = 0;
-	rasterizerState.DepthClipEnable = true;
-	rasterizerState.ScissorEnable = false;
-	rasterizerState.MultisampleEnable = false;
-	rasterizerState.AntialiasedLineEnable = false;
-	hr = _pd3dDevice1->CreateRasterizerState1(&rasterizerState, &pRasterState);
+	ID3D11RasterizerState *pRasterState = NULL;
+	D3D11_RASTERIZER_DESC descRasterizer;
+	descRasterizer.FillMode = D3D11_FILL_SOLID;
+	descRasterizer.CullMode = D3D11_CULL_NONE;
+	descRasterizer.FrontCounterClockwise = FALSE;
+	descRasterizer.DepthBias = FALSE;
+	descRasterizer.DepthBiasClamp = FALSE;
+	descRasterizer.SlopeScaledDepthBias = FALSE;
+	descRasterizer.DepthClipEnable = FALSE;
+	descRasterizer.ScissorEnable = FALSE;
+	descRasterizer.MultisampleEnable = FALSE;
+	descRasterizer.AntialiasedLineEnable = FALSE;
+	hr = _pd3dDevice->CreateRasterizerState(&descRasterizer, &pRasterState);
 	if (FAILED(hr))
 		return hr;
 
 	// Create blendState
-	ID3D11BlendState1 *pBlendState = NULL;
-	D3D11_BLEND_DESC1 blendState;
-	ZeroMemory(&blendState, sizeof(blendState));
-	blendState.AlphaToCoverageEnable = false;
-	blendState.IndependentBlendEnable = false;
-	blendState.RenderTarget[0].BlendEnable = true;
-	blendState.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	blendState.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	blendState.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	blendState.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
-	blendState.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-	blendState.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	_pd3dDevice1->CreateBlendState1(&blendState, &pBlendState);
+	ID3D11BlendState *pBlendState = NULL;
+	D3D11_BLEND_DESC descBlend;
+	descBlend.AlphaToCoverageEnable = FALSE;
+	descBlend.IndependentBlendEnable = FALSE;
+	descBlend.RenderTarget[0].BlendEnable = TRUE;
+	descBlend.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	descBlend.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	descBlend.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	descBlend.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+	descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	_pd3dDevice->CreateBlendState(&descBlend, &pBlendState);
 	if (FAILED(hr))
 		return hr;
 
@@ -187,12 +172,10 @@ HRESULT engine::Window::initWindow(const HINSTANCE hInstance, LRESULT(CALLBACK *
 	vp.TopLeftY = 0;
 
 	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
-	_pImmediateContext->OMSetBlendState(pBlendState, NULL, 0xffffffff);
+	_pImmediateContext->OMSetBlendState(pBlendState, NULL, 0xFFFFFFFF);
 	_pImmediateContext->RSSetState(pRasterState);
 	_pImmediateContext->RSSetViewports(1, &vp);
 
-	pBackBuffer->Release();
-	pDepthStencil->Release();
 	pRasterState->Release();
 	pBlendState->Release();
 
@@ -214,16 +197,6 @@ void engine::Window::setReshapeFunc(void(*f) (UINT, UINT))
 	_reshape = f;
 }
 
-void engine::Window::setKeyboardFunc(void(*f) (UCHAR, BOOL))
-{
-	_keyboard = f;
-}
-
-void engine::Window::setMouseMoveFunc(void(*f) (INT, INT))
-{
-	_mouseMove = f;
-}
-
 UINT engine::Window::getWidth(void)
 {
 	return _width;
@@ -232,6 +205,16 @@ UINT engine::Window::getWidth(void)
 UINT engine::Window::getHeight(void)
 {
 	return _height;
+}
+
+HINSTANCE engine::Window::getHINSTANCE(void)
+{
+	return _hInst;
+}
+
+HWND engine::Window::getHWND(void)
+{
+	return _hWnd;
 }
 
 ID3D11Device *engine::Window::getD3DDevice(void)
@@ -244,26 +227,12 @@ ID3D11DeviceContext *engine::Window::getImmediateContext(void)
 	return _pImmediateContext;
 }
 
-IDXGISwapChain *engine::Window::getSwapChain(void)
-{
-	return _pSwapChain;
-}
-
-ID3D11RenderTargetView *engine::Window::getRenderTargetView(void)
-{
-	return _pRenderTargetView;
-}
-
-ID3D11DepthStencilView *engine::Window::getDepthStencilView(void)
-{
-	return _pDepthStencilView;
-}
-
 void engine::Window::mainLoop(int nCmdShow)
 {
 	ShowWindow(_hWnd, nCmdShow);
 
 	MSG msg = { 0 };
+	_stopLoop = FALSE;
 	while (msg.message != WM_QUIT)
 	{
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -273,12 +242,20 @@ void engine::Window::mainLoop(int nCmdShow)
 		}
 		else
 		{
+			if (_stopLoop)
+				msg.message = WM_QUIT;
 			if (_idle)
 				_idle();
 			if (_display)
 				_display();
 		}
+		_pSwapChain->Present(0, 0);
 	}
+}
+
+void engine::Window::stopLoop(void)
+{
+	_stopLoop = TRUE;
 }
 
 void engine::Window::clear(void)

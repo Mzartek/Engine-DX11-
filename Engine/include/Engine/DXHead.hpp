@@ -7,6 +7,10 @@
 #define DLLAPI __declspec(dllimport)
 #endif
 
+#define DIRECTINPUT_VERSION 0x0800
+
+#include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <Windows.h>
@@ -16,6 +20,7 @@
 #include <d3dcompiler.h>
 #include <directxmath.h>
 #include <directxcolors.h>
+#include <dinput.h>
 
 namespace engine
 {
@@ -26,7 +31,7 @@ namespace engine
 		DirectX::XMFLOAT3 normal;
 	} Vertex;
 
-	extern DLLAPI HRESULT loadTextureFromFile(const std::string szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice);
+	extern DLLAPI HRESULT loadTextureFromFile(const TCHAR *szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice);
 	extern DLLAPI HRESULT loadDDSTexture(const WCHAR *szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice);
 }
 

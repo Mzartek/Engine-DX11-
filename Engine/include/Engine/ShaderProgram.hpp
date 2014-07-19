@@ -1,27 +1,26 @@
 #ifndef SHADER_PROGRAM
 #define SHADER_PROGRAM
 
-#include "DXHead.hpp"
 #include "Window.hpp"
 
 namespace engine
 {
-	class DLLAPI ShaderProgram
+	class DLLAPI ShaderProgram : public Object
 	{
 	private:
 		ID3D11VertexShader* _pVertexShader;
+		ID3D11GeometryShader* _pGeometryShader;
 		ID3D11PixelShader* _pPixelShader;
-		ID3DBlob *_pVSBlob;
-		ID3DBlob *_pPSBlob;
-		HRESULT CompileShaderFromFile(WCHAR *szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob **ppBlobOut);
+		ID3DBlob* _pBlob;
 	public:
 		ShaderProgram(void);
 		~ShaderProgram(void);
-		HRESULT loadProgram(WCHAR *vs, WCHAR *ps, ID3D11Device *pDevice);
+		HRESULT loadProgram(WCHAR *vs, WCHAR *gs, WCHAR *ps, ID3D11Device *pDevice);
 		ID3D11VertexShader *getVertexShader(void);
+		ID3D11GeometryShader *getGeometryShader(void);
 		ID3D11PixelShader *getPixelShader(void);
-		ID3DBlob *getVSBlob(void);
-		ID3DBlob *getPSBlob(void);
+		void *getEntryBufferPointer(void);
+		SIZE_T getEntryBytecodeLength(void);
 	};
 }
 
