@@ -4,7 +4,8 @@ engine::D3DObject::D3DObject(void)
 {
 	UINT i;
 	_pTexture = NULL;
-	_pSampler = NULL;
+	_pShaderResource = NULL;
+	_pSamplerState = NULL;
 	_pVertexBuffer = NULL;
 	_pIndexBuffer = NULL;
 	_pVertexLayout = NULL;
@@ -23,18 +24,20 @@ engine::D3DObject::D3DObject(void)
 
 engine::D3DObject::~D3DObject(void)
 {
-	if (_pTexture) 
-		_pTexture->Release();
-	if (_pSampler) 
-		_pSampler->Release();
-	if (_pVertexBuffer) 
-		_pVertexBuffer->Release();
-	if (_pVertexLayout) 
-		_pVertexLayout->Release();
-	if (_pIndexBuffer) 
-		_pIndexBuffer->Release();
-	if (_pConstantBuffer) 
+	if (_pConstantBuffer)
 		_pConstantBuffer->Release();
+	if (_pVertexLayout)
+		_pVertexLayout->Release();
+	if (_pIndexBuffer)
+		_pIndexBuffer->Release();
+	if (_pVertexBuffer)
+		_pVertexBuffer->Release();
+	if (_pSamplerState)
+		_pSamplerState->Release();
+	if (_pShaderResource)
+		_pShaderResource->Release();
+	if (_pTexture)
+		_pTexture->Release();
 
 	_aligned_free(_material);
 }
@@ -69,10 +72,11 @@ HRESULT engine::D3DObject::setShaderProgram(ShaderProgram *program, ID3D11Device
 	return hr;
 }
 
-void engine::D3DObject::setTexture(ID3D11ShaderResourceView *pTexture, ID3D11SamplerState *pSampler)
+void engine::D3DObject::setTexture(ID3D11ShaderResourceView *pShaderResource, ID3D11SamplerState *pSamplerState)
 {
-	_pTexture = pTexture;
-	_pSampler = pSampler;
+	_pShaderResource = pShaderResource;
+	_pSamplerState = pSamplerState;
+	_pShaderResource->GetResource(&_pTexture);
 }
 
 void engine::D3DObject::setAmbient(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w)
@@ -163,8 +167,8 @@ void engine::D3DObject::display(Window *win) const
 	win->getImmediateContext()->UpdateSubresource(_pConstantBuffer, 0, NULL, _material, 0, 0);
 
 	win->getImmediateContext()->PSSetConstantBuffers(1, 1, &_pConstantBuffer);
-	win->getImmediateContext()->PSSetShaderResources(0, 1, &_pTexture);
-	win->getImmediateContext()->PSSetSamplers(0, 1, &_pSampler);
+	win->getImmediateContext()->PSSetShaderResources(0, 1, &_pShaderResource);
+	win->getImmediateContext()->PSSetSamplers(0, 1, &_pSamplerState);
 
 	win->getImmediateContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
 	win->getImmediateContext()->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);

@@ -18,7 +18,6 @@
 #include <tchar.h>
 #include <d3d11_2.h>
 #include <d3dcompiler.h>
-#include <directxmath.h>
 #include <directxcolors.h>
 #include <dinput.h>
 
@@ -31,8 +30,7 @@ namespace engine
 		DirectX::XMFLOAT3 normal;
 	} Vertex;
 
-	extern DLLAPI HRESULT loadTextureFromFile(const TCHAR *szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice);
-	extern DLLAPI HRESULT loadDDSTexture(const WCHAR *szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice);
+	extern DLLAPI HRESULT loadTextureFromFile(const TCHAR *szFileName, ID3D11ShaderResourceView **ppshr, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice);
 }
 
 #endif

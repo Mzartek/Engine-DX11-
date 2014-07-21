@@ -39,12 +39,13 @@ void engine::MovableCamera::mouseMove(const INT &xrel, const INT &yrel)
 	_vforward->x = tmp*(FLOAT)sin(_atheta*DirectX::XM_PI / 180);
 
 	_vleft->x = 1*_vforward->z;
+	_vleft->y = 0;
 	_vleft->z = -(1*_vforward->x);
 
 	tmp = (FLOAT)sqrt(_vleft->x*_vleft->x + _vleft->y*_vleft->y + _vleft->z*_vleft->z);
 	_vleft->x /= tmp;
 	_vleft->y /= tmp;
-	_vleft->y /= tmp;
+	_vleft->z /= tmp;
   
 	_ptarget->x = _pcamera->x + _vforward->x;
 	_ptarget->y = _pcamera->y + _vforward->y;

@@ -71,3 +71,20 @@ BOOL engine::Input::getKeyBoardState(const BYTE &button)
 		return TRUE;
 	return FALSE;
 }
+
+BOOL engine::Input::getMouseState(const BYTE &button)
+{
+	if (_mouseState.buttons[button] & 0x80)
+		return TRUE;
+	return FALSE;
+}
+
+LONG engine::Input::getMouseRelX(void)
+{
+	return _mouseState.x;
+}
+
+LONG engine::Input::getMouseRelY(void)
+{
+	return _mouseState.y;
+}

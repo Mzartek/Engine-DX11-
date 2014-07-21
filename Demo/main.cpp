@@ -43,11 +43,10 @@ void display(void)
 void idle(void)
 {
 	input->refresh();
-
 	if (input->getKeyBoardState(DIK_ESCAPE))
 		window->stopLoop();
-
-	//cam->keyboardMove(input->getKeyBoardState(DIK_Z), input->getKeyBoardState(DIK_S), input->getKeyBoardState(DIK_Q), input->getKeyBoardState(DIK_D));
+	cam->keyboardMove(input->getKeyBoardState(DIK_W), input->getKeyBoardState(DIK_S), input->getKeyBoardState(DIK_A), input->getKeyBoardState(DIK_D));
+	cam->mouseMove(input->getMouseRelX(), input->getMouseRelY());
 
 	heli->matRotate(0.01f, 0, 1, 0);
 }
@@ -67,6 +66,7 @@ void init(void)
 	cam->setPerspective(90.0f, window->getWidth(), window->getHeight(), 0.1f, 1500.0f);
 	cam->setPositionCamera(5.0f, 5.0f, -5.0f);
 	cam->setPositionTarget(0.0f, 2.5f, 0.0f);
+	cam->setSpeed(0.25);
 }
 
 void kill()
@@ -86,7 +86,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	window = new engine::Window;
 	input = new engine::Input;
 
-	if (FAILED(window->initWindow(hInstance, WndProc, "Demo Class", "Demo DirectX", 800, 600, TRUE)))
+	if (FAILED(window->initWindow(hInstance, WndProc, "Demo Class", "Demo DirectX", 1680, 1050, TRUE)))
 	{
 		MessageBox(NULL, "Error while init window", "Error", MB_OK);
 		return 1;

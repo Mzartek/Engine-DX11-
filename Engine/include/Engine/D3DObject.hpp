@@ -16,8 +16,9 @@ namespace engine
 			FLOAT specular[4];
 		};
 
-		ID3D11ShaderResourceView *_pTexture;
-		ID3D11SamplerState *_pSampler;
+		ID3D11Resource *_pTexture;
+		ID3D11ShaderResourceView *_pShaderResource;
+		ID3D11SamplerState *_pSamplerState;
 		ID3D11Buffer *_pVertexBuffer;
 		ID3D11Buffer *_pIndexBuffer;
 		ID3D11InputLayout *_pVertexLayout;
@@ -30,7 +31,7 @@ namespace engine
 		D3DObject(void);
 		~D3DObject(void);
 		HRESULT setShaderProgram(ShaderProgram *program, ID3D11Device *pd3dDevice);
-		void setTexture(ID3D11ShaderResourceView *pTexture, ID3D11SamplerState *pSampler);
+		void setTexture(ID3D11ShaderResourceView *pShaderResource, ID3D11SamplerState *pSamplerState);
 		void setAmbient(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w);
 		void setDiffuse(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w);
 		void setSpecular(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w);

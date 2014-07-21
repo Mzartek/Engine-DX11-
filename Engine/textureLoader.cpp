@@ -1,8 +1,7 @@
 #include <Engine/DXHead.hpp>
 #include <FreeImage.h>
-#include "DirectXTK/DDSTextureLoader.h"
 
-HRESULT engine::loadTextureFromFile(const TCHAR *szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice)
+HRESULT engine::loadTextureFromFile(const TCHAR *szFileName, ID3D11ShaderResourceView **ppshr, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice)
 {
 	HRESULT hr;
 	FIBITMAP *image = NULL;
@@ -31,7 +30,7 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName, ID3D11ShaderResourc
 	initData.SysMemPitch = 4 * texDesc.Width;
 	initData.SysMemSlicePitch = 4 * texDesc.Width * texDesc.Height;
 
-	ID3D11Texture2D *tex = NULL;
+	ID3D11Texture2D *tex;
 	hr = pd3dDevice->CreateTexture2D(&texDesc, &initData, &tex);
 	FreeImage_Unload(image);
 	if (FAILED(hr))
@@ -42,39 +41,11 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName, ID3D11ShaderResourc
 	descSRV.Format = texDesc.Format;
 	descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	descSRV.Texture2D.MipLevels = 1;
-	hr = pd3dDevice->CreateShaderResourceView(tex, &descSRV, pptex);
-	tex->Release();
+	hr = pd3dDevice->CreateShaderResourceView(tex, &descSRV, ppshr);
 	if (FAILED(hr))
 		return hr;
 
 	D3D11_SAMPLER_DESC sampDesc;
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.MipLODBias = 0;
-	sampDesc.MaxAnisotropy = 0;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sampDesc.BorderColor[0] = 0;
-	sampDesc.BorderColor[1] = 0;
-	sampDesc.BorderColor[2] = 0;
-	sampDesc.BorderColor[3] = 0;
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	hr = pd3dDevice->CreateSamplerState(&sampDesc, ppsam);
-
-	return hr;
-}
-
-HRESULT engine::loadDDSTexture(const WCHAR *szFileName, ID3D11ShaderResourceView **pptex, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice)
-{
-	HRESULT hr;
-	hr = DirectX::CreateDDSTextureFromFile(pd3dDevice, szFileName, NULL, pptex);
-	if (FAILED(hr))
-		return hr;
-
-	D3D11_SAMPLER_DESC sampDesc;
-	ZeroMemory(&sampDesc, sizeof(sampDesc));
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;

@@ -25,6 +25,9 @@ namespace engine
 		HRESULT initInput(const HINSTANCE &hInstance, const HWND &hWnd);
 		void refresh(void);
 		BOOL getKeyBoardState(const BYTE &button);
+		BOOL getMouseState(const BYTE &button);
+		LONG getMouseRelX(void);
+		LONG getMouseRelY(void);
 	};
 }
 

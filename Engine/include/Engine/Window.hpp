@@ -16,8 +16,11 @@ namespace engine
 		ID3D11Device *_pd3dDevice;
 		ID3D11DeviceContext *_pImmediateContext;
 		IDXGISwapChain *_pSwapChain;
+		ID3D11Texture2D *_pDepthStencilTex;
 		ID3D11RenderTargetView *_pRenderTargetView;
 		ID3D11DepthStencilView *_pDepthStencilView;
+		ID3D11RasterizerState *_pRasterState;
+		ID3D11BlendState *_pBlendState;
 		// Function Pointer
 		void(*_display) (void);
 		void(*_idle) (void);
