@@ -47,8 +47,12 @@ void idle(void)
 		window->stopLoop();
 	cam->keyboardMove(input->getKeyBoardState(DIK_W), input->getKeyBoardState(DIK_S), input->getKeyBoardState(DIK_A), input->getKeyBoardState(DIK_D));
 	cam->mouseMove(input->getMouseRelX(), input->getMouseRelY());
+	if (input->getKeyBoardState(DIK_LSHIFT))
+		cam->setSpeed(0.05f);
+	else
+		cam->setSpeed(0.25f);
 
-	heli->matRotate(0.01f, 0, 1, 0);
+	heli->matRotate(0.1f, 0, 1, 0);
 }
 
 void init(void)
@@ -59,14 +63,19 @@ void init(void)
 	mainProgram = new engine::ShaderProgram;
 
 	if (FAILED(configShader()))
+	{
+		MessageBox(NULL, "Error Config Shader", "Error", MB_OK);
 		exit(1);
+	}
 	if (FAILED(configModels()))
+	{
+		MessageBox(NULL, "Error Config Models", "Error", MB_OK);
 		exit(1);
+	}
 
 	cam->setPerspective(90.0f, window->getWidth(), window->getHeight(), 0.1f, 1500.0f);
 	cam->setPositionCamera(5.0f, 5.0f, -5.0f);
 	cam->setPositionTarget(0.0f, 2.5f, 0.0f);
-	cam->setSpeed(0.25);
 }
 
 void kill()
@@ -86,7 +95,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	window = new engine::Window;
 	input = new engine::Input;
 
-	if (FAILED(window->initWindow(hInstance, WndProc, "Demo Class", "Demo DirectX", 1680, 1050, TRUE)))
+	if (FAILED(window->initWindow(hInstance, WndProc, "Demo DirectX", 1680, 1050, TRUE)))
 	{
 		MessageBox(NULL, "Error while init window", "Error", MB_OK);
 		return 1;

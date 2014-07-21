@@ -13,14 +13,19 @@ namespace engine
 		UINT _height;
 		HINSTANCE _hInst;
 		HWND _hWnd;
+		// Device
 		ID3D11Device *_pd3dDevice;
 		ID3D11DeviceContext *_pImmediateContext;
+		//Texture
 		IDXGISwapChain *_pSwapChain;
-		ID3D11Texture2D *_pDepthStencilTex;
+		ID3D11Texture2D *_pDepthStencilTexture;
+		//View
 		ID3D11RenderTargetView *_pRenderTargetView;
 		ID3D11DepthStencilView *_pDepthStencilView;
-		ID3D11RasterizerState *_pRasterState;
+		//State
+		ID3D11DepthStencilState *_pDepthState;
 		ID3D11BlendState *_pBlendState;
+		ID3D11RasterizerState *_pRasterizerState;
 		// Function Pointer
 		void(*_display) (void);
 		void(*_idle) (void);
@@ -28,7 +33,7 @@ namespace engine
 	public:
 		Window(void);
 		~Window(void);
-		HRESULT initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), const TCHAR *szWindowClass, 
+		HRESULT initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), 
 			const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen);
 		void setDisplayFunc(void(*f) (void));
 		void setIdleFunc(void(*f) (void));

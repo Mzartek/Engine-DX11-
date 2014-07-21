@@ -62,14 +62,14 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 	// Create uniform
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
-	bd.ByteWidth = sizeof(*_matrix);
+	bd.ByteWidth = sizeof(*_matrix) + (sizeof(*_matrix) % 16);
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer0);
 	if (FAILED(hr))
 		return hr;
 
-	bd.ByteWidth = sizeof(*_screen);
+	bd.ByteWidth = sizeof(*_screen) + (sizeof(*_screen) % 16);
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer1);
 
 	return hr;
@@ -83,10 +83,10 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 {
 	HRESULT hr;
 	D3DObject *newone = new D3DObject;
-	ID3D11ShaderResourceView *ptex;
+	ID3D11ShaderResourceView *pshr;
 	ID3D11SamplerState *psam;
 
-	hr = loadTextureFromFile(pathTexture, &ptex, &psam, pd3dDevice);
+	hr = loadTextureFromFile(pathTexture, &pshr, &psam, pd3dDevice);
 	if (FAILED(hr))
 	{
 		std::string text = "Fail to load Texture: ";
@@ -102,7 +102,7 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 		return hr;
 	}
 
-	newone->setTexture(ptex, psam);
+	newone->setTexture(pshr, psam);
 	newone->setAmbient(ambient[0], ambient[1], ambient[2], ambient[3]);
 	newone->setDiffuse(diffuse[0], diffuse[1], diffuse[2], diffuse[3]);
 	newone->setSpecular(specular[0], specular[1], specular[2], specular[3]);

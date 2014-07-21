@@ -21,6 +21,8 @@
 #include <directxcolors.h>
 #include <dinput.h>
 
+#define FPS_LIMIT 60
+
 namespace engine
 {
 	typedef struct Vertex

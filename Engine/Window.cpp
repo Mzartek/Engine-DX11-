@@ -2,14 +2,20 @@
 
 engine::Window::Window(void)
 {
+	// Device
 	_pd3dDevice = NULL;
 	_pImmediateContext = NULL;
+	//Texture
 	_pSwapChain = NULL;
-	_pDepthStencilTex = NULL;
+	_pDepthStencilTexture = NULL;
+	//View
 	_pRenderTargetView = NULL;
 	_pDepthStencilView = NULL;
-	_pRasterState = NULL;
+	//State
+	_pDepthState = NULL;
 	_pBlendState = NULL;
+	_pRasterizerState = NULL;
+	// Function Pointer
 	_display = NULL;
 	_idle = NULL;
 	_reshape = NULL;
@@ -20,57 +26,60 @@ engine::Window::~Window(void)
 	if (_pImmediateContext)
 		_pImmediateContext->ClearState();
 
-	if (_pRasterState)
-		_pRasterState->Release();
+	//State
+	if (_pRasterizerState)
+		_pRasterizerState->Release();
 	if (_pBlendState)
 		_pBlendState->Release();
+	if (_pDepthState)
+		_pDepthState->Release();
+
+	//View
 	if (_pDepthStencilView)
 		_pDepthStencilView->Release();
 	if (_pRenderTargetView)
 		_pRenderTargetView->Release();
-	if (_pDepthStencilTex)
-		_pDepthStencilTex->Release();
+
+	//Texture
+	if (_pDepthStencilTexture)
+		_pDepthStencilTexture->Release();
 	if (_pSwapChain)
 		_pSwapChain->Release();
+
+	//Device
 	if (_pImmediateContext)
 		_pImmediateContext->Release();
 	if (_pd3dDevice) 
 		_pd3dDevice->Release();
 }
 
-HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), const TCHAR *szWindowClass, 
+HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), 
 	const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
 {
 	HRESULT hr;
 	_width = width;
 	_height = height;
 
-	WNDCLASSEX wcex;
-	wcex.cbSize = sizeof(WNDCLASSEX);
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	WNDCLASS wcex;
+	wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wcex.lpfnWndProc = WndProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	wcex.hIcon = LoadIcon(NULL, IDI_WINLOGO);
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = szWindowClass;
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	wcex.lpszClassName = szTitle;
 
-	if (!RegisterClassEx(&wcex))
-	{
-		MessageBox(NULL, _T("Call to RegisterClassEx failed!"), _T("Win32 Guided Tour"), NULL);
-		return E_FAIL;
-	}
+	RegisterClass(&wcex);
 
 	_hInst = hInstance;
-	_hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, hInstance, NULL);
+	_hWnd = CreateWindow(szTitle, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, hInstance, NULL);
 
 	if (!_hWnd)
 	{
-		MessageBox(NULL, _T("Call to CreateWindow failed!"), _T("Win32 Guided Tour"), NULL);
+		MessageBox(NULL, "Failed to create Window", "Error", NULL);
 		return E_FAIL;
 	}
 
@@ -79,11 +88,8 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	ZeroMemory(&sd, sizeof(sd));
 	sd.BufferDesc.Width = width;
 	sd.BufferDesc.Height = height;
-	sd.BufferDesc.RefreshRate.Numerator = 60;
-	sd.BufferDesc.RefreshRate.Denominator = 1;
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.SampleDesc.Count = 1;
-	sd.SampleDesc.Quality = 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = 1;
 	sd.OutputWindow = _hWnd;
@@ -102,7 +108,7 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	if (FAILED(hr))
 		return hr;
 
-	// Create a render target view
+	// Create the RenderTargetView
 	ID3D11Texture2D *pBackBuffer;
 	hr = _pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&pBackBuffer);
 	if (FAILED(hr))
@@ -111,53 +117,43 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	if (FAILED(hr))
 		return hr;
 
-	// Create depth stencil texture
-	D3D11_TEXTURE2D_DESC descDepth;
-	ZeroMemory(&descDepth, sizeof(descDepth));
-	descDepth.Width = width;
-	descDepth.Height = height;
-	descDepth.MipLevels = 1;
-	descDepth.ArraySize = 1;
-	descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	descDepth.SampleDesc.Count = 1;
-	descDepth.SampleDesc.Quality = 0;
-	descDepth.Usage = D3D11_USAGE_DEFAULT;
-	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	hr = _pd3dDevice->CreateTexture2D(&descDepth, NULL, &_pDepthStencilTex);
+	// Create the DepthStencilTexture
+	D3D11_TEXTURE2D_DESC descDepthStencilTexture;
+	ZeroMemory(&descDepthStencilTexture, sizeof(descDepthStencilTexture));
+	descDepthStencilTexture.Width = width;
+	descDepthStencilTexture.Height = height;
+	descDepthStencilTexture.MipLevels = 1;
+	descDepthStencilTexture.ArraySize = 1;
+	descDepthStencilTexture.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	descDepthStencilTexture.SampleDesc.Count = 1;
+	descDepthStencilTexture.Usage = D3D11_USAGE_DEFAULT;
+	descDepthStencilTexture.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	hr = _pd3dDevice->CreateTexture2D(&descDepthStencilTexture, NULL, &_pDepthStencilTexture);
 	if (FAILED(hr))
 		return hr;
 
-	// Create the depth stencil view
-	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
-	ZeroMemory(&descDSV, sizeof(descDSV));
-	descDSV.Format = descDepth.Format;
-	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	descDSV.Flags = 0;
-	descDSV.Texture2D.MipSlice = 0;
-	hr = _pd3dDevice->CreateDepthStencilView(_pDepthStencilTex, &descDSV, &_pDepthStencilView);
+	// Create the DepthStencilView
+	D3D11_DEPTH_STENCIL_VIEW_DESC descDepthStencilView;
+	ZeroMemory(&descDepthStencilView, sizeof(descDepthStencilView));
+	descDepthStencilView.Format = descDepthStencilTexture.Format;
+	descDepthStencilView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	hr = _pd3dDevice->CreateDepthStencilView(_pDepthStencilTexture, &descDepthStencilView, &_pDepthStencilView);
 	if (FAILED(hr))
 		return hr;
 
-	// Create rasterizerState
-	D3D11_RASTERIZER_DESC descRasterizer;
-	descRasterizer.FillMode = D3D11_FILL_SOLID;
-	descRasterizer.CullMode = D3D11_CULL_NONE;
-	descRasterizer.FrontCounterClockwise = FALSE;
-	descRasterizer.DepthBias = FALSE;
-	descRasterizer.DepthBiasClamp = FALSE;
-	descRasterizer.SlopeScaledDepthBias = FALSE;
-	descRasterizer.DepthClipEnable = FALSE;
-	descRasterizer.ScissorEnable = FALSE;
-	descRasterizer.MultisampleEnable = FALSE;
-	descRasterizer.AntialiasedLineEnable = FALSE;
-	hr = _pd3dDevice->CreateRasterizerState(&descRasterizer, &_pRasterState);
-	if (FAILED(hr))
-		return hr;
+	// Create the DepthStencilState
+	D3D11_DEPTH_STENCIL_DESC descDepthState;
+	ZeroMemory(&descDepthState, sizeof(descDepthState));
+	descDepthState.DepthEnable = TRUE;
+	descDepthState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	descDepthState.DepthFunc = D3D11_COMPARISON_LESS;
+	descDepthState.StencilEnable = FALSE;
+	descDepthState.StencilReadMask = 0xFF;
+	descDepthState.StencilWriteMask = 0xFF;
 
-	// Create blendState
+	// Create the BlendState
 	D3D11_BLEND_DESC descBlend;
-	descBlend.AlphaToCoverageEnable = FALSE;
-	descBlend.IndependentBlendEnable = FALSE;
+	ZeroMemory(&descBlend, sizeof(descBlend));
 	descBlend.RenderTarget[0].BlendEnable = TRUE;
 	descBlend.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	descBlend.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
@@ -170,7 +166,16 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	if (FAILED(hr))
 		return hr;
 
-	// Setup the viewport
+	// Create the RasterizerState
+	D3D11_RASTERIZER_DESC descRasterizerState;
+	ZeroMemory(&descRasterizerState, sizeof(descRasterizerState));
+	descRasterizerState.FillMode = D3D11_FILL_SOLID;
+	descRasterizerState.CullMode = D3D11_CULL_NONE;
+	hr = _pd3dDevice->CreateRasterizerState(&descRasterizerState, &_pRasterizerState);
+	if (FAILED(hr))
+		return hr;
+
+	// Create the Viewport
 	D3D11_VIEWPORT vp;
 	vp.Width = (FLOAT)width;
 	vp.Height = (FLOAT)height;
@@ -180,8 +185,9 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	vp.TopLeftY = 0;
 
 	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
+	_pImmediateContext->OMSetDepthStencilState(_pDepthState, 0);
 	_pImmediateContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
-	_pImmediateContext->RSSetState(_pRasterState);
+	_pImmediateContext->RSSetState(_pRasterizerState);
 	_pImmediateContext->RSSetViewports(1, &vp);
 
 	return S_OK;
@@ -234,14 +240,13 @@ ID3D11DeviceContext *engine::Window::getImmediateContext(void)
 
 void engine::Window::mainLoop(int nCmdShow)
 {
-	DWORD time;
-	ShowWindow(_hWnd, nCmdShow);
-
 	MSG msg = { 0 };
+
 	_stopLoop = FALSE;
+	ShowWindow(_hWnd, nCmdShow);
+	ShowCursor(FALSE);
 	while (msg.message != WM_QUIT)
 	{
-		time = GetTickCount();
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
@@ -255,10 +260,8 @@ void engine::Window::mainLoop(int nCmdShow)
 				_idle();
 			if (_display)
 				_display();
-			_pSwapChain->Present(0, 0);
+			_pSwapChain->Present(1, 0);
 		}
-		/*if ((GetTickCount() - time) < 10)
-			Sleep(10 - (GetTickCount() - time));*/
 	}
 }
 

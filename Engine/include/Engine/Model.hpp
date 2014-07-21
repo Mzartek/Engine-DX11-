@@ -20,7 +20,6 @@ namespace engine
 		{
 			FLOAT screenWidth;
 			FLOAT screenHeight;
-			char fulfil[7];
 		};
 		BOOL isMirror;
 		std::vector<D3DObject *> *_tObject;
