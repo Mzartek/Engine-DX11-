@@ -282,6 +282,7 @@ void engine::Model::display(Window *win, Camera *cam)// , LBuffer *l) const
 	}
 
 	_matrix->MVP = *cam->getMatrix() * _matrix->modelMatrix;
+	_matrix->normalMatrix = XMMatrixTranspose(DirectX::XMMatrixInverse(NULL, _matrix->modelMatrix));
 
 	_screen->screenWidth = (FLOAT)win->getWidth();
 	_screen->screenHeight = (FLOAT)win->getHeight();

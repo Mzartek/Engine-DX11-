@@ -5,6 +5,8 @@ engine::Input::Input(void)
 	_pDirectInputObject = NULL;
 	_pKeyBoard = NULL;
 	_pMouse = NULL;
+	ZeroMemory(_keyState, sizeof(_keyState));
+	ZeroMemory(&_mouseState, sizeof(_mouseState));
 }
 
 engine::Input::~Input(void)

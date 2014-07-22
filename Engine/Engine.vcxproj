@@ -79,7 +79,9 @@
   <ItemGroup>
     <ClInclude Include="include\Engine\Camera.hpp" />
     <ClInclude Include="include\Engine\DXHead.hpp" />
+    <ClInclude Include="include\Engine\FrameBuffer.hpp" />
     <ClInclude Include="include\Engine\FreeCam.hpp" />
+    <ClInclude Include="include\Engine\GBuffer.hpp" />
     <ClInclude Include="include\Engine\Input.hpp" />
     <ClInclude Include="include\Engine\Model.hpp" />
     <ClInclude Include="include\Engine\MovableCamera.hpp" />
@@ -91,7 +93,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="FreeCam.cpp" />
+    <ClCompile Include="GBuffer.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="MovableCamera.cpp" />

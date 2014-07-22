@@ -23,7 +23,7 @@ namespace engine
 		ID3D11RenderTargetView *_pRenderTargetView;
 		ID3D11DepthStencilView *_pDepthStencilView;
 		//State
-		ID3D11DepthStencilState *_pDepthState;
+		ID3D11DepthStencilState *_pDepthStencilState;
 		ID3D11BlendState *_pBlendState;
 		ID3D11RasterizerState *_pRasterizerState;
 		// Function Pointer

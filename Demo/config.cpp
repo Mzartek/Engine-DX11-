@@ -5,6 +5,11 @@ HRESULT configShader(void)
 	return mainProgram->loadProgram(L"shader/main/mainVertex.hlsl", NULL, L"shader/main/mainPixel.hlsl", window->getD3DDevice());
 }
 
+HRESULT configBuffer(void)
+{
+	return gBuffer->config(window->getWidth(), window->getHeight(), window->getD3DDevice());
+}
+
 HRESULT configModels(void)
 {
 	HRESULT hr;

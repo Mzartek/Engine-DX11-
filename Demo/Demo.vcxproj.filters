@@ -28,6 +28,12 @@
     <FxCompile Include="shader\main\mainVertex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="shader\object\gObjectFrag.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\object\gObjectVert.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config.hpp">

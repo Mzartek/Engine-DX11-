@@ -15,6 +15,7 @@ namespace engine
 		{
 			DirectX::XMMATRIX MVP;
 			DirectX::XMMATRIX modelMatrix;
+			DirectX::XMMATRIX normalMatrix;
 		};
 		struct uniform1
 		{

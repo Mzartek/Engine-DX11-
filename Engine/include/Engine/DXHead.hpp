@@ -16,7 +16,7 @@
 #include <Windows.h>
 #include <malloc.h>
 #include <tchar.h>
-#include <d3d11_2.h>
+#include <d3d11.h>
 #include <d3dcompiler.h>
 #include <directxcolors.h>
 #include <dinput.h>

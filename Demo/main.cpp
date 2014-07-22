@@ -3,6 +3,7 @@
 // Globales variables
 engine::Window*				window = NULL;
 engine::Input*				input = NULL;
+engine::GBuffer*			gBuffer = NULL;
 engine::FreeCam*			cam = NULL;
 engine::Model*				sol = NULL;
 engine::Model*				heli = NULL;
@@ -57,6 +58,7 @@ void idle(void)
 
 void init(void)
 {
+	gBuffer = new engine::GBuffer;
 	cam = new engine::FreeCam;
 	sol = new engine::Model;
 	heli = new engine::Model;
@@ -65,6 +67,11 @@ void init(void)
 	if (FAILED(configShader()))
 	{
 		MessageBox(NULL, "Error Config Shader", "Error", MB_OK);
+		exit(1);
+	}
+	if (FAILED(configBuffer()))
+	{
+		MessageBox(NULL, "Error Config Buffer", "Error", MB_OK);
 		exit(1);
 	}
 	if (FAILED(configModels()))
@@ -84,6 +91,7 @@ void kill()
 	delete heli;
 	delete sol;
 	delete cam;
+	delete gBuffer;
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -95,7 +103,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	window = new engine::Window;
 	input = new engine::Input;
 
-	if (FAILED(window->initWindow(hInstance, WndProc, "Demo DirectX", 1680, 1050, TRUE)))
+	if (FAILED(window->initWindow(hInstance, WndProc, "Demo DirectX", 800, 600, FALSE)))
 	{
 		MessageBox(NULL, "Error while init window", "Error", MB_OK);
 		return 1;

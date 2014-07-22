@@ -12,7 +12,7 @@ engine::Window::Window(void)
 	_pRenderTargetView = NULL;
 	_pDepthStencilView = NULL;
 	//State
-	_pDepthState = NULL;
+	_pDepthStencilState = NULL;
 	_pBlendState = NULL;
 	_pRasterizerState = NULL;
 	// Function Pointer
@@ -31,8 +31,8 @@ engine::Window::~Window(void)
 		_pRasterizerState->Release();
 	if (_pBlendState)
 		_pBlendState->Release();
-	if (_pDepthState)
-		_pDepthState->Release();
+	if (_pDepthStencilState)
+		_pDepthStencilState->Release();
 
 	//View
 	if (_pDepthStencilView)
@@ -79,7 +79,7 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 
 	if (!_hWnd)
 	{
-		MessageBox(NULL, "Failed to create Window", "Error", NULL);
+		MessageBox(NULL, "Failed to create Window", "Window", NULL);
 		return E_FAIL;
 	}
 
@@ -106,16 +106,26 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
 		&sd, &_pSwapChain, &_pd3dDevice, NULL, &_pImmediateContext);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Device and SwapChain", "Window", NULL);
 		return hr;
+	}
 
 	// Create the RenderTargetView
 	ID3D11Texture2D *pBackBuffer;
 	hr = _pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&pBackBuffer);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to get BackBuffer", "Window", NULL);
 		return hr;
+	}
+
 	hr = _pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &_pRenderTargetView);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create RenderTarget View", "Window", NULL);
 		return hr;
+	}
 
 	// Create the DepthStencilTexture
 	D3D11_TEXTURE2D_DESC descDepthStencilTexture;
@@ -130,7 +140,10 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	descDepthStencilTexture.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	hr = _pd3dDevice->CreateTexture2D(&descDepthStencilTexture, NULL, &_pDepthStencilTexture);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create DepthStencil Texture", "Window", NULL);
 		return hr;
+	}
 
 	// Create the DepthStencilView
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDepthStencilView;
@@ -139,17 +152,26 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	descDepthStencilView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	hr = _pd3dDevice->CreateDepthStencilView(_pDepthStencilTexture, &descDepthStencilView, &_pDepthStencilView);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create DepthStencil View", "Window", NULL);
 		return hr;
+	}
 
 	// Create the DepthStencilState
-	D3D11_DEPTH_STENCIL_DESC descDepthState;
-	ZeroMemory(&descDepthState, sizeof(descDepthState));
-	descDepthState.DepthEnable = TRUE;
-	descDepthState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	descDepthState.DepthFunc = D3D11_COMPARISON_LESS;
-	descDepthState.StencilEnable = FALSE;
-	descDepthState.StencilReadMask = 0xFF;
-	descDepthState.StencilWriteMask = 0xFF;
+	D3D11_DEPTH_STENCIL_DESC descDepth;
+	ZeroMemory(&descDepth, sizeof(descDepth));
+	descDepth.DepthEnable = TRUE;
+	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
+	descDepth.StencilEnable = FALSE;
+	descDepth.StencilReadMask = 0xFF;
+	descDepth.StencilWriteMask = 0xFF;
+	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create DepthStencil State", "Window", NULL);
+		return hr;
+	}
 
 	// Create the BlendState
 	D3D11_BLEND_DESC descBlend;
@@ -162,30 +184,34 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	_pd3dDevice->CreateBlendState(&descBlend, &_pBlendState);
+	hr = _pd3dDevice->CreateBlendState(&descBlend, &_pBlendState);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Blend State", "Window", NULL);
 		return hr;
+	}
 
 	// Create the RasterizerState
-	D3D11_RASTERIZER_DESC descRasterizerState;
-	ZeroMemory(&descRasterizerState, sizeof(descRasterizerState));
-	descRasterizerState.FillMode = D3D11_FILL_SOLID;
-	descRasterizerState.CullMode = D3D11_CULL_NONE;
-	hr = _pd3dDevice->CreateRasterizerState(&descRasterizerState, &_pRasterizerState);
+	D3D11_RASTERIZER_DESC descRasterizer;
+	ZeroMemory(&descRasterizer, sizeof(descRasterizer));
+	descRasterizer.FillMode = D3D11_FILL_SOLID;
+	descRasterizer.CullMode = D3D11_CULL_NONE;
+	hr = _pd3dDevice->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Rasterizer State", "Window", NULL);
 		return hr;
+	}
 
 	// Create the Viewport
 	D3D11_VIEWPORT vp;
+	ZeroMemory(&vp, sizeof(vp));
 	vp.Width = (FLOAT)width;
 	vp.Height = (FLOAT)height;
-	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
-	vp.TopLeftX = 0;
-	vp.TopLeftY = 0;
 
 	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
-	_pImmediateContext->OMSetDepthStencilState(_pDepthState, 0);
+	_pImmediateContext->OMSetDepthStencilState(_pDepthStencilState, 0);
 	_pImmediateContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
 	_pImmediateContext->RSSetState(_pRasterizerState);
 	_pImmediateContext->RSSetViewports(1, &vp);
@@ -272,6 +298,6 @@ void engine::Window::stopLoop(void)
 
 void engine::Window::clear(void)
 {
-	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, DirectX::Colors::Black);
+	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, DirectX::Colors::Transparent);
 	_pImmediateContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

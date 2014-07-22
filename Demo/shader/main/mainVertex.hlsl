@@ -2,6 +2,7 @@ cbuffer matrixBuffer : register(b0)
 {
 	matrix MVP;
 	matrix modelView;
+	matrix normalMatrix;
 }
 
 struct VS_INPUT
