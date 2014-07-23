@@ -71,12 +71,15 @@ HRESULT engine::ShaderProgram::loadProgram(WCHAR *vs, WCHAR *gs, WCHAR *ps, ID3D
 		hr = CompileShaderFromFile(ps, "main", "ps_4_0", &_pBlob);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Error compiling Pixel Shader.", "Error", MB_OK);
+			MessageBox(NULL, "Failed compiling Pixel Shader.", "ShaderProgram", MB_OK);
 			return hr;
 		}
 		hr = pDevice->CreatePixelShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pPixelShader);
 		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Pixel Shader.", "ShaderProgram", MB_OK);
 			return hr;
+		}
 	}
 
 	// Compile and create the geometry shader
@@ -87,12 +90,15 @@ HRESULT engine::ShaderProgram::loadProgram(WCHAR *vs, WCHAR *gs, WCHAR *ps, ID3D
 		hr = CompileShaderFromFile(gs, "main", "gs_4_0", &_pBlob);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Error compiling Geometry Shader.", "Error", MB_OK);
+			MessageBox(NULL, "Failed compiling Geometry Shader.", "ShaderProgram", MB_OK);
 			return hr;
 		}
 		hr = pDevice->CreateGeometryShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pGeometryShader);
 		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Geometry Shader.", "ShaderProgram", MB_OK);
 			return hr;
+		}
 	}
 
 	// Compile and create the vertex shader
@@ -103,12 +109,15 @@ HRESULT engine::ShaderProgram::loadProgram(WCHAR *vs, WCHAR *gs, WCHAR *ps, ID3D
 		hr = CompileShaderFromFile(vs, "main", "vs_4_0", &_pBlob);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Error compiling Vertex Shader.", "Error", MB_OK);
+			MessageBox(NULL, "Failed compiling Vertex Shader.", "ShaderProgram", MB_OK);
 			return hr;
 		}
 		hr = pDevice->CreateVertexShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pVertexShader);
 		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Vertex Shader.", "ShaderProgram", MB_OK);
 			return hr;
+		}
 	}
 
 	return S_OK;

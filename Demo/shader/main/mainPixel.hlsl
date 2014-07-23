@@ -12,6 +12,7 @@ cbuffer materialBuffer : register(b1)
 	float4 matAmbient;
 	float4 matDiffuse;
 	float4 matSpecular;
+	float1 matShininess;
 }
 
 struct PS_INPUT
@@ -21,7 +22,16 @@ struct PS_INPUT
 	float3 normal : IN_NORMAL;
 };
 
-float4 main(PS_INPUT input) : SV_TARGET
+struct PS_OUTPUT
 {
-	return tex.Sample(sampleType, input.texCoord) * matDiffuse;
+	float4 finalColor;
+};
+
+PS_OUTPUT main(PS_INPUT input) : SV_TARGET
+{
+	PS_OUTPUT output = (PS_OUTPUT)0;
+
+	output.finalColor = tex.Sample(sampleType, input.texCoord) * matDiffuse;
+
+	return output;
 }

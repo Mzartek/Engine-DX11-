@@ -50,6 +50,9 @@
     <ClInclude Include="include\Engine\FrameBuffer.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="include\Engine\Screen.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="textureLoader.cpp">
@@ -89,6 +92,9 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameBuffer.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>

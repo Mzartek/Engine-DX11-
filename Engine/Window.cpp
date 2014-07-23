@@ -270,7 +270,7 @@ void engine::Window::mainLoop(int nCmdShow)
 
 	_stopLoop = FALSE;
 	ShowWindow(_hWnd, nCmdShow);
-	ShowCursor(FALSE);
+	//ShowCursor(FALSE);
 	while (msg.message != WM_QUIT)
 	{
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))

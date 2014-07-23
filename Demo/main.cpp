@@ -7,7 +7,9 @@ engine::GBuffer*			gBuffer = NULL;
 engine::FreeCam*			cam = NULL;
 engine::Model*				sol = NULL;
 engine::Model*				heli = NULL;
-engine::ShaderProgram*		mainProgram = NULL;
+engine::Screen*				screen = NULL;
+engine::ShaderProgram*		gBufferProgram = NULL;
+engine::ShaderProgram*		screenProgram = NULL;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -35,10 +37,12 @@ void display(void)
 {
 	cam->position();
 
-	window->clear();
+	gBuffer->clear();
+	heli->display(gBuffer, cam);
+	sol->display(gBuffer, cam);
 
-	heli->display(window, cam);
-	sol->display(window, cam);
+	window->clear();
+	screen->display(window, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void idle(void)
@@ -62,7 +66,9 @@ void init(void)
 	cam = new engine::FreeCam;
 	sol = new engine::Model;
 	heli = new engine::Model;
-	mainProgram = new engine::ShaderProgram;
+	screen = new engine::Screen;
+	gBufferProgram = new engine::ShaderProgram;
+	screenProgram = new engine::ShaderProgram;
 
 	if (FAILED(configShader()))
 	{
@@ -79,6 +85,11 @@ void init(void)
 		MessageBox(NULL, "Error Config Models", "Error", MB_OK);
 		exit(1);
 	}
+	if (FAILED(configScreen()))
+	{
+		MessageBox(NULL, "Error Config Screen", "Error", MB_OK);
+		exit(1);
+	}
 
 	cam->setPerspective(90.0f, window->getWidth(), window->getHeight(), 0.1f, 1500.0f);
 	cam->setPositionCamera(5.0f, 5.0f, -5.0f);
@@ -87,7 +98,9 @@ void init(void)
 
 void kill()
 {
-	delete mainProgram;
+	delete screenProgram;
+	delete gBufferProgram;
+	delete screen;
 	delete heli;
 	delete sol;
 	delete cam;

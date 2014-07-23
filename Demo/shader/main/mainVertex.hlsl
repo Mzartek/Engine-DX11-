@@ -12,17 +12,20 @@ struct VS_INPUT
 	float3 normal : IN_NORMAL;
 };
 
-struct PS_OUTPUT
+struct VS_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float2 texCoord : IN_TEXCOORD;
 	float3 normal : IN_NORMAL;
 };
 
-PS_OUTPUT main(VS_INPUT input)
+VS_OUTPUT main(VS_INPUT input)
 {
-	PS_OUTPUT output = (PS_OUTPUT)0;
+	VS_OUTPUT output = (VS_OUTPUT)0;
+
 	output.position = mul(input.position, MVP);
 	output.texCoord = input.texCoord;
+	output.normal = mul(float4(input.normal, 1.0), normalMatrix).xyz;
+
 	return output;
 }

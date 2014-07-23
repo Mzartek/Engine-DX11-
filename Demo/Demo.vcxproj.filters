@@ -28,10 +28,16 @@
     <FxCompile Include="shader\main\mainVertex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shader\object\gObjectFrag.hlsl">
+    <FxCompile Include="shader\object\gObjectPixel.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shader\object\gObjectVert.hlsl">
+    <FxCompile Include="shader\object\gObjectVertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\screen\screenPixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\screen\screenVertex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

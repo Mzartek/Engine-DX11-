@@ -62,14 +62,17 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 	// Create uniform
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
-	bd.ByteWidth = sizeof(*_matrix) + (sizeof(*_matrix) % 16);
+	bd.ByteWidth = sizeof(*_matrix) + (((sizeof(*_matrix) % 16) == 0) ? 0 : (16 - (sizeof(*_matrix) % 16)));
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer0);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Constant Buffer", "Model", MB_OK);
 		return hr;
+	}
 
-	bd.ByteWidth = sizeof(*_screen) + (sizeof(*_screen) % 16);
+	bd.ByteWidth = sizeof(*_screen) + (((sizeof(*_screen) % 16) == 0) ? 0 : (16 - (sizeof(*_screen) % 16)));
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer1);
 
 	return hr;
@@ -95,7 +98,7 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 		return hr;
 	}
 
-	hr = newone->setShaderProgram(_program, pd3dDevice);
+	hr = newone->config(_program, pd3dDevice);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Fail to load ShaderProgram", "Error", MB_OK);
@@ -266,7 +269,7 @@ engine::D3DObject *engine::Model::getD3DObject(UINT num) const
 	return (*_tObject)[num];
 }
   
-void engine::Model::display(Window *win, Camera *cam)// , LBuffer *l) const
+void engine::Model::display(GBuffer *g, Camera *cam)// , LBuffer *l) const
 {
 	UINT i;
   
@@ -282,18 +285,18 @@ void engine::Model::display(Window *win, Camera *cam)// , LBuffer *l) const
 	}
 
 	_matrix->MVP = *cam->getMatrix() * _matrix->modelMatrix;
-	_matrix->normalMatrix = XMMatrixTranspose(DirectX::XMMatrixInverse(NULL, _matrix->modelMatrix));
+	_matrix->normalMatrix = DirectX::XMMatrixInverse(NULL, _matrix->modelMatrix);
 
-	_screen->screenWidth = (FLOAT)win->getWidth();
-	_screen->screenHeight = (FLOAT)win->getHeight();
+	_screen->screen[0] = (FLOAT)g->getWidth();
+	_screen->screen[1] = (FLOAT)g->getHeight();
   
-	win->getImmediateContext()->UpdateSubresource(_pConstantBuffer0, 0, NULL, _matrix, 0, 0);
-	win->getImmediateContext()->VSSetConstantBuffers(0, 1, &_pConstantBuffer0);
-	win->getImmediateContext()->UpdateSubresource(_pConstantBuffer1, 0, NULL, _screen, 0, 0);
-	win->getImmediateContext()->PSSetConstantBuffers(0, 1, &_pConstantBuffer1);
+	g->getContext()->UpdateSubresource(_pConstantBuffer0, 0, NULL, _matrix, 0, 0);
+	g->getContext()->VSSetConstantBuffers(0, 1, &_pConstantBuffer0);
+	g->getContext()->UpdateSubresource(_pConstantBuffer1, 0, NULL, _screen, 0, 0);
+	g->getContext()->PSSetConstantBuffers(0, 1, &_pConstantBuffer1);
   
 	for(i=0 ; i<_tObject->size(); i++)
-		(*_tObject)[i]->display(win);
+		(*_tObject)[i]->display(g);
 }
 
 /*void engine::Model::displayOnGBuffer(Camera *cam, GBuffer *g) const

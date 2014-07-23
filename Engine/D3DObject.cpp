@@ -19,7 +19,7 @@ engine::D3DObject::D3DObject(void)
 		_material->diffuse[i] = 1.0;
 		_material->specular[i] = 1.0;
 	}
-	shininess[0] = 1.0;
+	_material->shininess[0] = 1.0;
 }
 
 engine::D3DObject::~D3DObject(void)
@@ -42,7 +42,7 @@ engine::D3DObject::~D3DObject(void)
 	_aligned_free(_material);
 }
 
-HRESULT engine::D3DObject::setShaderProgram(ShaderProgram *program, ID3D11Device *pd3dDevice)
+HRESULT engine::D3DObject::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 {
 	HRESULT hr;
 
@@ -52,11 +52,14 @@ HRESULT engine::D3DObject::setShaderProgram(ShaderProgram *program, ID3D11Device
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(*_material);
+	bd.ByteWidth = sizeof(*_material) + (((sizeof(*_material) % 16) == 0) ? 0 : (16 - (sizeof(*_material) % 16)));
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Constant Buffer", "D3DObject", MB_OK);
 		return hr;
+	}
 
 	// Create and set the input layout
 	D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -68,8 +71,13 @@ HRESULT engine::D3DObject::setShaderProgram(ShaderProgram *program, ID3D11Device
 	hr = pd3dDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
 		_program->getEntryBufferPointer(), _program->getEntryBytecodeLength(), 
 		&_pInputLayout);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Input Layout", "D3DObject", MB_OK);
+		return hr;
+	}
 
-	return hr;
+	return S_OK;
 }
 
 void engine::D3DObject::setTexture(ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState)
@@ -105,7 +113,7 @@ void engine::D3DObject::setSpecular(const FLOAT &x, const FLOAT &y, const FLOAT 
 
 void engine::D3DObject::setShininess(const FLOAT &x)
 {
-	shininess[0] = x;
+	_material->shininess[0] = x;
 }
 
 FLOAT engine::D3DObject::getTransparency(void)
@@ -148,42 +156,53 @@ HRESULT engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertex
 
 #undef BUFFER_OFFSET
 
-void engine::D3DObject::display(Window *win) const
+void engine::D3DObject::display(GBuffer *g) const
 {
-	UINT stride = 32;
-	UINT offset = 0;
-
 	if(_program == NULL)
 	{
-		MessageBox(NULL, "You need to set the ShaderProgram before!", "Error", MB_OK);
+		MessageBox(NULL, "You need to configure before!", "D3DObject", MB_OK);
 		exit(1);
 	}
 
 	// Shader
-	win->getImmediateContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
-	win->getImmediateContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
-	win->getImmediateContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
+	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
+	g->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
+	g->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
 
 	// Texture
-	win->getImmediateContext()->PSSetShaderResources(0, 1, &_pShaderResourceView);
-	win->getImmediateContext()->PSSetSamplers(0, 1, &_pSamplerState);
+	ID3D11ShaderResourceView *pshr[] =
+	{
+		_pShaderResourceView,
+		g->getShaderResourceView(GBUF_NORMAL),
+		g->getShaderResourceView(GBUF_MATERIAL),
+		g->getShaderResourceView(GBUF_DEPTH),
+	};
+	g->getContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	ID3D11SamplerState *psam[] =
+	{
+		_pSamplerState,
+		g->getSamplerState(),
+	};
+	g->getContext()->PSSetSamplers(0, ARRAYSIZE(psam), psam);
 
 	// Uniform
-	win->getImmediateContext()->UpdateSubresource(_pConstantBuffer, 0, NULL, _material, 0, 0);
-	win->getImmediateContext()->PSSetConstantBuffers(1, 1, &_pConstantBuffer);
+	g->getContext()->UpdateSubresource(_pConstantBuffer, 0, NULL, _material, 0, 0);
+	g->getContext()->PSSetConstantBuffers(1, 1, &_pConstantBuffer);
 
 	// Vertex And Index Buffer
-	win->getImmediateContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
-	win->getImmediateContext()->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
+	UINT stride = 8 * sizeof(FLOAT);
+	UINT offset = 0;
+	g->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
+	g->getContext()->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
 
 	// Input Layout
-	win->getImmediateContext()->IASetInputLayout(_pInputLayout);
+	g->getContext()->IASetInputLayout(_pInputLayout);
 
 	// Topology
-	win->getImmediateContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	g->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Draw
-	win->getImmediateContext()->DrawIndexed(_numElement, 0, 0);
+	g->getContext()->DrawIndexed(_numElement, 0, 0);
 }
 
 int engine::comparD3DObject(const void *p1, const void *p2)

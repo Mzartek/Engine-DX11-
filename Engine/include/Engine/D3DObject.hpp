@@ -2,6 +2,7 @@
 #define D3D_OBJECT
 
 #include "ShaderProgram.hpp"
+#include "GBuffer.hpp"
 
 namespace engine
 {
@@ -14,6 +15,7 @@ namespace engine
 			FLOAT ambient[4];
 			FLOAT diffuse[4];
 			FLOAT specular[4];
+			FLOAT shininess[1];
 		};
 
 		ID3D11Resource *_pResource;
@@ -26,11 +28,10 @@ namespace engine
 		struct uniform *_material;
 		ShaderProgram *_program;
 		UINT _numElement;
-		FLOAT shininess[1];
 	public:
 		D3DObject(void);
 		~D3DObject(void);
-		HRESULT setShaderProgram(ShaderProgram *program, ID3D11Device *pd3dDevice);
+		HRESULT config(ShaderProgram *program, ID3D11Device *pd3dDevice);
 		void setTexture(ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState);
 		void setAmbient(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w);
 		void setDiffuse(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w);
@@ -40,9 +41,7 @@ namespace engine
 		HRESULT load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 			const UINT &sizeIndexArray, const UINT *indexArray,
 			ID3D11Device *pd3dDevice);
-		void display(Window *win) const;
-		//void displayOnGBuffer(GBuffer *g) const;
-		//void displayShadow(Light *l) const;
+		void display(GBuffer *g) const;
 	};
   
 	int comparD3DObject(const void *p1, const void *p2);

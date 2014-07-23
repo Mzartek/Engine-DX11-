@@ -19,8 +19,7 @@ namespace engine
 		};
 		struct uniform1
 		{
-			FLOAT screenWidth;
-			FLOAT screenHeight;
+			FLOAT screen[2];
 		};
 		BOOL isMirror;
 		std::vector<D3DObject *> *_tObject;
@@ -48,7 +47,7 @@ namespace engine
 		void matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		DirectX::XMFLOAT3 getPosition(void) const;
 		D3DObject *getD3DObject(UINT num) const;
-		void display(Window *win, Camera *cam);
+		void display(GBuffer *g, Camera *cam);
 	};
 }
     
