@@ -17,7 +17,7 @@ extern engine::FreeCam*				cam;
 extern engine::Model*				sol;
 extern engine::Model*				heli;
 extern engine::Screen*				screen;
-extern engine::ShaderProgram*		gBufferProgram;
+extern engine::ShaderProgram*		gObjectProgram;
 extern engine::ShaderProgram*		screenProgram;
 
 extern HRESULT configShader(void);

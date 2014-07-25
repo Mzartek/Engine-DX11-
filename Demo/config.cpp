@@ -4,7 +4,7 @@ HRESULT configShader(void)
 {
 	HRESULT hr;
 
-	hr = gBufferProgram->loadProgram(L"shader/object/gObjectVertex.hlsl", NULL, L"shader/object/gObjectPixel.hlsl", window->getD3DDevice());
+	hr = gObjectProgram->loadProgram(L"shader/object/gObjectVertex.hlsl", NULL, L"shader/object/gObjectPixel.hlsl", window->getD3DDevice());
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed gBufferProgramm.", "ShaderProgram", MB_OK);
@@ -44,7 +44,7 @@ HRESULT configModels(void)
 	UINT index[] = { 0, 2, 1, 0, 2, 3 };
 
 	sol->initObjectArray();
-	hr = sol->config(gBufferProgram, window->getD3DDevice());
+	hr = sol->config(gObjectProgram, window->getD3DDevice());
 	if (FAILED(hr))
 		return hr;
 	hr = sol->createObject(sizeof(vertexArray), (FLOAT *)vertexArray,
@@ -57,7 +57,7 @@ HRESULT configModels(void)
 
 	// Heli
 	heli->initObjectArray();
-	hr = heli->config(gBufferProgram, window->getD3DDevice());
+	hr = heli->config(gObjectProgram, window->getD3DDevice());
 	if (FAILED(hr))
 		return hr;
 	hr = heli->loadFromFile("resources/heli/corps.obj", window->getD3DDevice());

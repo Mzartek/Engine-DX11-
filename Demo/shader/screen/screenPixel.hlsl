@@ -26,8 +26,10 @@ PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
-	output.finalColor = materialTex.Sample(gBufferSampleType, input.position.xy / screen);
+	//output.finalColor = materialTex.Sample(gBufferSampleType, input.position.xy / screen);
 	//output.finalColor = float4(0x000000FF & (int4(material) >> 16)) / 255;
+
+	output.finalColor = float4(1.0, 1.0, 0.0, 1.0);
 
 	return output;
 }

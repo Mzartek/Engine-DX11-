@@ -4,8 +4,10 @@ c:\users\mzartek\desktop\programmation\engine-dx11-\demo\debug\config.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\demo\debug\main.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\debug\mainpixel.cso
 c:\users\mzartek\desktop\programmation\engine-dx11-\debug\mainvertex.cso
-c:\users\mzartek\desktop\programmation\engine-dx11-\debug\gobjectfrag.cso
-c:\users\mzartek\desktop\programmation\engine-dx11-\debug\gobjectvert.cso
+c:\users\mzartek\desktop\programmation\engine-dx11-\debug\gobjectpixel.cso
+c:\users\mzartek\desktop\programmation\engine-dx11-\debug\gobjectvertex.cso
+c:\users\mzartek\desktop\programmation\engine-dx11-\debug\screenpixel.cso
+c:\users\mzartek\desktop\programmation\engine-dx11-\debug\screenvertex.cso
 c:\users\mzartek\desktop\programmation\engine-dx11-\debug\demo.ilk
 c:\users\mzartek\desktop\programmation\engine-dx11-\debug\demo.exe
 c:\users\mzartek\desktop\programmation\engine-dx11-\debug\demo.pdb

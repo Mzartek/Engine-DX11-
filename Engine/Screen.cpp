@@ -21,15 +21,15 @@ HRESULT engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 	
 	_program = program;
 
+	// Create Constant Buffer
 	D3D11_BUFFER_DESC bd;
 	D3D11_SUBRESOURCE_DATA data;
-	ZeroMemory(&bd, sizeof(bd));
-	ZeroMemory(&data, sizeof(data));
-
-	// Create Constant Buffer
-	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(*_screen) + (((sizeof(*_screen) % 16) == 0) ? 0 : (16 - (sizeof(*_screen) % 16)));
+	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer0);
 	if (FAILED(hr))
 	{
@@ -97,7 +97,7 @@ void engine::Screen::display(Window *win, GBuffer *gbuf, const FLOAT &r, const F
 	win->getImmediateContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
 
 	// Texture
-	ID3D11ShaderResourceView *pshr[] =
+	/*ID3D11ShaderResourceView *pshr[] =
 	{
 		gbuf->getShaderResourceView(GBUF_NORMAL),
 	};
@@ -106,7 +106,7 @@ void engine::Screen::display(Window *win, GBuffer *gbuf, const FLOAT &r, const F
 	{
 		gbuf->getSamplerState(),
 	};
-	win->getImmediateContext()->PSSetSamplers(0, ARRAYSIZE(psam), psam);
+	win->getImmediateContext()->PSSetSamplers(0, ARRAYSIZE(psam), psam);*/
 
 	// Constant Buffer
 	_screen->screen[0] = (FLOAT)win->getWidth();

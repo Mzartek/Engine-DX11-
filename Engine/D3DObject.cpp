@@ -50,10 +50,12 @@ HRESULT engine::D3DObject::config(ShaderProgram *program, ID3D11Device *pd3dDevi
 
 	// Create uniform
 	D3D11_BUFFER_DESC bd;
-	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(*_material) + (((sizeof(*_material) % 16) == 0) ? 0 : (16 - (sizeof(*_material) % 16)));
+	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer);
 	if (FAILED(hr))
 	{
@@ -133,14 +135,16 @@ HRESULT engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertex
 
 	_numElement = sizeIndexArray / (UINT)sizeof(UINT);
 
-	ZeroMemory(&bd, sizeof(bd));
-	ZeroMemory(&data, sizeof(data));
-
 	// Create vertex buffer
 	bd.ByteWidth = sizeVertexArray;
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
 	data.pSysMem = vertexArray;
+	data.SysMemPitch = 0;
+	data.SysMemSlicePitch = 0;
 	hr = pd3dDevice->CreateBuffer(&bd, &data, &_pVertexBuffer);
 	if (FAILED(hr))
 		return hr;

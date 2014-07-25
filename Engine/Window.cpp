@@ -5,13 +5,13 @@ engine::Window::Window(void)
 	// Device
 	_pd3dDevice = NULL;
 	_pImmediateContext = NULL;
-	//Texture
+	// Texture
 	_pSwapChain = NULL;
 	_pDepthStencilTexture = NULL;
-	//View
+	// View
 	_pRenderTargetView = NULL;
 	_pDepthStencilView = NULL;
-	//State
+	// State
 	_pDepthStencilState = NULL;
 	_pBlendState = NULL;
 	_pRasterizerState = NULL;
@@ -26,7 +26,7 @@ engine::Window::~Window(void)
 	if (_pImmediateContext)
 		_pImmediateContext->ClearState();
 
-	//State
+	// State
 	if (_pRasterizerState)
 		_pRasterizerState->Release();
 	if (_pBlendState)
@@ -34,19 +34,19 @@ engine::Window::~Window(void)
 	if (_pDepthStencilState)
 		_pDepthStencilState->Release();
 
-	//View
+	// View
 	if (_pDepthStencilView)
 		_pDepthStencilView->Release();
 	if (_pRenderTargetView)
 		_pRenderTargetView->Release();
 
-	//Texture
+	// Texture
 	if (_pDepthStencilTexture)
 		_pDepthStencilTexture->Release();
 	if (_pSwapChain)
 		_pSwapChain->Release();
 
-	//Device
+	// Device
 	if (_pImmediateContext)
 		_pImmediateContext->Release();
 	if (_pd3dDevice) 
@@ -85,15 +85,21 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 
 	// Init swap chain
 	DXGI_SWAP_CHAIN_DESC sd;
-	ZeroMemory(&sd, sizeof(sd));
 	sd.BufferDesc.Width = width;
 	sd.BufferDesc.Height = height;
+	sd.BufferDesc.RefreshRate.Numerator = 60;
+	sd.BufferDesc.RefreshRate.Denominator = 1;
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	sd.SampleDesc.Count = 1;
+	sd.SampleDesc.Quality = 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = 1;
 	sd.OutputWindow = _hWnd;
 	sd.Windowed = !fullScreen;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	sd.Flags = 0;
 
 	// Create the Device
 	D3D_FEATURE_LEVEL featureLevels[]
@@ -129,15 +135,17 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 
 	// Create the DepthStencilTexture
 	D3D11_TEXTURE2D_DESC descDepthStencilTexture;
-	ZeroMemory(&descDepthStencilTexture, sizeof(descDepthStencilTexture));
 	descDepthStencilTexture.Width = width;
 	descDepthStencilTexture.Height = height;
 	descDepthStencilTexture.MipLevels = 1;
 	descDepthStencilTexture.ArraySize = 1;
-	descDepthStencilTexture.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	descDepthStencilTexture.Format = DXGI_FORMAT_D32_FLOAT;
 	descDepthStencilTexture.SampleDesc.Count = 1;
+	descDepthStencilTexture.SampleDesc.Quality = 0;
 	descDepthStencilTexture.Usage = D3D11_USAGE_DEFAULT;
 	descDepthStencilTexture.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	descDepthStencilTexture.CPUAccessFlags = 0;
+	descDepthStencilTexture.MiscFlags = 0;
 	hr = _pd3dDevice->CreateTexture2D(&descDepthStencilTexture, NULL, &_pDepthStencilTexture);
 	if (FAILED(hr))
 	{
@@ -147,9 +155,10 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 
 	// Create the DepthStencilView
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDepthStencilView;
-	ZeroMemory(&descDepthStencilView, sizeof(descDepthStencilView));
 	descDepthStencilView.Format = descDepthStencilTexture.Format;
 	descDepthStencilView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDepthStencilView.Flags = 0;
+	descDepthStencilView.Texture2D.MipSlice = 0;
 	hr = _pd3dDevice->CreateDepthStencilView(_pDepthStencilTexture, &descDepthStencilView, &_pDepthStencilView);
 	if (FAILED(hr))
 	{
@@ -159,13 +168,20 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 
 	// Create the DepthStencilState
 	D3D11_DEPTH_STENCIL_DESC descDepth;
-	ZeroMemory(&descDepth, sizeof(descDepth));
 	descDepth.DepthEnable = TRUE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
 	descDepth.StencilReadMask = 0xFF;
 	descDepth.StencilWriteMask = 0xFF;
+	descDepth.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	descDepth.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	descDepth.FrontFace.StencilPassOp = D3D11_STENCIL_OP_INCR;
+	descDepth.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	descDepth.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	descDepth.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	descDepth.BackFace.StencilPassOp = D3D11_STENCIL_OP_DECR;
+	descDepth.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
 	if (FAILED(hr))
 	{
@@ -175,7 +191,8 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 
 	// Create the BlendState
 	D3D11_BLEND_DESC descBlend;
-	ZeroMemory(&descBlend, sizeof(descBlend));
+	descBlend.AlphaToCoverageEnable = FALSE;
+	descBlend.IndependentBlendEnable = FALSE;
 	descBlend.RenderTarget[0].BlendEnable = TRUE;
 	descBlend.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	descBlend.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
@@ -193,9 +210,16 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 
 	// Create the RasterizerState
 	D3D11_RASTERIZER_DESC descRasterizer;
-	ZeroMemory(&descRasterizer, sizeof(descRasterizer));
 	descRasterizer.FillMode = D3D11_FILL_SOLID;
 	descRasterizer.CullMode = D3D11_CULL_NONE;
+	descRasterizer.FrontCounterClockwise = FALSE;
+	descRasterizer.DepthBias = FALSE;
+	descRasterizer.DepthBiasClamp = FALSE;
+	descRasterizer.SlopeScaledDepthBias = FALSE;
+	descRasterizer.DepthClipEnable = FALSE;
+	descRasterizer.ScissorEnable = FALSE;
+	descRasterizer.MultisampleEnable = FALSE;
+	descRasterizer.AntialiasedLineEnable = FALSE;
 	hr = _pd3dDevice->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 	if (FAILED(hr))
 	{
@@ -205,9 +229,11 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 
 	// Create the Viewport
 	D3D11_VIEWPORT vp;
-	ZeroMemory(&vp, sizeof(vp));
-	vp.Width = (FLOAT)width;
-	vp.Height = (FLOAT)height;
+	vp.TopLeftX = 0.0f;
+	vp.TopLeftY = 0.0f;
+	vp.Width = (FLOAT)_width;
+	vp.Height = (FLOAT)_height;
+	vp.MaxDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 
 	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
@@ -300,4 +326,14 @@ void engine::Window::clear(void)
 {
 	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, DirectX::Colors::Transparent);
 	_pImmediateContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+
+void engine::Window::executeDeferredContext(ID3D11DeviceContext *context)
+{
+	ID3D11CommandList *commandList;
+
+	context->FinishCommandList(TRUE, &commandList);
+	_pImmediateContext->ExecuteCommandList(commandList, TRUE);
+
+	commandList->Release();
 }

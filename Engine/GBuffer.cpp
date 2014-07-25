@@ -63,6 +63,10 @@ engine::GBuffer::~GBuffer(void)
 		_pTexture[GBUF_NORMAL]->Release();
 	if (_pContext)
 		_pContext->Release();
+
+	// Context
+	if (_pContext)
+		_pContext->Release();
 }
 
 HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice)
@@ -75,11 +79,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	D3D11_RENDER_TARGET_VIEW_DESC descRenderTargetView;
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDepthView;
 	D3D11_SHADER_RESOURCE_VIEW_DESC descShaderResourceView;
-
-	ZeroMemory(&descTexture, sizeof(descTexture));
-	ZeroMemory(&descRenderTargetView, sizeof(descRenderTargetView));
-	ZeroMemory(&descDepthView, sizeof(descDepthView));
-	ZeroMemory(&descShaderResourceView, sizeof(descShaderResourceView));
 
 	hr = pd3dDevice->CreateDeferredContext(0, &_pContext);
 	if (FAILED(hr))
@@ -95,8 +94,11 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	descTexture.ArraySize = 1;
 	descTexture.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	descTexture.SampleDesc.Count = 1;
+	descTexture.SampleDesc.Quality = 0;
 	descTexture.Usage = D3D11_USAGE_DEFAULT;
 	descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	descTexture.CPUAccessFlags = 0;
+	descTexture.MiscFlags = 0;
 	hr = pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_NORMAL]);
 	if (FAILED(hr))
 	{
@@ -105,6 +107,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	}
 	descRenderTargetView.Format = descTexture.Format;
 	descRenderTargetView.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	descRenderTargetView.Texture2D.MipSlice = 0;
 	hr = pd3dDevice->CreateRenderTargetView(_pTexture[GBUF_NORMAL], &descRenderTargetView, &_pRenderTargetView[GBUF_NORMAL]);
 	if (FAILED(hr))
 	{
@@ -113,6 +116,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	}
 	descShaderResourceView.Format = descTexture.Format;
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	descShaderResourceView.Texture2D.MostDetailedMip = 0;
 	descShaderResourceView.Texture2D.MipLevels = 1;
 	hr = pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_NORMAL], &descShaderResourceView, &_pShaderResourceView[GBUF_NORMAL]);
 	if (FAILED(hr))
@@ -122,14 +126,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	}
 
 	// Material
-	descTexture.Width = width;
-	descTexture.Height = height;
-	descTexture.MipLevels = 1;
-	descTexture.ArraySize = 1;
 	descTexture.Format = DXGI_FORMAT_R32G32B32A32_UINT;
-	descTexture.SampleDesc.Count = 1;
-	descTexture.Usage = D3D11_USAGE_DEFAULT;
-	descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	hr = pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_MATERIAL]);
 	if (FAILED(hr))
 	{
@@ -137,7 +134,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		return hr;
 	}
 	descRenderTargetView.Format = descTexture.Format;
-	descRenderTargetView.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	hr = pd3dDevice->CreateRenderTargetView(_pTexture[GBUF_MATERIAL], &descRenderTargetView, &_pRenderTargetView[GBUF_MATERIAL]);
 	if (FAILED(hr))
 	{
@@ -145,8 +141,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		return hr;
 	}
 	descShaderResourceView.Format = descTexture.Format;
-	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	descShaderResourceView.Texture2D.MipLevels = 1;
 	hr = pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_MATERIAL], &descShaderResourceView, &_pShaderResourceView[GBUF_MATERIAL]);
 	if (FAILED(hr))
 	{
@@ -155,13 +149,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	}
 
 	// Depth
-	descTexture.Width = width;
-	descTexture.Height = height;
-	descTexture.MipLevels = 1;
-	descTexture.ArraySize = 1;
 	descTexture.Format = DXGI_FORMAT_R32_TYPELESS;
-	descTexture.SampleDesc.Count = 1;
-	descTexture.Usage = D3D11_USAGE_DEFAULT;
 	descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
 	hr = pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_DEPTH]);
 	if (FAILED(hr))
@@ -171,6 +159,8 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	}
 	descDepthView.Format = DXGI_FORMAT_D32_FLOAT;
 	descDepthView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDepthView.Flags = 0;
+	descDepthView.Texture2D.MipSlice = 0;
 	hr = pd3dDevice->CreateDepthStencilView(_pTexture[GBUF_DEPTH], &descDepthView, &_pDepthView);
 	if (FAILED(hr))
 	{
@@ -178,8 +168,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		return hr;
 	}
 	descShaderResourceView.Format = DXGI_FORMAT_R32_FLOAT;
-	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	descShaderResourceView.Texture2D.MipLevels = 1;
 	hr = pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_DEPTH], &descShaderResourceView, &_pShaderResourceView[GBUF_DEPTH]);
 	if (FAILED(hr))
 	{
@@ -189,12 +177,18 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 
 	// Create State
 	D3D11_SAMPLER_DESC descSampler;
-	ZeroMemory(&descSampler, sizeof(descSampler));
 	descSampler.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	descSampler.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	descSampler.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	descSampler.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	descSampler.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	descSampler.MipLODBias = 0.0f;
+	descSampler.MaxAnisotropy = 1;
+	descSampler.BorderColor[0] = 0.0f;
+	descSampler.BorderColor[1] = 0.0f;
+	descSampler.BorderColor[2] = 0.0f;
+	descSampler.BorderColor[3] = 0.0f;
+	descSampler.MinLOD = 0;
 	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
 	hr = pd3dDevice->CreateSamplerState(&descSampler, &_pSamplerState);
 	if (FAILED(hr))
@@ -204,13 +198,20 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	}
 
 	D3D11_DEPTH_STENCIL_DESC descDepth;
-	ZeroMemory(&descDepth, sizeof(descDepth));
 	descDepth.DepthEnable = TRUE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
 	descDepth.StencilReadMask = 0xFF;
 	descDepth.StencilWriteMask = 0xFF;
+	descDepth.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	descDepth.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	descDepth.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	descDepth.FrontFace.StencilFunc = D3D11_COMPARISON_NEVER;
+	descDepth.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	descDepth.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	descDepth.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	descDepth.BackFace.StencilFunc = D3D11_COMPARISON_NEVER;
 	hr = pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthState);
 	if (FAILED(hr))
 	{
@@ -219,9 +220,19 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	}
 
 	D3D11_BLEND_DESC descBlend;
-	ZeroMemory(&descBlend, sizeof(descBlend));
-	descBlend.RenderTarget[GBUF_NORMAL].BlendEnable = FALSE;
-	descBlend.RenderTarget[GBUF_MATERIAL].BlendEnable = FALSE;
+	descBlend.AlphaToCoverageEnable = FALSE;
+	descBlend.IndependentBlendEnable = FALSE;
+	for (int i = 0; i < (GBUF_NUM_TEX - 1); i++)
+	{
+		descBlend.RenderTarget[i].BlendEnable = FALSE;
+		descBlend.RenderTarget[i].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		descBlend.RenderTarget[i].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		descBlend.RenderTarget[i].BlendOp = D3D11_BLEND_OP_ADD;
+		descBlend.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+		descBlend.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+		descBlend.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		descBlend.RenderTarget[i].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	}
 	hr = pd3dDevice->CreateBlendState(&descBlend, &_pBlendState);
 	if (FAILED(hr))
 	{
@@ -230,9 +241,16 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	}
 
 	D3D11_RASTERIZER_DESC descRasterizer;
-	ZeroMemory(&descRasterizer, sizeof(descRasterizer));
 	descRasterizer.FillMode = D3D11_FILL_SOLID;
 	descRasterizer.CullMode = D3D11_CULL_NONE;
+	descRasterizer.FrontCounterClockwise = FALSE;
+	descRasterizer.DepthBias = FALSE;
+	descRasterizer.DepthBiasClamp = FALSE;
+	descRasterizer.SlopeScaledDepthBias = FALSE;
+	descRasterizer.DepthClipEnable = FALSE;
+	descRasterizer.ScissorEnable = FALSE;
+	descRasterizer.MultisampleEnable = FALSE;
+	descRasterizer.AntialiasedLineEnable = FALSE;
 	hr = pd3dDevice->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 	if (FAILED(hr))
 	{
@@ -240,13 +258,16 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		return hr;
 	}
 
+	// Create the Viewport
 	D3D11_VIEWPORT vp;
-	ZeroMemory(&vp, sizeof(vp));
-	vp.Width = (FLOAT)width;
-	vp.Height = (FLOAT)height;
+	vp.TopLeftX = 0.0f;
+	vp.TopLeftY = 0.0f;
+	vp.Width = (FLOAT)_width;
+	vp.Height = (FLOAT)_height;
+	vp.MaxDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 
-	_pContext->OMSetRenderTargets(GBUF_NUM_TEX - 1, _pRenderTargetView, _pDepthView);
+	_pContext->OMSetRenderTargets(GBUF_NUM_TEX - 1, _pRenderTargetView, NULL);
 	_pContext->OMSetDepthStencilState(_pDepthState, 0);
 	_pContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
 	_pContext->RSSetState(_pRasterizerState);
@@ -272,7 +293,7 @@ ID3D11DeviceContext *engine::GBuffer::getContext(void) const
 
 void engine::GBuffer::clear(void) const
 {
-	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], DirectX::Colors::Transparent);
+	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], DirectX::Colors::RosyBrown);
 	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], DirectX::Colors::Transparent);
 	_pContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

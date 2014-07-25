@@ -1,7 +1,7 @@
 #ifndef WINDOW
 #define WINDOW
 
-#include "Object.hpp"
+#include "GBuffer.hpp"
 
 namespace engine
 {
@@ -16,13 +16,13 @@ namespace engine
 		// Device
 		ID3D11Device *_pd3dDevice;
 		ID3D11DeviceContext *_pImmediateContext;
-		//Texture
+		// Texture
 		IDXGISwapChain *_pSwapChain;
 		ID3D11Texture2D *_pDepthStencilTexture;
-		//View
+		// View
 		ID3D11RenderTargetView *_pRenderTargetView;
 		ID3D11DepthStencilView *_pDepthStencilView;
-		//State
+		// State
 		ID3D11DepthStencilState *_pDepthStencilState;
 		ID3D11BlendState *_pBlendState;
 		ID3D11RasterizerState *_pRasterizerState;
@@ -47,6 +47,7 @@ namespace engine
 		void mainLoop(int nCmdShow);
 		void stopLoop(void);
 		void clear(void);
+		void executeDeferredContext(ID3D11DeviceContext *context);
 	};
 }
 

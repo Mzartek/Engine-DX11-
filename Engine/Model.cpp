@@ -61,10 +61,12 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 
 	// Create uniform
 	D3D11_BUFFER_DESC bd;
-	ZeroMemory(&bd, sizeof(bd));
 	bd.ByteWidth = sizeof(*_matrix) + (((sizeof(*_matrix) % 16) == 0) ? 0 : (16 - (sizeof(*_matrix) % 16)));
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer0);
 	if (FAILED(hr))
 	{
