@@ -1,13 +1,6 @@
-Texture2D materialTex : register(t0);
+Texture2D<uint4> materialTex : register(t0);
 
-SamplerState gBufferSampleType : register(s0);
-
-cbuffer screenBuffer : register(b0)
-{
-	float2 screen;
-}
-
-cbuffer colorBuffer : register(b1)
+cbuffer screenColorBuffer : register(b0)
 {
 	float4 color;
 }
@@ -26,10 +19,10 @@ PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
-	//output.finalColor = materialTex.Sample(gBufferSampleType, input.position.xy / screen);
-	//output.finalColor = float4(0x000000FF & (int4(material) >> 16)) / 255;
+	uint4 material = materialTex[input.position.xy];
 
-	output.finalColor = float4(1.0, 1.0, 0.0, 1.0);
+	output.finalColor = float4(0x000000FF & (int4(material) >> 24)) / 255;
+	output.finalColor *= color;
 
 	return output;
 }

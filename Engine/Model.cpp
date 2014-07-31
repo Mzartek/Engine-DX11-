@@ -5,11 +5,9 @@
 
 engine::Model::Model(void)
 {
-	_tObject = NULL;
-	_pConstantBuffer0 = NULL;
-	_pConstantBuffer1 = NULL;
-	_matrix = (struct uniform0 *)_aligned_malloc(sizeof *_matrix, 16);
-	_screen = (struct uniform1 *)_aligned_malloc(sizeof *_screen, 16);
+	_tD3DObject = NULL;
+	_pMatrixBuffer = NULL;
+	_matrix = (struct matrix *)_aligned_malloc(sizeof *_matrix, 16);
 	_program = NULL;
 
 	matIdentity();
@@ -18,39 +16,36 @@ engine::Model::Model(void)
 engine::Model::~Model(void)
 {
 	UINT i;
-	if(_tObject != NULL && isMirror == FALSE)
+	if(_tD3DObject != NULL && isMirror == FALSE)
 	{
-		for (i = 0; i < _tObject->size(); i++)
-			delete (*_tObject)[i];
-		delete _tObject;
+		for (i = 0; i < _tD3DObject->size(); i++)
+			delete (*_tD3DObject)[i];
+		delete _tD3DObject;
 	}
 
-	if (_pConstantBuffer0)
-		_pConstantBuffer0->Release();
-	if (_pConstantBuffer1)
-		_pConstantBuffer1->Release();
-
 	_aligned_free(_matrix);
-	_aligned_free(_screen);
+
+	if (_pMatrixBuffer)
+		_pMatrixBuffer->Release();
 }
 
 void engine::Model::initObjectArray(void)
 {
 	UINT i;
-	if(_tObject != NULL && isMirror == FALSE)
+	if(_tD3DObject != NULL && isMirror == FALSE)
 	{
-		for (i = 0; i < _tObject->size(); i++)
-			delete (*_tObject)[i];
-		delete _tObject;
+		for (i = 0; i < _tD3DObject->size(); i++)
+			delete (*_tD3DObject)[i];
+		delete _tD3DObject;
 	}
 	isMirror = FALSE;
-	_tObject = new std::vector<D3DObject *>;
+	_tD3DObject = new std::vector<D3DObject *>;
 }
 
 void engine::Model::initObjectMirror(Model *m)
 {
 	isMirror = TRUE;
-	_tObject = m->_tObject;
+	_tD3DObject = m->_tD3DObject;
 }
 
 HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
@@ -67,15 +62,12 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;
 	bd.StructureByteStride = 0;
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer0);
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pMatrixBuffer);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Constant Buffer", "Model", MB_OK);
 		return hr;
 	}
-
-	bd.ByteWidth = sizeof(*_screen) + (((sizeof(*_screen) % 16) == 0) ? 0 : (16 - (sizeof(*_screen) % 16)));
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer1);
 
 	return hr;
 }
@@ -121,7 +113,7 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 		return hr;
 	}
   
-	_tObject->push_back(newone);
+	_tD3DObject->push_back(newone);
 
 	return S_OK;
 }
@@ -145,9 +137,9 @@ HRESULT engine::Model::loadFromFile(const TCHAR *szFileName, ID3D11Device *pd3dD
 	Assimp::Importer Importer;
 	UINT i, j;
 
-	if (_tObject != NULL && isMirror == FALSE)
+	if (_tD3DObject != NULL && isMirror == FALSE)
 	{
-		_tObject->clear();
+		_tD3DObject->clear();
 	}
 
 	const aiScene *pScene = Importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
@@ -223,7 +215,7 @@ HRESULT engine::Model::loadFromFile(const TCHAR *szFileName, ID3D11Device *pd3dD
 
 void engine::Model::sortObject(void)
 {
-	qsort(&(*_tObject)[0], _tObject->size(), sizeof (*_tObject)[0], comparD3DObject);
+	qsort(&(*_tD3DObject)[0], _tD3DObject->size(), sizeof (*_tD3DObject)[0], comparD3DObject);
 }
 
 void engine::Model::matIdentity(void)
@@ -263,15 +255,15 @@ DirectX::XMFLOAT3 engine::Model::getPosition(void) const
 
 engine::D3DObject *engine::Model::getD3DObject(UINT num) const
 {
-	if(num>=_tObject->size())
+	if(num>=_tD3DObject->size())
 	{
 		MessageBox(NULL, "Bad num Object!", "Error", MB_OK);
 		exit(1);
 	}
-	return (*_tObject)[num];
+	return (*_tD3DObject)[num];
 }
   
-void engine::Model::display(GBuffer *g, Camera *cam)// , LBuffer *l) const
+void engine::Model::display(GBuffer *g, Camera *cam)
 {
 	UINT i;
   
@@ -287,72 +279,12 @@ void engine::Model::display(GBuffer *g, Camera *cam)// , LBuffer *l) const
 	}
 
 	_matrix->MVP = *cam->getMatrix() * _matrix->modelMatrix;
-	_matrix->normalMatrix = DirectX::XMMatrixInverse(NULL, _matrix->modelMatrix);
-
-	_screen->screen[0] = (FLOAT)g->getWidth();
-	_screen->screen[1] = (FLOAT)g->getHeight();
+	_matrix->normalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(NULL, _matrix->modelMatrix));
   
-	g->getContext()->UpdateSubresource(_pConstantBuffer0, 0, NULL, _matrix, 0, 0);
-	g->getContext()->VSSetConstantBuffers(0, 1, &_pConstantBuffer0);
-	g->getContext()->UpdateSubresource(_pConstantBuffer1, 0, NULL, _screen, 0, 0);
-	g->getContext()->PSSetConstantBuffers(0, 1, &_pConstantBuffer1);
+	g->getContext()->UpdateSubresource(_pMatrixBuffer, 0, NULL, _matrix, 0, 0);
+	g->getContext()->VSSetConstantBuffers(0, 1, &_pMatrixBuffer);
   
-	for(i=0 ; i<_tObject->size(); i++)
-		(*_tObject)[i]->display(g);
+	for (i = 0; i<_tD3DObject->size(); i++)
+		if ((*_tD3DObject)[i]->getTransparency() == 1.0f)
+			(*_tD3DObject)[i]->display(g);
 }
-
-/*void engine::Model::displayOnGBuffer(Camera *cam, GBuffer *g) const
-{
-	GLuint i;
-	GLfloat tmp[16];
-	
-	if(cam == NULL)
-	{
-		std::cerr << "Bad Camera" << std::endl;
-		return;
-	}
-	if(g == NULL)
-	{
-		std::cerr << "Bad GBuffer!" << std::endl;
-		return;
-	}
-        
-	glUseProgram(g->getProgramId());
-	
-	matrixMultiply(tmp, cam->getMatrix(), _modelMatrix);
-	glUniformMatrix4fv(g->getMVPLocation(), 1, GL_FALSE, tmp);
-	glUniformMatrix4fv(g->getModelMatrixLocation(), 1, GL_FALSE, _modelMatrix);
-	matrixNormalFromModel(tmp, _modelMatrix);
-	glUniformMatrix3fv(g->getNormalMatrixLocation(), 1, GL_FALSE, tmp);
-	
-	glUseProgram(0);
-	
-	for(i=0 ; i<_tObject->size(); i++)
-		(*_tObject)[i]->displayOnGBuffer(g);
-}
-
-void engine::Model::displayShadow(Light *l) const
-{
-	GLuint i;
-	GLfloat tmp[16];
-
-	if(l == NULL)
-	{
-		std::cerr << "Bad Light!" << std::endl;
-		return;
-	}
-	if(l->getShadowMap() == NULL)
-	{
-		std::cerr << "You need to config the ShadowMap before!" << std::endl;
-		return;
-	}
-	
-	glUseProgram(l->getShadowMap()->getProgramId());
-	
-	matrixMultiply(tmp, l->getMatrix(), _modelMatrix);
-	glUniformMatrix4fv(l->getShadowMap()->getMVPLocation(), 1, GL_FALSE, tmp);
-	
-	glUseProgram(0);
-	for(i=0 ; i<_tObject->size(); i++)
-		(*_tObject)[i]->displayShadow(l);
-}*/

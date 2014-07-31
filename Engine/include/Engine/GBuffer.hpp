@@ -23,7 +23,6 @@ namespace engine
 		ID3D11RenderTargetView *_pRenderTargetView[GBUF_NUM_TEX - 1];
 		ID3D11DepthStencilView *_pDepthView;
 		// State
-		ID3D11SamplerState *_pSamplerState;
 		ID3D11DepthStencilState *_pDepthState;
 		ID3D11BlendState *_pBlendState;
 		ID3D11RasterizerState *_pRasterizerState;
@@ -32,7 +31,6 @@ namespace engine
 		~GBuffer(void);
 		HRESULT config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice);
 		ID3D11ShaderResourceView *getShaderResourceView(const UINT &num) const;
-		ID3D11SamplerState *getSamplerState(void) const;
 		ID3D11DeviceContext *getContext(void) const;
 		void clear(void) const;
 	};

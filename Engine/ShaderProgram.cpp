@@ -12,7 +12,8 @@ static HRESULT CompileShaderFromFile(WCHAR *szFileName, LPCSTR szEntryPoint, LPC
 	{
 		if (pErrorBlob)
 		{
-			OutputDebugStringA((char *)(pErrorBlob->GetBufferPointer()));
+			OutputDebugStringA((char *)pErrorBlob->GetBufferPointer());
+			MessageBox(NULL, (char *)pErrorBlob->GetBufferPointer(), "ShaderProgram", MB_OK);
 			pErrorBlob->Release();
 		}
 		return hr;

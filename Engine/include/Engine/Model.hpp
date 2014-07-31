@@ -11,22 +11,16 @@ namespace engine
 	class DLLAPI Model : public Object
 	{
 	private:
-		struct uniform0
+		struct matrix
 		{
 			DirectX::XMMATRIX MVP;
 			DirectX::XMMATRIX modelMatrix;
 			DirectX::XMMATRIX normalMatrix;
 		};
-		struct uniform1
-		{
-			FLOAT screen[2];
-		};
 		BOOL isMirror;
-		std::vector<D3DObject *> *_tObject;
-		ID3D11Buffer *_pConstantBuffer0;
-		ID3D11Buffer *_pConstantBuffer1;
-		struct uniform0 *_matrix;
-		struct uniform1 *_screen;
+		std::vector<D3DObject *> *_tD3DObject;
+		ID3D11Buffer *_pMatrixBuffer;
+		struct matrix *_matrix;
 		ShaderProgram *_program;
 	public:
 		Model();

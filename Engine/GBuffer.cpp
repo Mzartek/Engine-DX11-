@@ -17,7 +17,6 @@ engine::GBuffer::GBuffer(void)
 	_pRenderTargetView[GBUF_MATERIAL] = NULL;
 	_pDepthView = NULL;
 	// State
-	_pSamplerState = NULL;
 	_pDepthState = NULL;
 	_pBlendState = NULL;
 	_pRasterizerState = NULL;
@@ -35,8 +34,6 @@ engine::GBuffer::~GBuffer(void)
 		_pBlendState->Release();
 	if (_pDepthState)
 		_pDepthState->Release();
-	if (_pSamplerState)
-		_pSamplerState->Release();
 
 	// View
 	if (_pDepthView)
@@ -61,8 +58,6 @@ engine::GBuffer::~GBuffer(void)
 		_pTexture[GBUF_MATERIAL]->Release();
 	if (_pTexture[GBUF_NORMAL])
 		_pTexture[GBUF_NORMAL]->Release();
-	if (_pContext)
-		_pContext->Release();
 
 	// Context
 	if (_pContext)
@@ -175,28 +170,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		return hr;
 	}
 
-	// Create State
-	D3D11_SAMPLER_DESC descSampler;
-	descSampler.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	descSampler.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	descSampler.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	descSampler.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	descSampler.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	descSampler.MipLODBias = 0.0f;
-	descSampler.MaxAnisotropy = 1;
-	descSampler.BorderColor[0] = 0.0f;
-	descSampler.BorderColor[1] = 0.0f;
-	descSampler.BorderColor[2] = 0.0f;
-	descSampler.BorderColor[3] = 0.0f;
-	descSampler.MinLOD = 0;
-	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	hr = pd3dDevice->CreateSamplerState(&descSampler, &_pSamplerState);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Texture Sampler State", "GBuffer", NULL);
-		return hr;
-	}
-
 	D3D11_DEPTH_STENCIL_DESC descDepth;
 	descDepth.DepthEnable = TRUE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -264,10 +237,10 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	vp.TopLeftY = 0.0f;
 	vp.Width = (FLOAT)_width;
 	vp.Height = (FLOAT)_height;
-	vp.MaxDepth = 0.0f;
+	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 
-	_pContext->OMSetRenderTargets(GBUF_NUM_TEX - 1, _pRenderTargetView, NULL);
+	_pContext->OMSetRenderTargets(GBUF_NUM_TEX - 1, _pRenderTargetView, _pDepthView);
 	_pContext->OMSetDepthStencilState(_pDepthState, 0);
 	_pContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
 	_pContext->RSSetState(_pRasterizerState);
@@ -281,11 +254,6 @@ ID3D11ShaderResourceView *engine::GBuffer::getShaderResourceView(const UINT &num
 	return _pShaderResourceView[num];
 }
 
-ID3D11SamplerState *engine::GBuffer::getSamplerState(void) const
-{
-	return _pSamplerState;
-}
-
 ID3D11DeviceContext *engine::GBuffer::getContext(void) const
 {
 	return _pContext;
@@ -293,7 +261,7 @@ ID3D11DeviceContext *engine::GBuffer::getContext(void) const
 
 void engine::GBuffer::clear(void) const
 {
-	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], DirectX::Colors::RosyBrown);
+	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], DirectX::Colors::Transparent);
 	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], DirectX::Colors::Transparent);
 	_pContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

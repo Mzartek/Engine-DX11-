@@ -10,7 +10,7 @@ namespace engine
 	{
 		friend int comparD3DObject(const void *p1, const void *p2);
 	private:
-		struct uniform
+		struct material
 		{
 			FLOAT ambient[4];
 			FLOAT diffuse[4];
@@ -21,11 +21,11 @@ namespace engine
 		ID3D11Resource *_pResource;
 		ID3D11ShaderResourceView *_pShaderResourceView;
 		ID3D11SamplerState *_pSamplerState;
-		ID3D11Buffer *_pConstantBuffer;
+		ID3D11Buffer *_pMaterialBuffer;
 		ID3D11Buffer *_pVertexBuffer;
 		ID3D11Buffer *_pIndexBuffer;
 		ID3D11InputLayout *_pInputLayout;
-		struct uniform *_material;
+		struct material *_material;
 		ShaderProgram *_program;
 		UINT _numElement;
 	public:

@@ -1,17 +1,11 @@
 Texture2D colorTex : register(t0);
-Texture2D normalTex : register(t1);
-Texture2D materialTex : register(t2);
-Texture2D depthTex : register(t3);
+Texture2D<float4> normalTex : register(t1);
+Texture2D<uint4> materialTex : register(t2);
+Texture2D<float> depthTex : register(t3);
 
 SamplerState colorSampleType : register(s0);
-SamplerState gBufferSampleType : register(s1);
 
-cbuffer screenBuffer : register(b0)
-{
-	float2 screen;
-}
-
-cbuffer materialBuffer : register(b1)
+cbuffer materialBuffer : register(b0)
 {
 	float4 matAmbient;
 	float4 matDiffuse;
@@ -30,7 +24,7 @@ struct PS_OUTPUT
 {
 	float4 normal : SV_TARGET0;
 	uint4 material : SV_TARGET1;
-	//float depth : SV_Depth;
+	float depth : SV_Depth;
 };
 
 PS_OUTPUT main(PS_INPUT input)
@@ -47,13 +41,13 @@ PS_OUTPUT main(PS_INPUT input)
 			uint4(0x00FF0000 & int4(matAmbient * 255) << 16) |
 			uint4(0x0000FF00 & int4(matDiffuse * 255) << 8) |
 			uint4(0x000000FF & int4(matSpecular * 255));
-		//output.depth = input.position.z;
+		output.depth = input.position.z;
 	}
 	else
 	{
-		output.normal = normalTex.Sample(gBufferSampleType, input.position.xy / screen);
-		output.material = materialTex.Sample(gBufferSampleType, input.position.xy / screen);
-		//output.depth = depthTex.Sample(gBufferSampleType, input.position.xy / screen).x;
+		output.normal = normalTex[input.position.xy];
+		output.material = materialTex[input.position.xy];
+		output.depth = depthTex[input.position.xy];
 	}
 
 	return output;

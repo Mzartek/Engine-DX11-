@@ -37,10 +37,10 @@ void display(void)
 {
 	cam->position();
 
-	/*gBuffer->clear();
+	gBuffer->clear();
 	heli->display(gBuffer, cam);
 	sol->display(gBuffer, cam);
-	window->executeDeferredContext(gBuffer->getContext());*/
+	window->executeDeferredContext(gBuffer->getContext());
 
 	window->clear();
 	screen->display(window, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -76,7 +76,7 @@ void init(void)
 		MessageBox(NULL, "Error Config Shader", "Error", MB_OK);
 		exit(1);
 	}
-	/*if (FAILED(configBuffer()))
+	if (FAILED(configBuffer()))
 	{
 		MessageBox(NULL, "Error Config Buffer", "Error", MB_OK);
 		exit(1);
@@ -85,7 +85,7 @@ void init(void)
 	{
 		MessageBox(NULL, "Error Config Models", "Error", MB_OK);
 		exit(1);
-	}*/
+	}
 	if (FAILED(configScreen()))
 	{
 		MessageBox(NULL, "Error Config Screen", "Error", MB_OK);
@@ -117,7 +117,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	window = new engine::Window;
 	input = new engine::Input;
 
-	if (FAILED(window->initWindow(hInstance, WndProc, "Demo DirectX", 800, 600, FALSE)))
+	if (FAILED(window->initWindow(hInstance, WndProc, "Demo DirectX", 1680, 1050, TRUE)))
 	{
 		MessageBox(NULL, "Error while init window", "Error", MB_OK);
 		return 1;

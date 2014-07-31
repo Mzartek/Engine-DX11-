@@ -125,7 +125,6 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 		MessageBox(NULL, "Failed to get BackBuffer", "Window", NULL);
 		return hr;
 	}
-
 	hr = _pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &_pRenderTargetView);
 	if (FAILED(hr))
 	{
@@ -139,7 +138,7 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	descDepthStencilTexture.Height = height;
 	descDepthStencilTexture.MipLevels = 1;
 	descDepthStencilTexture.ArraySize = 1;
-	descDepthStencilTexture.Format = DXGI_FORMAT_D32_FLOAT;
+	descDepthStencilTexture.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	descDepthStencilTexture.SampleDesc.Count = 1;
 	descDepthStencilTexture.SampleDesc.Quality = 0;
 	descDepthStencilTexture.Usage = D3D11_USAGE_DEFAULT;
@@ -233,7 +232,7 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	vp.TopLeftY = 0.0f;
 	vp.Width = (FLOAT)_width;
 	vp.Height = (FLOAT)_height;
-	vp.MaxDepth = 0.0f;
+	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 
 	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
@@ -243,6 +242,22 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	_pImmediateContext->RSSetViewports(1, &vp);
 
 	return S_OK;
+}
+
+void engine::Window::clear(void)
+{
+	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, DirectX::Colors::Transparent);
+	_pImmediateContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+
+void engine::Window::executeDeferredContext(ID3D11DeviceContext *context)
+{
+	ID3D11CommandList *commandList;
+
+	context->FinishCommandList(TRUE, &commandList);
+	_pImmediateContext->ExecuteCommandList(commandList, TRUE);
+
+	commandList->Release();
 }
 
 void engine::Window::setDisplayFunc(void (*f) (void))
@@ -320,20 +335,4 @@ void engine::Window::mainLoop(int nCmdShow)
 void engine::Window::stopLoop(void)
 {
 	_stopLoop = TRUE;
-}
-
-void engine::Window::clear(void)
-{
-	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, DirectX::Colors::Transparent);
-	_pImmediateContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-}
-
-void engine::Window::executeDeferredContext(ID3D11DeviceContext *context)
-{
-	ID3D11CommandList *commandList;
-
-	context->FinishCommandList(TRUE, &commandList);
-	_pImmediateContext->ExecuteCommandList(commandList, TRUE);
-
-	commandList->Release();
 }

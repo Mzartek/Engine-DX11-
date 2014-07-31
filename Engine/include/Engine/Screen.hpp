@@ -10,20 +10,14 @@ namespace engine
 	class DLLAPI Screen : public Object
 	{
 	private:
-		struct uniform0
-		{
-			FLOAT screen[2];
-		};
-		struct uniform1
+		struct screenColor
 		{
 			FLOAT color[4];
 		};
-		ID3D11Buffer *_pConstantBuffer0;
-		ID3D11Buffer *_pConstantBuffer1;
+		ID3D11Buffer *_pScreenColorBuffer;
 		ID3D11Buffer *_pVertexBuffer;
 		ID3D11InputLayout *_pInputLayout;
-		struct uniform0 *_screen;
-		struct uniform1 *_color;
+		struct screenColor *_color;
 		ShaderProgram *_program;
 	public:
 		Screen();

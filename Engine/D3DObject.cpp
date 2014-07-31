@@ -6,11 +6,11 @@ engine::D3DObject::D3DObject(void)
 	_pResource = NULL;
 	_pShaderResourceView = NULL;
 	_pSamplerState = NULL;
-	_pConstantBuffer = NULL;
+	_pMaterialBuffer = NULL;
 	_pVertexBuffer = NULL;
 	_pIndexBuffer = NULL;
 	_pInputLayout = NULL;
-	_material = (struct uniform *)_aligned_malloc(sizeof *_material, 16);
+	_material = (struct material *)_aligned_malloc(sizeof *_material, 16);
 	_program = NULL;
 
 	for (i = 0; i<4; i++)
@@ -24,22 +24,22 @@ engine::D3DObject::D3DObject(void)
 
 engine::D3DObject::~D3DObject(void)
 {
+	_aligned_free(_material);
+
 	if (_pInputLayout)
 		_pInputLayout->Release();
 	if (_pIndexBuffer)
 		_pIndexBuffer->Release();
 	if (_pVertexBuffer)
 		_pVertexBuffer->Release();
-	if (_pConstantBuffer)
-		_pConstantBuffer->Release();
+	if (_pMaterialBuffer)
+		_pMaterialBuffer->Release();
 	if (_pSamplerState)
 		_pSamplerState->Release();
 	if (_pShaderResourceView)
 		_pShaderResourceView->Release();
 	if (_pResource)
 		_pResource->Release();
-
-	_aligned_free(_material);
 }
 
 HRESULT engine::D3DObject::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
@@ -56,7 +56,7 @@ HRESULT engine::D3DObject::config(ShaderProgram *program, ID3D11Device *pd3dDevi
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;
 	bd.StructureByteStride = 0;
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pConstantBuffer);
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pMaterialBuffer);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Constant Buffer", "D3DObject", MB_OK);
@@ -185,13 +185,12 @@ void engine::D3DObject::display(GBuffer *g) const
 	ID3D11SamplerState *psam[] =
 	{
 		_pSamplerState,
-		g->getSamplerState(),
 	};
 	g->getContext()->PSSetSamplers(0, ARRAYSIZE(psam), psam);
 
 	// Uniform
-	g->getContext()->UpdateSubresource(_pConstantBuffer, 0, NULL, _material, 0, 0);
-	g->getContext()->PSSetConstantBuffers(1, 1, &_pConstantBuffer);
+	g->getContext()->UpdateSubresource(_pMaterialBuffer, 0, NULL, _material, 0, 0);
+	g->getContext()->PSSetConstantBuffers(0, 1, &_pMaterialBuffer);
 
 	// Vertex And Index Buffer
 	UINT stride = 8 * sizeof(FLOAT);
