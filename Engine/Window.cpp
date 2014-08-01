@@ -75,7 +75,7 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 	RegisterClass(&wcex);
 
 	_hInst = hInstance;
-	_hWnd = CreateWindow(szTitle, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, hInstance, NULL);
+	_hWnd = CreateWindow(szTitle, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, NULL, NULL, hInstance, NULL);
 
 	if (!_hWnd)
 	{
@@ -85,8 +85,8 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 
 	// Init swap chain
 	DXGI_SWAP_CHAIN_DESC sd;
-	sd.BufferDesc.Width = width;
-	sd.BufferDesc.Height = height;
+	sd.BufferDesc.Width = _width;
+	sd.BufferDesc.Height = _height;
 	sd.BufferDesc.RefreshRate.Numerator = 60;
 	sd.BufferDesc.RefreshRate.Denominator = 1;
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -134,8 +134,8 @@ HRESULT engine::Window::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK 
 
 	// Create the DepthStencilTexture
 	D3D11_TEXTURE2D_DESC descDepthStencilTexture;
-	descDepthStencilTexture.Width = width;
-	descDepthStencilTexture.Height = height;
+	descDepthStencilTexture.Width = _width;
+	descDepthStencilTexture.Height = _height;
 	descDepthStencilTexture.MipLevels = 1;
 	descDepthStencilTexture.ArraySize = 1;
 	descDepthStencilTexture.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -309,9 +309,15 @@ void engine::Window::mainLoop(int nCmdShow)
 {
 	MSG msg = { 0 };
 
-	_stopLoop = FALSE;
+	if (!_reshape || !_idle || !_display)
+	{
+		MessageBox(NULL, "You need to set the Reshape, Idle and Display Function before", "Window", MB_OK);
+		return;
+	}
+
 	ShowWindow(_hWnd, nCmdShow);
-	//ShowCursor(FALSE);
+	_stopLoop = FALSE;
+	_reshape(_width, _height);
 	while (msg.message != WM_QUIT)
 	{
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -323,10 +329,10 @@ void engine::Window::mainLoop(int nCmdShow)
 		{
 			if (_stopLoop)
 				msg.message = WM_QUIT;
-			if (_idle)
-				_idle();
-			if (_display)
-				_display();
+
+			_idle();
+			_display();
+
 			_pSwapChain->Present(1, 0);
 		}
 	}

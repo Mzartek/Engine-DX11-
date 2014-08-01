@@ -61,6 +61,11 @@ void idle(void)
 	heli->matRotate(0.1f, 0, 1, 0);
 }
 
+void reshape(UINT width, UINT height)
+{
+	cam->setPerspective(90.0f, width, height, 0.1f, 1500.0f);
+}
+
 void init(void)
 {
 	gBuffer = new engine::GBuffer;
@@ -92,9 +97,8 @@ void init(void)
 		exit(1);
 	}
 
-	cam->setPerspective(90.0f, window->getWidth(), window->getHeight(), 0.1f, 1500.0f);
 	cam->setPositionCamera(5.0f, 5.0f, -5.0f);
-	cam->setPositionTarget(0.0f, 2.5f, 0.0f);
+	cam->setInitialAngle(135, 0);
 }
 
 void kill()
@@ -117,7 +121,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	window = new engine::Window;
 	input = new engine::Input;
 
-	if (FAILED(window->initWindow(hInstance, WndProc, "Demo DirectX", 1680, 1050, TRUE)))
+	if (FAILED(window->initWindow(hInstance, WndProc, "Demo DirectX", 800, 600, FALSE)))
 	{
 		MessageBox(NULL, "Error while init window", "Error", MB_OK);
 		return 1;
@@ -127,6 +131,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		MessageBox(NULL, "Error while init input", "Error", MB_OK);
 		return 1;
 	}
+	window->setReshapeFunc(reshape);
 	window->setIdleFunc(idle);
 	window->setDisplayFunc(display);
 

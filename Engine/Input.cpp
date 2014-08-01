@@ -42,14 +42,14 @@ HRESULT engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
 	hr = _pKeyBoard->SetDataFormat(&c_dfDIKeyboard);
 	if (FAILED(hr))
 		return hr;
-	hr = _pKeyBoard->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+	hr = _pKeyBoard->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
 	if (FAILED(hr))
 		return hr;
 
 	hr = _pMouse->SetDataFormat(&c_dfDIMouse);
 	if (FAILED(hr))
 		return hr;
-	hr = _pMouse->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+	hr = _pMouse->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
 	if (FAILED(hr))
 		return hr;
 
@@ -61,9 +61,14 @@ HRESULT engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
 
 void engine::Input::refresh(void)
 {
-	if (_pKeyBoard->GetDeviceState(sizeof(_keyState), (LPVOID)&_keyState) == DIERR_NOTACQUIRED)
+	HRESULT hr;
+
+	hr = _pKeyBoard->GetDeviceState(sizeof(_keyState), (LPVOID)&_keyState);
+	if (hr == DIERR_INPUTLOST || hr == DIERR_NOTACQUIRED)
 		_pKeyBoard->Acquire();
-	if (_pMouse->GetDeviceState(sizeof(_mouseState), (LPVOID)&_mouseState) == DIERR_NOTACQUIRED)
+
+	hr = _pMouse->GetDeviceState(sizeof(_mouseState), (LPVOID)&_mouseState);
+	if (hr == DIERR_INPUTLOST || hr == DIERR_NOTACQUIRED)
 		_pMouse->Acquire();
 }
 

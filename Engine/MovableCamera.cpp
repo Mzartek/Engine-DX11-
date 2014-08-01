@@ -14,6 +14,39 @@ engine::MovableCamera::~MovableCamera(void)
 	delete _vleft;
 }
 
+void engine::MovableCamera::setInitialAngle(const FLOAT &t, const FLOAT &p)
+{
+	_atheta = t;
+	_aphi = p;
+
+	if (_atheta > 360)
+		_atheta -= 360;
+	else if (_atheta < -360)
+		_atheta += 360;
+	if (_aphi > 89)
+		_aphi = 89;
+	else if (_aphi < -89)
+		_aphi = -89;
+
+	FLOAT tmp = (FLOAT)cos(_aphi*DirectX::XM_PI / 180);
+	_vforward->y = (FLOAT)sin(_aphi*DirectX::XM_PI / 180);
+	_vforward->z = tmp*(FLOAT)cos(_atheta*DirectX::XM_PI / 180);
+	_vforward->x = tmp*(FLOAT)sin(_atheta*DirectX::XM_PI / 180);
+
+	_vleft->x = 1 * _vforward->z;
+	_vleft->y = 0;
+	_vleft->z = -(1 * _vforward->x);
+
+	tmp = (FLOAT)sqrt(_vleft->x*_vleft->x + _vleft->y*_vleft->y + _vleft->z*_vleft->z);
+	_vleft->x /= tmp;
+	_vleft->y /= tmp;
+	_vleft->z /= tmp;
+
+	_ptarget->x = _pcamera->x + _vforward->x;
+	_ptarget->y = _pcamera->y + _vforward->y;
+	_ptarget->z = _pcamera->z + _vforward->z;
+}
+
 void engine::MovableCamera::setSpeed(const FLOAT &v)
 {
 	_speed = v;

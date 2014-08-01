@@ -17,6 +17,7 @@ namespace engine
 	public:
 		MovableCamera(void);
 		~MovableCamera(void);
+		void setInitialAngle(const FLOAT &t, const FLOAT &p);
 		void setSpeed(const FLOAT &v);
 		void mouseMove(const INT &xrel, const INT &yrel);
 		DirectX::XMFLOAT3 *getForward(void) const;
