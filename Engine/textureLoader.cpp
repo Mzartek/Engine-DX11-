@@ -1,13 +1,22 @@
 #include <Engine/DXHead.hpp>
 #include <FreeImage.h>
 
-HRESULT engine::loadTextureFromFile(const TCHAR *szFileName, ID3D11ShaderResourceView **ppshr, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice)
+HRESULT engine::loadTextureFromFile(const TCHAR *szFileName, 
+	ID3D11ShaderResourceView **ppshr, ID3D11SamplerState **ppsam, 
+	ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
 	FIBITMAP *image = NULL;
 	FIBITMAP *tmp = NULL;
 
-	image = FreeImage_Load(FreeImage_GetFileType(&szFileName[0]), &szFileName[0]);
+	image = FreeImage_Load(FreeImage_GetFileType(szFileName), &szFileName[0]);
+	if (image == NULL)
+	{
+		std::string text = "Fail to load file: ";
+		text.append(szFileName);
+		MessageBox(NULL, text.c_str(), "Texture", MB_OK);
+		return E_FAIL;
+	}
 	tmp = image;
 	image = FreeImage_ConvertTo32Bits(image);
 	FreeImage_Unload(tmp);
@@ -15,35 +24,38 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName, ID3D11ShaderResourc
 	D3D11_TEXTURE2D_DESC descTexture;
 	descTexture.Width = FreeImage_GetWidth(image);
 	descTexture.Height = FreeImage_GetHeight(image);
-	descTexture.MipLevels = 1;
+	descTexture.MipLevels = 9;
 	descTexture.ArraySize = 1;
 	descTexture.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	descTexture.SampleDesc.Count = 1;
 	descTexture.SampleDesc.Quality = 0;
 	descTexture.Usage = D3D11_USAGE_DEFAULT;
-	descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	descTexture.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	descTexture.CPUAccessFlags = 0;
-	descTexture.MiscFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = FreeImage_GetBits(image);
-	data.SysMemPitch = 4 * descTexture.Width;
-	data.SysMemSlicePitch = 4 * descTexture.Width * descTexture.Height;
+	descTexture.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
 	ID3D11Texture2D *tex;
-	hr = pd3dDevice->CreateTexture2D(&descTexture, &data, &tex);
-	FreeImage_Unload(image);
+	hr = pd3dDevice->CreateTexture2D(&descTexture, NULL, &tex);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Error while creating the Texture2D", "Texture", MB_OK);
 		return hr;
+	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC descShaderResourceView;
 	descShaderResourceView.Format = descTexture.Format;
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	descShaderResourceView.Texture2D.MostDetailedMip = 0;
-	descShaderResourceView.Texture2D.MipLevels = 1;
+	descShaderResourceView.Texture2D.MipLevels = descTexture.MipLevels;
 	hr = pd3dDevice->CreateShaderResourceView(tex, &descShaderResourceView, ppshr);
 	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Error while creating the ShaderResourceView", "Texture", MB_OK);
 		return hr;
+	}
+
+	pContext->UpdateSubresource(tex, 0, NULL, FreeImage_GetBits(image), 4 * descTexture.Width, 4 * descTexture.Width * descTexture.Height);
+	pContext->GenerateMips(*ppshr);
 
 	D3D11_SAMPLER_DESC descSampler;
 	descSampler.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -60,6 +72,13 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName, ID3D11ShaderResourc
 	descSampler.MinLOD = 0;
 	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
 	hr = pd3dDevice->CreateSamplerState(&descSampler, ppsam);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Error while creating the SamplerState", "Texture", MB_OK);
+		return hr;
+	}
+
+	FreeImage_Unload(image);
 
 	return hr;
 }

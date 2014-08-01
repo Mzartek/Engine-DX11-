@@ -44,6 +44,13 @@ void engine::Model::initObjectArray(void)
 
 void engine::Model::initObjectMirror(Model *m)
 {
+	UINT i;
+	if (_tD3DObject != NULL && isMirror == FALSE)
+	{
+		for (i = 0; i < _tD3DObject->size(); i++)
+			delete (*_tD3DObject)[i];
+		delete _tD3DObject;
+	}
 	isMirror = TRUE;
 	_tD3DObject = m->_tD3DObject;
 }
@@ -76,26 +83,24 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 	const UINT &sizeIndexArray, const UINT *indexArray,
 	const TCHAR *pathTexture,
 	const FLOAT *ambient, const FLOAT *diffuse, const FLOAT *specular, const FLOAT *shininess,
-	ID3D11Device *pd3dDevice)
+	ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
 	D3DObject *newone = new D3DObject;
 	ID3D11ShaderResourceView *pshr;
 	ID3D11SamplerState *psam;
 
-	hr = loadTextureFromFile(pathTexture, &pshr, &psam, pd3dDevice);
+	hr = loadTextureFromFile(pathTexture, &pshr, &psam, pd3dDevice, pContext);
 	if (FAILED(hr))
 	{
-		std::string text = "Fail to load Texture: ";
-		text.append(pathTexture);
-		MessageBox(NULL, text.c_str(), "Error", MB_OK);
+		MessageBox(NULL, "Fail to load Texture", "Model", MB_OK);
 		return hr;
 	}
 
 	hr = newone->config(_program, pd3dDevice);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Fail to load ShaderProgram", "Error", MB_OK);
+		MessageBox(NULL, "Fail to load ShaderProgram", "Model", MB_OK);
 		return hr;
 	}
 
@@ -109,7 +114,7 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 		pd3dDevice);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Fail to load an Object", "Error", MB_OK);
+		MessageBox(NULL, "Fail to load an Object", "Model", MB_OK);
 		return hr;
 	}
   
@@ -132,7 +137,8 @@ static std::string getDir(const TCHAR *file)
 	return path;
 }
 
-HRESULT engine::Model::loadFromFile(const TCHAR *szFileName, ID3D11Device *pd3dDevice)
+HRESULT engine::Model::loadFromFile(const TCHAR *szFileName, 
+	ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	Assimp::Importer Importer;
 	UINT i, j;
@@ -203,7 +209,7 @@ HRESULT engine::Model::loadFromFile(const TCHAR *szFileName, ID3D11Device *pd3dD
 			fullPath.c_str(),
 			(FLOAT *)&mat_ambient, (FLOAT *)&mat_diffuse, (FLOAT *)&mat_specular,
 			&mat_shininess,
-			pd3dDevice)))
+			pd3dDevice, pContext)))
 			return E_FAIL;
 
 		vertices.clear();

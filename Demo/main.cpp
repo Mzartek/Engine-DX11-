@@ -73,22 +73,22 @@ void init(void)
 
 	if (FAILED(configShader()))
 	{
-		MessageBox(NULL, "Error Config Shader", "Error", MB_OK);
+		MessageBox(NULL, "Error Config Shader", "Main", MB_OK);
 		exit(1);
 	}
 	if (FAILED(configBuffer()))
 	{
-		MessageBox(NULL, "Error Config Buffer", "Error", MB_OK);
+		MessageBox(NULL, "Error Config Buffer", "Main", MB_OK);
 		exit(1);
 	}
 	if (FAILED(configModels()))
 	{
-		MessageBox(NULL, "Error Config Models", "Error", MB_OK);
+		MessageBox(NULL, "Error Config Models", "Main", MB_OK);
 		exit(1);
 	}
 	if (FAILED(configScreen()))
 	{
-		MessageBox(NULL, "Error Config Screen", "Error", MB_OK);
+		MessageBox(NULL, "Error Config Screen", "Main", MB_OK);
 		exit(1);
 	}
 

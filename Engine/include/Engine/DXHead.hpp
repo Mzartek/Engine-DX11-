@@ -32,7 +32,9 @@ namespace engine
 		DirectX::XMFLOAT3 normal;
 	} Vertex;
 
-	extern DLLAPI HRESULT loadTextureFromFile(const TCHAR *szFileName, ID3D11ShaderResourceView **ppshr, ID3D11SamplerState **ppsam, ID3D11Device *pd3dDevice);
+	extern DLLAPI HRESULT loadTextureFromFile(const TCHAR *szFileName, 
+		ID3D11ShaderResourceView **ppshr, ID3D11SamplerState **ppsam, 
+		ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
 }
 
 #endif

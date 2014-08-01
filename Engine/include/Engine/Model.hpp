@@ -32,8 +32,9 @@ namespace engine
 				  const UINT &sizeIndexArray, const UINT *indexArray,
 				  const TCHAR *pathTexture,
 				  const FLOAT *ambient, const FLOAT *diffuse, const FLOAT *specular, const FLOAT *shininess,
-				  ID3D11Device *pd3dDevice);
-		HRESULT loadFromFile(const TCHAR *szFileName, ID3D11Device *pd3dDevice);
+				  ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
+		HRESULT loadFromFile(const TCHAR *szFileName, 
+			ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
 		void sortObject(void);
 		void matIdentity(void);
 		void matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z);

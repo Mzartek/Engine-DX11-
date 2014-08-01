@@ -51,7 +51,7 @@ HRESULT configModels(void)
 		sizeof index, index,
 		"resources/ornaments.jpg",
 		mat_ambient, mat_diffuse, mat_specular, mat_shininess,
-		window->getD3DDevice());
+		window->getD3DDevice(), window->getImmediateContext());
 	if (FAILED(hr))
 		return hr;
 
@@ -60,11 +60,15 @@ HRESULT configModels(void)
 	hr = heli->config(gObjectProgram, window->getD3DDevice());
 	if (FAILED(hr))
 		return hr;
-	hr = heli->loadFromFile("resources/heli/corps.obj", window->getD3DDevice());
-	heli->matTranslate(0.0f, 4.0f, 0.0f);
+	hr = heli->loadFromFile("resources/heli/corps.obj", window->getD3DDevice(), window->getImmediateContext());
+	if (FAILED(hr))
+		return hr;
 	heli->sortObject();
+	heli->matIdentity();
+	heli->matTranslate(0.0f, 6.0f, 0.0f);
+	heli->matScale(2, 2, 2);
 
-	return hr;
+	return S_OK;
 }
 
 HRESULT configScreen(void)
