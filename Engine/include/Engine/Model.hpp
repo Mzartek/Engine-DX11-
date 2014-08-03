@@ -4,7 +4,6 @@
 #include "D3DObject.hpp"
 #include "ShaderProgram.hpp"
 #include "Camera.hpp"
-#include "Window.hpp"
 
 namespace engine
 {

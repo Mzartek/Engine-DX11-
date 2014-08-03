@@ -275,18 +275,24 @@ void engine::Model::display(GBuffer *g, Camera *cam)
   
 	if(_program == NULL)
 	{
-		MessageBox(NULL, "Load a program before!", "Error", MB_OK);
+		MessageBox(NULL, "Load a program before!", "Model", MB_OK);
 		exit(1);
 	}
 	if(cam == NULL)
 	{
-		MessageBox(NULL, "Bad Camera!", "Error", MB_OK);
+		MessageBox(NULL, "Bad Camera!", "Model", MB_OK);
 		exit(1);
 	}
 
-	_matrix->MVP = *cam->getMatrix() * _matrix->modelMatrix;
+	_matrix->MVP = cam->getVPMatrix() * _matrix->modelMatrix;
 	_matrix->normalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(NULL, _matrix->modelMatrix));
+
+	// Shader
+	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
+	g->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
+	g->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
   
+	// Matrix Buffer
 	g->getContext()->UpdateSubresource(_pMatrixBuffer, 0, NULL, _matrix, 0, 0);
 	g->getContext()->VSSetConstantBuffers(0, 1, &_pMatrixBuffer);
   

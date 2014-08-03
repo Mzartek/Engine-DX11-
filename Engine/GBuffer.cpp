@@ -175,16 +175,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
-	descDepth.StencilReadMask = 0xFF;
-	descDepth.StencilWriteMask = 0xFF;
-	descDepth.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	descDepth.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-	descDepth.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	descDepth.FrontFace.StencilFunc = D3D11_COMPARISON_NEVER;
-	descDepth.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	descDepth.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-	descDepth.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	descDepth.BackFace.StencilFunc = D3D11_COMPARISON_NEVER;
 	hr = pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthState);
 	if (FAILED(hr))
 	{

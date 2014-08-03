@@ -9,7 +9,7 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName,
 	FIBITMAP *image = NULL;
 	FIBITMAP *tmp = NULL;
 
-	image = FreeImage_Load(FreeImage_GetFileType(szFileName), &szFileName[0]);
+	image = FreeImage_Load(FreeImage_GetFileType(szFileName), szFileName);
 	if (image == NULL)
 	{
 		std::string text = "Fail to load file: ";
@@ -59,7 +59,7 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName,
 
 	D3D11_SAMPLER_DESC descSampler;
 	descSampler.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	descSampler.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	descSampler.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; 
 	descSampler.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	descSampler.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	descSampler.ComparisonFunc = D3D11_COMPARISON_NEVER;

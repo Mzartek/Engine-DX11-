@@ -90,7 +90,8 @@
     <ClInclude Include="include\Engine\PlayerCam.hpp" />
     <ClInclude Include="include\Engine\Screen.hpp" />
     <ClInclude Include="include\Engine\ShaderProgram.hpp" />
-    <ClInclude Include="include\Engine\Window.hpp" />
+    <ClInclude Include="include\Engine\SkyBox.hpp" />
+    <ClInclude Include="include\Engine\Renderer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
@@ -105,8 +106,9 @@
     <ClCompile Include="PlayerCam.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="textureLoader.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

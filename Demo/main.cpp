@@ -1,14 +1,16 @@
 #include "include/config.hpp"
 
 // Globales variables
-engine::Window*				window = NULL;
+engine::Renderer*			renderer = NULL;
 engine::Input*				input = NULL;
 engine::GBuffer*			gBuffer = NULL;
 engine::FreeCam*			cam = NULL;
 engine::Model*				sol = NULL;
 engine::Model*				heli = NULL;
 engine::Screen*				screen = NULL;
+engine::SkyBox*				skybox = NULL;
 engine::ShaderProgram*		gObjectProgram = NULL;
+engine::ShaderProgram*		gSkyboxProgram = NULL;
 engine::ShaderProgram*		screenProgram = NULL;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -38,19 +40,20 @@ void display(void)
 	cam->position();
 
 	gBuffer->clear();
+	skybox->display(gBuffer, cam);
 	heli->display(gBuffer, cam);
 	sol->display(gBuffer, cam);
-	window->executeDeferredContext(gBuffer->getContext());
+	renderer->executeDeferredContext(gBuffer->getContext());
 
-	window->clear();
-	screen->display(window, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
+	renderer->clear();
+	screen->display(renderer, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void idle(void)
 {
 	input->refresh();
 	if (input->getKeyBoardState(DIK_ESCAPE))
-		window->stopLoop();
+		renderer->stopLoop();
 	cam->keyboardMove(input->getKeyBoardState(DIK_W), input->getKeyBoardState(DIK_S), input->getKeyBoardState(DIK_A), input->getKeyBoardState(DIK_D));
 	cam->mouseMove(input->getMouseRelX(), input->getMouseRelY());
 	if (input->getKeyBoardState(DIK_LSHIFT))
@@ -73,7 +76,9 @@ void init(void)
 	sol = new engine::Model;
 	heli = new engine::Model;
 	screen = new engine::Screen;
+	skybox = new engine::SkyBox;
 	gObjectProgram = new engine::ShaderProgram;
+	gSkyboxProgram = new engine::ShaderProgram;
 	screenProgram = new engine::ShaderProgram;
 
 	if (FAILED(configShader()))
@@ -96,6 +101,11 @@ void init(void)
 		MessageBox(NULL, "Error Config Screen", "Main", MB_OK);
 		exit(1);
 	}
+	if (FAILED(configSkyBox()))
+	{
+		MessageBox(NULL, "Error Config SkyBox", "Main", MB_OK);
+		exit(1);
+	}
 
 	cam->setPositionCamera(5.0f, 5.0f, -5.0f);
 	cam->setInitialAngle(135, 0);
@@ -104,7 +114,9 @@ void init(void)
 void kill()
 {
 	delete screenProgram;
+	delete gSkyboxProgram;
 	delete gObjectProgram;
+	delete skybox;
 	delete screen;
 	delete heli;
 	delete sol;
@@ -118,30 +130,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	std::string text;
-	window = new engine::Window;
+	renderer = new engine::Renderer;
 	input = new engine::Input;
 
-	if (FAILED(window->initWindow(hInstance, WndProc, "Demo DirectX", 800, 600, FALSE)))
+	if (FAILED(renderer->initWindow(hInstance, WndProc, "Demo DirectX", 800, 600, FALSE)))
 	{
 		MessageBox(NULL, "Error while init window", "Error", MB_OK);
 		return 1;
 	}
-	if (FAILED(input->initInput(hInstance, window->getHWND())))
+	if (FAILED(input->initInput(hInstance, renderer->getHWND())))
 	{
 		MessageBox(NULL, "Error while init input", "Error", MB_OK);
 		return 1;
 	}
-	window->setReshapeFunc(reshape);
-	window->setIdleFunc(idle);
-	window->setDisplayFunc(display);
+	renderer->setReshapeFunc(reshape);
+	renderer->setIdleFunc(idle);
+	renderer->setDisplayFunc(display);
 
 	init();
 
-	window->mainLoop(nCmdShow);
+	renderer->mainLoop(nCmdShow);
 
 	kill();
 
-	delete window;
+	delete renderer;
 	delete input;
 
 	text = std::to_string(engine::Object::getMemoryState());

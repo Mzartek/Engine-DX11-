@@ -80,7 +80,7 @@ HRESULT engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 
 #undef BUFFER_OFFSET
 
-void engine::Screen::display(Window *win, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
+void engine::Screen::display(Renderer *win, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
 {
 	if (_program == NULL)
 	{

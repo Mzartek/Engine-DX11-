@@ -22,12 +22,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shader\main\mainPixel.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\main\mainVertex.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shader\object\gObjectPixel.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -38,6 +32,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shader\screen\screenVertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\skybox\gSkyboxPixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\skybox\gSkyboxVertex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

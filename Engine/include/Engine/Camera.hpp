@@ -21,11 +21,11 @@ namespace engine
 		void setPositionCamera(const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void setPositionTarget(const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f);
-		DirectX::XMFLOAT3 *getPositionCamera(void) const;
-		DirectX::XMFLOAT3 *getPositionTarget(void) const;
+		DirectX::XMFLOAT3 getPositionCamera(void) const;
+		DirectX::XMFLOAT3 getPositionTarget(void) const;
 		UINT getWidth(void) const;
 		UINT getHeight(void) const;
-		DirectX::XMMATRIX *getMatrix(void);
+		DirectX::XMMATRIX getVPMatrix(void);
 		void position(void);
 	};
 }
