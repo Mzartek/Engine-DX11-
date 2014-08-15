@@ -20,7 +20,8 @@ namespace engine
 		void setInitialAngle(const FLOAT &t, const FLOAT &p);
 		void setSpeed(const FLOAT &v);
 		void mouseMove(const INT &xrel, const INT &yrel);
-		DirectX::XMFLOAT3 *getForward(void) const;
+		DirectX::XMFLOAT3 getForward(void) const;
+		DirectX::XMFLOAT3 getLeft(void) const;
 		virtual void keyboardMove(const BOOL &f, const BOOL &b, const BOOL &l, const BOOL &r) = 0;
 	};
 }

@@ -85,7 +85,12 @@ void engine::MovableCamera::mouseMove(const INT &xrel, const INT &yrel)
 	_ptarget->z = _pcamera->z + _vforward->z;
 }
 
-DirectX::XMFLOAT3 *engine::MovableCamera::getForward(void) const
+DirectX::XMFLOAT3 engine::MovableCamera::getForward(void) const
 {
-	return _vforward;
+	return *_vforward;
+}
+
+DirectX::XMFLOAT3 engine::MovableCamera::getLeft(void) const
+{
+	return *_vleft;
 }

@@ -5,7 +5,8 @@ engine::Camera::Camera(void)
 	_pcamera = new DirectX::XMFLOAT3;
 	_ptarget = new DirectX::XMFLOAT3;
 	_projectionMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_projectionMatrix, 16);
-	_VP = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_VP, 16);
+	_VPMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_VPMatrix, 16);
+
 	_pcamera->x = 0;
 	_pcamera->y = 0;
 	_pcamera->z = 0;
@@ -16,7 +17,8 @@ engine::Camera::Camera(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 	_pcamera = new DirectX::XMFLOAT3;
 	_ptarget = new DirectX::XMFLOAT3;
 	_projectionMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_projectionMatrix, 16);
-	_VP = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_VP, 16);
+	_VPMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_VPMatrix, 16);
+
 	_pcamera->x = x;
 	_pcamera->y = y;
 	_pcamera->z = z;
@@ -27,7 +29,7 @@ engine::Camera::~Camera(void)
 	delete _pcamera;
 	delete _ptarget;
 	_aligned_free(_projectionMatrix);
-	_aligned_free(_VP);
+	_aligned_free(_VPMatrix);
 }
 
 void engine::Camera::setPositionCamera(const FLOAT &x, const FLOAT &y, const FLOAT &z)
@@ -46,9 +48,7 @@ void engine::Camera::setPositionTarget(const FLOAT &x, const FLOAT &y, const FLO
 
 void engine::Camera::setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f)
 {
-	_width = width;
-	_height = height;
-	*_projectionMatrix = DirectX::XMMatrixPerspectiveFovRH(fov*((FLOAT)DirectX::XM_PI / 180), (FLOAT)_width / (FLOAT)_height, n, f);
+	*_projectionMatrix = DirectX::XMMatrixPerspectiveFovRH(fov*((FLOAT)DirectX::XM_PI / 180), (FLOAT)width / (FLOAT)height, n, f);
 }
 
 DirectX::XMFLOAT3 engine::Camera::getPositionCamera(void) const
@@ -61,19 +61,14 @@ DirectX::XMFLOAT3 engine::Camera::getPositionTarget(void) const
 	return *_ptarget;
 }
 
-UINT engine::Camera::getWidth(void) const
+DirectX::XMMATRIX engine::Camera::getProjectionMatrix(void) const
 {
-	return _width;
+	return *_projectionMatrix;
 }
 
-UINT engine::Camera::getHeight(void) const
+DirectX::XMMATRIX engine::Camera::getVPMatrix(void) const
 {
-	return _height;
-}
-
-DirectX::XMMATRIX engine::Camera::getVPMatrix(void)
-{
-	return *_VP;
+	return *_VPMatrix;
 }
 
 void engine::Camera::position(void)
@@ -81,8 +76,6 @@ void engine::Camera::position(void)
 	DirectX::XMVECTOR camera = DirectX::XMVectorSet(_pcamera->x, _pcamera->y, _pcamera->z, 0.0f);
 	DirectX::XMVECTOR target = DirectX::XMVectorSet(_ptarget->x, _ptarget->y, _ptarget->z, 0.0f);
 	DirectX::XMVECTOR head = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	DirectX::XMMATRIX view;
 
-	view = DirectX::XMMatrixLookAtRH(camera, target, head);
-	*_VP = XMMatrixTranspose(*_projectionMatrix) * XMMatrixTranspose(view);
+	*_VPMatrix = XMMatrixTranspose(*_projectionMatrix) * XMMatrixTranspose(DirectX::XMMatrixLookAtRH(camera, target, head));
 }
