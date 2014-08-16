@@ -173,7 +173,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	D3D11_DEPTH_STENCIL_DESC descDepth;
 	descDepth.DepthEnable = TRUE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
+	descDepth.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	descDepth.StencilEnable = FALSE;
 	hr = pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthState);
 	if (FAILED(hr))

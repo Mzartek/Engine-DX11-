@@ -50,10 +50,10 @@ HRESULT configModels(void)
 	};
 	UINT index[] = { 0, 2, 1, 0, 2, 3 };
 
-	sol->initObjectArray();
 	hr = sol->config(gObjectProgram, renderer->getD3DDevice());
 	if (FAILED(hr))
 		return hr;
+	sol->initD3DObjectArray();
 	hr = sol->createObject(sizeof(vertexArray), (FLOAT *)vertexArray,
 		sizeof index, index,
 		"resources/ornaments.jpg",
@@ -63,15 +63,14 @@ HRESULT configModels(void)
 		return hr;
 
 	// Heli
-	heli->initObjectArray();
 	hr = heli->config(gObjectProgram, renderer->getD3DDevice());
 	if (FAILED(hr))
 		return hr;
+	heli->initD3DObjectArray();
 	hr = heli->loadFromFile("resources/heli/corps.obj", renderer->getD3DDevice(), renderer->getImmediateContext());
 	if (FAILED(hr))
 		return hr;
-	heli->sortObject();
-	heli->matIdentity();
+	heli->sortD3DObject();
 	heli->matTranslate(0.0f, 6.0f, 0.0f);
 	heli->matScale(2, 2, 2);
 

@@ -29,7 +29,7 @@ engine::Model::~Model(void)
 		_pMatrixBuffer->Release();
 }
 
-void engine::Model::initObjectArray(void)
+void engine::Model::initD3DObjectArray(void)
 {
 	UINT i;
 	if(_tD3DObject != NULL && isMirror == FALSE)
@@ -42,7 +42,7 @@ void engine::Model::initObjectArray(void)
 	_tD3DObject = new std::vector<D3DObject *>;
 }
 
-void engine::Model::initObjectMirror(Model *m)
+void engine::Model::initD3DObjectMirror(Model *m)
 {
 	UINT i;
 	if (_tD3DObject != NULL && isMirror == FALSE)
@@ -219,7 +219,7 @@ HRESULT engine::Model::loadFromFile(const TCHAR *szFileName,
 	return S_OK;
 }
 
-void engine::Model::sortObject(void)
+void engine::Model::sortD3DObject(void)
 {
 	qsort(&(*_tD3DObject)[0], _tD3DObject->size(), sizeof (*_tD3DObject)[0], comparD3DObject);
 }
@@ -234,14 +234,9 @@ void engine::Model::matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 	_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixTranslation(x, y, z));
 }
 
-void engine::Model::matRotate(const FLOAT &angle, const BOOL &x, const BOOL &y, const BOOL &z)
+void engine::Model::matRotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	if (x)
-		_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationX(angle*((FLOAT)DirectX::XM_PI / 180)));
-	if (y)
-		_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationY(angle*((FLOAT)DirectX::XM_PI / 180)));
-	if (z)
-		_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationZ(angle*((FLOAT)DirectX::XM_PI / 180)));
+	_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationAxis(DirectX::XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)DirectX::XM_PI / 180)));
 }
 
 void engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)

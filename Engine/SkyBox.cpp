@@ -10,14 +10,17 @@ engine::SkyBox::SkyBox()
 	_pIndexBuffer = NULL;
 	_pInputLayout = NULL;
 	_pMatrixBuffer = NULL;
+	_rotateMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_rotateMatrix, 16);
+	_program = NULL;
 	_matrix = (struct matrix *)_aligned_malloc(sizeof *_matrix, 16);
 
-	_program = NULL;
+	*_rotateMatrix = XMMatrixTranspose(DirectX::XMMatrixIdentity());
 }
 
 engine::SkyBox::~SkyBox()
 {
 	_aligned_free(_matrix);
+	_aligned_free(_rotateMatrix);
 
 	if (_pMatrixBuffer)
 		_pMatrixBuffer->Release();
@@ -203,32 +206,22 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 
 #undef BUFFER_OFFSET
 
-void engine::SkyBox::rotate(const FLOAT &angle, const BOOL &x, const BOOL &y, const BOOL &z)
+void engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	_angle = angle * ((FLOAT)DirectX::XM_PI / 180);
-	_x = x;
-	_y = y;
-	_z = z;
+	*_rotateMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationAxis(DirectX::XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)DirectX::XM_PI / 180)));
 }
 
 void engine::SkyBox::display(GBuffer *g, Camera *cam)
 {
-	DirectX::XMMATRIX pos;
 	if(_program == NULL)
 	{
 		std::cerr << "You need to load a SkyBox before" << std::endl;
 		return;
 	}
 
-	pos = XMMatrixTranspose(DirectX::XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z));
-	if (_x)
-		pos *= XMMatrixTranspose(DirectX::XMMatrixRotationX(_angle));
-	if (_y)
-		pos *= XMMatrixTranspose(DirectX::XMMatrixRotationY(_angle));
-	if (_z)
-		pos *= XMMatrixTranspose(DirectX::XMMatrixRotationZ(_angle));
-
-	_matrix->MVP = cam->getVPMatrix() * pos;
+	_matrix->MVP = XMMatrixTranspose(DirectX::XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z));
+	_matrix->MVP *= *_rotateMatrix;
+	_matrix->MVP = cam->getVPMatrix() * _matrix->MVP;
 
 	// Shader
 	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);

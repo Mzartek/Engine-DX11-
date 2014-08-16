@@ -23,10 +23,9 @@ namespace engine
 		ID3D11Buffer *_pIndexBuffer;
 		ID3D11InputLayout *_pInputLayout;
 		ID3D11Buffer *_pMatrixBuffer;
+		DirectX::XMMATRIX *_rotateMatrix;
 		ShaderProgram *_program;
 		struct matrix *_matrix;
-		FLOAT _angle;
-		BOOL _x, _y, _z;
 	public:
 		SkyBox(void);
 		~SkyBox(void);
@@ -35,7 +34,7 @@ namespace engine
 			const TCHAR *posz, const TCHAR *negz,
 			FLOAT dim, ShaderProgram *program,
 			ID3D11Device *pd3dDevice);
-		void rotate(const FLOAT &angle, const BOOL &x, const BOOL &y, const BOOL &z);
+		void rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void display(GBuffer *g, Camera *cam);
 	};
 }
