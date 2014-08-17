@@ -87,10 +87,11 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 {
 	HRESULT hr;
 	D3DObject *newone = new D3DObject;
+	ID3D11Texture2D *ptex;
 	ID3D11ShaderResourceView *pshr;
 	ID3D11SamplerState *psam;
 
-	hr = loadTextureFromFile(pathTexture, &pshr, &psam, pd3dDevice, pContext);
+	hr = loadTextureFromFile(pathTexture, &ptex, &pshr, &psam, pd3dDevice, pContext);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Fail to load Texture", "Model", MB_OK);
@@ -104,7 +105,7 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 		return hr;
 	}
 
-	newone->setTexture(pshr, psam);
+	newone->setTexture(ptex, pshr, psam);
 	newone->setAmbient(ambient[0], ambient[1], ambient[2], ambient[3]);
 	newone->setDiffuse(diffuse[0], diffuse[1], diffuse[2], diffuse[3]);
 	newone->setSpecular(specular[0], specular[1], specular[2], specular[3]);

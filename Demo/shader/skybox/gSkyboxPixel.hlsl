@@ -13,7 +13,6 @@ struct PS_OUTPUT
 {
 	float4 normal : SV_TARGET0;
 	uint4 material : SV_TARGET1;
-	float depth : SV_DEPTH;
 };
 
 PS_OUTPUT main(PS_INPUT input)
@@ -25,7 +24,6 @@ PS_OUTPUT main(PS_INPUT input)
 		uint4(0xFF000000 & uint4(int4(cubeTex.Sample(cubeSamplerState, input.texCoord) * 255) << 24)) |
 		uint4(0x00FF0000 & (int4(255, 255, 255, 255) << 16)) |
 		uint4(0x0000FFFF & int4(0.0, 0.0, 0.0, 0.0));
-	output.depth = 1.0f;
 
 	return output;
 }

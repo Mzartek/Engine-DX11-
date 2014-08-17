@@ -35,8 +35,6 @@ namespace engine
 		~Renderer(void);
 		HRESULT initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), 
 			const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen);
-		void clear(void);
-		void executeDeferredContext(ID3D11DeviceContext *context);
 		void setDisplayFunc(void(*f) (void));
 		void setIdleFunc(void(*f) (void));
 		void setReshapeFunc(void(*f) (UINT, UINT));
@@ -48,6 +46,9 @@ namespace engine
 		ID3D11DeviceContext *getImmediateContext(void);
 		void mainLoop(int nCmdShow);
 		void stopLoop(void);
+		void enableDepthMask(const BOOL &mask);
+		void executeDeferredContext(ID3D11DeviceContext *context);
+		void clear(void);
 	};
 }
 

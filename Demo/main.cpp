@@ -107,8 +107,8 @@ void init(void)
 		exit(1);
 	}
 
-	cam->setPositionCamera(5.0f, 5.0f, -5.0f);
-	cam->setInitialAngle(135, 0);
+	cam->setPositionCamera(30, 5, 0);
+	cam->setInitialAngle(-90, 0);
 }
 
 void kill()

@@ -2,7 +2,7 @@
 #include <FreeImage.h>
 
 HRESULT engine::loadTextureFromFile(const TCHAR *szFileName, 
-	ID3D11ShaderResourceView **ppshr, ID3D11SamplerState **ppsam, 
+	ID3D11Texture2D **pptex, ID3D11ShaderResourceView **ppshr, ID3D11SamplerState **ppsam,
 	ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
@@ -34,8 +34,7 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName,
 	descTexture.CPUAccessFlags = 0;
 	descTexture.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
-	ID3D11Texture2D *tex;
-	hr = pd3dDevice->CreateTexture2D(&descTexture, NULL, &tex);
+	hr = pd3dDevice->CreateTexture2D(&descTexture, NULL, pptex);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Error while creating the Texture2D", "Texture", MB_OK);
@@ -47,14 +46,14 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName,
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	descShaderResourceView.Texture2D.MostDetailedMip = 0;
 	descShaderResourceView.Texture2D.MipLevels = descTexture.MipLevels;
-	hr = pd3dDevice->CreateShaderResourceView(tex, &descShaderResourceView, ppshr);
+	hr = pd3dDevice->CreateShaderResourceView(*pptex, &descShaderResourceView, ppshr);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Error while creating the ShaderResourceView", "Texture", MB_OK);
 		return hr;
 	}
 
-	pContext->UpdateSubresource(tex, 0, NULL, FreeImage_GetBits(image), 4 * descTexture.Width, 4 * descTexture.Width * descTexture.Height);
+	pContext->UpdateSubresource(*pptex, 0, NULL, FreeImage_GetBits(image), 4 * descTexture.Width, 4 * descTexture.Width * descTexture.Height);
 	pContext->GenerateMips(*ppshr);
 
 	D3D11_SAMPLER_DESC descSampler;

@@ -88,7 +88,7 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 
 		data[i].pSysMem = FreeImage_GetBits(image[i]);
 		data[i].SysMemPitch = 4 * descTexture.Width;
-		data[i].SysMemSlicePitch = 4 * descTexture.Width * descTexture.Height;
+		data[i].SysMemSlicePitch = 0;
 	}
 	hr = pd3dDevice->CreateTexture2D(&descTexture, data, &tex);
 	if (FAILED(hr))
@@ -223,6 +223,7 @@ void engine::SkyBox::display(GBuffer *g, Camera *cam)
 	_matrix->MVP *= *_rotateMatrix;
 	_matrix->MVP = cam->getVPMatrix() * _matrix->MVP;
 
+	g->enableDepthMask(FALSE);
 	// Shader
 	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	g->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
@@ -259,4 +260,6 @@ void engine::SkyBox::display(GBuffer *g, Camera *cam)
 
 	// Draw
 	g->getContext()->DrawIndexed(_numElement, 0, 0);
+
+	g->enableDepthMask(TRUE);
 }

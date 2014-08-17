@@ -3,7 +3,7 @@
 engine::D3DObject::D3DObject(void)
 {
 	UINT i;
-	_pResource = NULL;
+	_pTex = NULL;
 	_pShaderResourceView = NULL;
 	_pSamplerState = NULL;
 	_pMaterialBuffer = NULL;
@@ -38,8 +38,8 @@ engine::D3DObject::~D3DObject(void)
 		_pSamplerState->Release();
 	if (_pShaderResourceView)
 		_pShaderResourceView->Release();
-	if (_pResource)
-		_pResource->Release();
+	if (_pTex)
+		_pTex->Release();
 }
 
 HRESULT engine::D3DObject::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
@@ -82,9 +82,9 @@ HRESULT engine::D3DObject::config(ShaderProgram *program, ID3D11Device *pd3dDevi
 	return S_OK;
 }
 
-void engine::D3DObject::setTexture(ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState)
+void engine::D3DObject::setTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState)
 {
-	pShaderResourceView->GetResource(&_pResource);
+	_pTex = ptex;
 	_pShaderResourceView = pShaderResourceView;
 	_pSamplerState = pSamplerState;
 }

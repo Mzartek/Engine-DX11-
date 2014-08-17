@@ -13,6 +13,8 @@ namespace engine
 	class DLLAPI GBuffer : public FrameBuffer
 	{
 	private:
+		// Device
+		ID3D11Device *_pd3dDevice;
 		// Context
 		ID3D11DeviceContext *_pContext;
 		// Texture
@@ -32,6 +34,7 @@ namespace engine
 		HRESULT config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice);
 		ID3D11ShaderResourceView *getShaderResourceView(const UINT &num) const;
 		ID3D11DeviceContext *getContext(void) const;
+		void enableDepthMask(const BOOL &mask);
 		void clear(void) const;
 	};
 }

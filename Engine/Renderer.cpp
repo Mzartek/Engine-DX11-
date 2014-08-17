@@ -244,22 +244,6 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	return S_OK;
 }
 
-void engine::Renderer::clear(void)
-{
-	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, DirectX::Colors::Transparent);
-	_pImmediateContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-}
-
-void engine::Renderer::executeDeferredContext(ID3D11DeviceContext *context)
-{
-	ID3D11CommandList *commandList;
-
-	context->FinishCommandList(TRUE, &commandList);
-	_pImmediateContext->ExecuteCommandList(commandList, TRUE);
-
-	commandList->Release();
-}
-
 void engine::Renderer::setDisplayFunc(void (*f) (void))
 {
 	_display = f;
@@ -341,4 +325,39 @@ void engine::Renderer::mainLoop(int nCmdShow)
 void engine::Renderer::stopLoop(void)
 {
 	_stopLoop = TRUE;
+}
+
+void engine::Renderer::enableDepthMask(const BOOL &mask)
+{
+	D3D11_DEPTH_STENCIL_DESC descDepth;
+	if (_pDepthStencilState == NULL)
+	{
+		MessageBox(NULL, "You need to configure the GBuffer before", "GBuffer", NULL);
+		return;
+	}
+
+	_pDepthStencilState->GetDesc(&descDepth);
+	_pDepthStencilState->Release();
+	if (mask)
+		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	else
+		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+	_pImmediateContext->OMSetDepthStencilState(_pDepthStencilState, 0);
+}
+
+void engine::Renderer::executeDeferredContext(ID3D11DeviceContext *context)
+{
+	ID3D11CommandList *commandList;
+
+	context->FinishCommandList(TRUE, &commandList);
+	_pImmediateContext->ExecuteCommandList(commandList, TRUE);
+
+	commandList->Release();
+}
+
+void engine::Renderer::clear(void)
+{
+	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, DirectX::Colors::Transparent);
+	_pImmediateContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

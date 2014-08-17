@@ -18,7 +18,7 @@ namespace engine
 			FLOAT shininess[1];
 		};
 
-		ID3D11Resource *_pResource;
+		ID3D11Texture2D *_pTex;
 		ID3D11ShaderResourceView *_pShaderResourceView;
 		ID3D11SamplerState *_pSamplerState;
 		ID3D11Buffer *_pMaterialBuffer;
@@ -32,7 +32,7 @@ namespace engine
 		D3DObject(void);
 		~D3DObject(void);
 		HRESULT config(ShaderProgram *program, ID3D11Device *pd3dDevice);
-		void setTexture(ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState);
+		void setTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState);
 		void setAmbient(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w);
 		void setDiffuse(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w);
 		void setSpecular(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w);
