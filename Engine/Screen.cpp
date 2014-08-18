@@ -80,7 +80,7 @@ HRESULT engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 
 #undef BUFFER_OFFSET
 
-void engine::Screen::display(Renderer *win, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
+void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
 {
 	if (_program == NULL)
 	{
@@ -89,40 +89,40 @@ void engine::Screen::display(Renderer *win, GBuffer *gbuf, const FLOAT &r, const
 	}
 
 	// Shader
-	win->getImmediateContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
-	win->getImmediateContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
-	win->getImmediateContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
+	renderer->getImmediateContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
+	renderer->getImmediateContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
+	renderer->getImmediateContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
 
 	// Texture
 	ID3D11ShaderResourceView *pshr[] =
 	{
 		gbuf->getShaderResourceView(GBUF_MATERIAL),
 	};
-	win->getImmediateContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	renderer->getImmediateContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
 
 	// Constant Buffer
 	_color->color[0] = r;
 	_color->color[1] = g;
 	_color->color[2] = b;
 	_color->color[3] = a;
-	win->getImmediateContext()->UpdateSubresource(_pScreenColorBuffer, 0, NULL, _color, 0, 0);
+	renderer->getImmediateContext()->UpdateSubresource(_pScreenColorBuffer, 0, NULL, _color, 0, 0);
 	ID3D11Buffer *buf[] =
 	{
 		_pScreenColorBuffer,
 	};
-	win->getImmediateContext()->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+	renderer->getImmediateContext()->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
 	// Vertex Buffer
 	UINT stride = 2 * sizeof(FLOAT);
 	UINT offset = 0;
-	win->getImmediateContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
+	renderer->getImmediateContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
 
 	// Input Layout
-	win->getImmediateContext()->IASetInputLayout(_pInputLayout);
+	renderer->getImmediateContext()->IASetInputLayout(_pInputLayout);
 
 	// Topology
-	win->getImmediateContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	renderer->getImmediateContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// Draw
-	win->getImmediateContext()->Draw(4, 0);
+	renderer->getImmediateContext()->Draw(4, 0);
 }

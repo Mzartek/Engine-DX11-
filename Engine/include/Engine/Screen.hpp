@@ -23,7 +23,7 @@ namespace engine
 		Screen();
 		~Screen();
 		HRESULT config(ShaderProgram *program, ID3D11Device *pd3dDevice);
-		void display(Renderer *win, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a);
+		void display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a);
 	};
 }
 
