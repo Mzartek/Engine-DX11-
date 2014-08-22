@@ -56,7 +56,7 @@ HRESULT configModels(void)
 	sol->initD3DObjectArray();
 	hr = sol->createObject(sizeof(vertexArray), (FLOAT *)vertexArray,
 		sizeof index, index,
-		"resources/ornaments.jpg",
+		"resources/test.png",
 		mat_ambient, mat_diffuse, mat_specular, mat_shininess);
 	if (FAILED(hr))
 		return hr;

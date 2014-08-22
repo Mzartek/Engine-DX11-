@@ -92,7 +92,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create Normal Texture", "GBuffer", NULL);
 		return hr;
 	}
-
 	descRenderTargetView.Format = descTexture.Format;
 	descRenderTargetView.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	descRenderTargetView.Texture2D.MipSlice = 0;
@@ -102,7 +101,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create Normal View", "GBuffer", NULL);
 		return hr;
 	}
-
 	descShaderResourceView.Format = descTexture.Format;
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	descShaderResourceView.Texture2D.MostDetailedMip = 0;
@@ -122,7 +120,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create Material Texture", "GBuffer", NULL);
 		return hr;
 	}
-
 	descRenderTargetView.Format = descTexture.Format;
 	hr = _pd3dDevice->CreateRenderTargetView(_pTexture[GBUF_MATERIAL], &descRenderTargetView, &_pRenderTargetView[GBUF_MATERIAL]);
 	if (FAILED(hr))
@@ -130,7 +127,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create Material View", "GBuffer", NULL);
 		return hr;
 	}
-
 	descShaderResourceView.Format = descTexture.Format;
 	hr = _pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_MATERIAL], &descShaderResourceView, &_pShaderResourceView[GBUF_MATERIAL]);
 	if (FAILED(hr))
@@ -148,7 +144,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create Depth Texture", "GBuffer", NULL);
 		return hr;
 	}
-
 	descDepthView.Format = DXGI_FORMAT_D32_FLOAT;
 	descDepthView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDepthView.Flags = 0;
@@ -159,7 +154,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create Depth View", "GBuffer", NULL);
 		return hr;
 	}
-
 	descShaderResourceView.Format = DXGI_FORMAT_R32_FLOAT;
 	hr = _pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_DEPTH], &descShaderResourceView, &_pShaderResourceView[GBUF_DEPTH]);
 	if (FAILED(hr))
@@ -180,7 +174,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create DepthStencil State", "GBuffer", NULL);
 		return hr;
 	}
-
 
 	D3D11_BLEND_DESC descBlend;
 	descBlend.AlphaToCoverageEnable = FALSE;
@@ -229,6 +222,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	_pDefferedContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
 	_pDefferedContext->RSSetState(_pRasterizerState);
 	_pDefferedContext->RSSetViewports(1, &vp);
+	_pDefferedContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	return S_OK;
 }

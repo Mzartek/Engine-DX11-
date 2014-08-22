@@ -171,16 +171,6 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
-	descDepth.StencilReadMask = 0xFF;
-	descDepth.StencilWriteMask = 0xFF;
-	descDepth.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	descDepth.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-	descDepth.FrontFace.StencilPassOp = D3D11_STENCIL_OP_INCR;
-	descDepth.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	descDepth.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	descDepth.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-	descDepth.BackFace.StencilPassOp = D3D11_STENCIL_OP_DECR;
-	descDepth.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
 	if (FAILED(hr))
 	{
@@ -240,6 +230,7 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	_pImmediateContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
 	_pImmediateContext->RSSetState(_pRasterizerState);
 	_pImmediateContext->RSSetViewports(1, &vp);
+	_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	return S_OK;
 }

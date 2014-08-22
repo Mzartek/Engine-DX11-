@@ -236,17 +236,8 @@ void engine::SkyBox::display(GBuffer *g, Camera *cam)
 	g->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
 
 	// Texture
-	ID3D11ShaderResourceView *pshr[] =
-	{
-		_pShaderResourceView,
-		g->getShaderResourceView(GBUF_DEPTH),
-	};
-	g->getContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
-	ID3D11SamplerState *psam[] =
-	{
-		_pSamplerState,
-	};
-	g->getContext()->PSSetSamplers(0, ARRAYSIZE(psam), psam);
+	g->getContext()->PSSetShaderResources(0, 1, &_pShaderResourceView);
+	g->getContext()->PSSetSamplers(0, 1, &_pSamplerState);
 
 	// Vertex And Index Buffer
 	UINT stride = 3 * sizeof(FLOAT);
@@ -256,9 +247,6 @@ void engine::SkyBox::display(GBuffer *g, Camera *cam)
 
 	// Input Layout
 	g->getContext()->IASetInputLayout(_pInputLayout);
-
-	// Topology
-	g->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Draw
 	g->getContext()->DrawIndexed(_numElement, 0, 0);

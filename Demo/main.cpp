@@ -41,8 +41,8 @@ void display(void)
 
 	gBuffer->clear();
 	skybox->display(gBuffer, cam);
-	heli->display(gBuffer, cam);
 	sol->display(gBuffer, cam);
+	heli->display(gBuffer, cam);
 	renderer->executeDeferredContext(gBuffer->getContext());
 
 	renderer->clear();
@@ -133,7 +133,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderer = new engine::Renderer;
 	input = new engine::Input;
 
-	if (FAILED(renderer->initWindow(hInstance, WndProc, "Demo DirectX", 1680, 1050, TRUE)))
+	if (FAILED(renderer->initWindow(hInstance, WndProc, "Demo DirectX", 800, 600, FALSE)))
 	{
 		MessageBox(NULL, "Error while init window", "Error", MB_OK);
 		return 1;
@@ -156,8 +156,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	delete renderer;
 	delete input;
 
-	text = std::to_string(engine::Object::getMemoryState());
-	//MessageBox(NULL, text.c_str(), "memState", MB_OK);
+	if (engine::Object::getMemoryState() != 0)
+	{
+		text = std::to_string(engine::Object::getMemoryState());
+		MessageBox(NULL, text.c_str(), "memState", MB_OK);
+	}
 	engine::Object::saveMemoryInfo(L"memLost.txt");
 
 	return 0;

@@ -44,11 +44,9 @@ PS_OUTPUT main(PS_INPUT input)
 		output.depth = input.position.z;
 	}
 	else
-	{
-		output.normal = normalTex[input.position.xy];
-		output.material = materialTex[input.position.xy];
-		output.depth = depthTex[input.position.xy];
-	}
+		output.depth = 1.0;
+
+	//output.material = materialTex[input.position.xy];
 
 	return output;
 }

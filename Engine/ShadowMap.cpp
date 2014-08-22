@@ -89,9 +89,9 @@ HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11D
 	// State
 	D3D11_SAMPLER_DESC descSampler;
 	descSampler.Filter = D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
-	descSampler.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	descSampler.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	descSampler.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	descSampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	descSampler.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	descSampler.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	descSampler.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 	descSampler.MipLODBias = 0.0f;
 	descSampler.MaxAnisotropy = 1;

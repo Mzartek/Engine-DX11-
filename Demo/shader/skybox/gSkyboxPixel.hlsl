@@ -1,5 +1,4 @@
 TextureCube cubeTex : register(t0);
-Texture2D<float> depthTex : register(t1);
 
 SamplerState cubeSamplerState : register(s0);
 

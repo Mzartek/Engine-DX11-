@@ -112,11 +112,7 @@ void engine::Screen::display(GBuffer *gbuf, const FLOAT &r, const FLOAT &g, cons
 	_color->z = b;
 	_color->w = a;
 	_pContext->UpdateSubresource(_pScreenColorBuffer, 0, NULL, _color, 0, 0);
-	ID3D11Buffer *buf[] =
-	{
-		_pScreenColorBuffer,
-	};
-	_pContext->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+	_pContext->PSSetConstantBuffers(0, 1, &_pScreenColorBuffer);
 
 	// Vertex Buffer
 	UINT stride = 2 * sizeof(FLOAT);
@@ -125,9 +121,6 @@ void engine::Screen::display(GBuffer *gbuf, const FLOAT &r, const FLOAT &g, cons
 
 	// Input Layout
 	_pContext->IASetInputLayout(_pInputLayout);
-
-	// Topology
-	_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// Draw
 	_pContext->Draw(4, 0);
