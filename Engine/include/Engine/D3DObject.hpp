@@ -10,14 +10,6 @@ namespace engine
 	{
 		friend int comparD3DObject(const void *p1, const void *p2);
 	private:
-		struct material
-		{
-			FLOAT ambient[4];
-			FLOAT diffuse[4];
-			FLOAT specular[4];
-			FLOAT shininess[1];
-		};
-
 		ID3D11Texture2D *_pTex;
 		ID3D11ShaderResourceView *_pShaderResourceView;
 		ID3D11SamplerState *_pSamplerState;
@@ -25,22 +17,30 @@ namespace engine
 		ID3D11Buffer *_pVertexBuffer;
 		ID3D11Buffer *_pIndexBuffer;
 		ID3D11InputLayout *_pInputLayout;
-		struct material *_material;
-		ShaderProgram *_program;
+		struct material
+		{
+			DirectX::XMFLOAT4 ambient;
+			DirectX::XMFLOAT4 diffuse;
+			DirectX::XMFLOAT4 specular;
+			FLOAT shininess;
+		} _material;
 		UINT _numElement;
+		// Do not delete it
+		ShaderProgram *_gProgram;
+		ID3D11Device *_pd3dDevice;
+		ID3D11DeviceContext *_pContext;
 	public:
 		D3DObject(void);
 		~D3DObject(void);
-		HRESULT config(ShaderProgram *program, ID3D11Device *pd3dDevice);
+		HRESULT config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
 		void setTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState);
-		void setAmbient(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w);
-		void setDiffuse(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w);
-		void setSpecular(const FLOAT &x, const FLOAT &y, const FLOAT &z, const FLOAT &w);
-		void setShininess(const FLOAT &x);
+		void setAmbient(const DirectX::XMFLOAT4 &ambient);
+		void setDiffuse(const DirectX::XMFLOAT4 &diffuse);
+		void setSpecular(const DirectX::XMFLOAT4 &specular);
+		void setShininess(const FLOAT &shininess);
 		FLOAT getTransparency(void);
 		HRESULT load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
-			const UINT &sizeIndexArray, const UINT *indexArray,
-			ID3D11Device *pd3dDevice);
+			const UINT &sizeIndexArray, const UINT *indexArray);
 		void display(GBuffer *g) const;
 	};
   

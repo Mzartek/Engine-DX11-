@@ -9,21 +9,21 @@ engine::SkyBox::SkyBox()
 	_pVertexBuffer = NULL;
 	_pIndexBuffer = NULL;
 	_pInputLayout = NULL;
-	_pMatrixBuffer = NULL;
+	_pMVPMatrixBuffer = NULL;
+	_MVPMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_MVPMatrix, 16);
 	_rotateMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_rotateMatrix, 16);
 	_program = NULL;
-	_matrix = (struct matrix *)_aligned_malloc(sizeof *_matrix, 16);
 
 	*_rotateMatrix = XMMatrixTranspose(DirectX::XMMatrixIdentity());
 }
 
 engine::SkyBox::~SkyBox()
 {
-	_aligned_free(_matrix);
 	_aligned_free(_rotateMatrix);
+	_aligned_free(_MVPMatrix);
 
-	if (_pMatrixBuffer)
-		_pMatrixBuffer->Release();
+	if (_pMVPMatrixBuffer)
+		_pMVPMatrixBuffer->Release();
 	if (_pInputLayout)
 		_pInputLayout->Release();
 	if (_pIndexBuffer)
@@ -44,7 +44,7 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	const TCHAR *posy, const TCHAR *negy,
 	const TCHAR *posz, const TCHAR *negz,
 	FLOAT dim, ShaderProgram *program,
-	ID3D11Device *pd3dDevice)
+	ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
 	UINT i;
@@ -52,6 +52,8 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	FIBITMAP *tmp = NULL;
 
 	_program = program;
+	_pd3dDevice = pd3dDevice;
+	_pContext = pContext;
 
 	image[0] = FreeImage_Load(FreeImage_GetFileType(posx), posx);
 	image[1] = FreeImage_Load(FreeImage_GetFileType(negx), negx);
@@ -90,7 +92,7 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 		data[i].SysMemPitch = 4 * descTexture.Width;
 		data[i].SysMemSlicePitch = 0;
 	}
-	hr = pd3dDevice->CreateTexture2D(&descTexture, data, &tex);
+	hr = _pd3dDevice->CreateTexture2D(&descTexture, data, &tex);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create the Cube Texture", "SkyBox", MB_OK);
@@ -102,7 +104,7 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 	descShaderResourceView.TextureCube.MostDetailedMip = 0;
 	descShaderResourceView.TextureCube.MipLevels = descTexture.MipLevels;
-	hr = pd3dDevice->CreateShaderResourceView(tex, &descShaderResourceView, &_pShaderResourceView);
+	hr = _pd3dDevice->CreateShaderResourceView(tex, &descShaderResourceView, &_pShaderResourceView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create the ShaderResourceView", "SkyBox", MB_OK);
@@ -123,7 +125,7 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	descSampler.BorderColor[3] = 0.0f;
 	descSampler.MinLOD = 0;
 	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	hr = pd3dDevice->CreateSamplerState(&descSampler, &_pSamplerState);
+	hr = _pd3dDevice->CreateSamplerState(&descSampler, &_pSamplerState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Error while creating the SamplerState", "SkyBox", MB_OK);
@@ -164,7 +166,7 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	data[0].pSysMem = vertexArray;
 	data[0].SysMemPitch = 0;
 	data[0].SysMemSlicePitch = 0;
-	hr = pd3dDevice->CreateBuffer(&bd, data, &_pVertexBuffer);
+	hr = _pd3dDevice->CreateBuffer(&bd, data, &_pVertexBuffer);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Vertex Buffer", "SkyBox", MB_OK);
@@ -175,7 +177,7 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	bd.ByteWidth = sizeof indexArray;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	data[0].pSysMem = indexArray;
-	hr = pd3dDevice->CreateBuffer(&bd, data, &_pIndexBuffer);
+	hr = _pd3dDevice->CreateBuffer(&bd, data, &_pIndexBuffer);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Index Buffer", "SkyBox", MB_OK);
@@ -187,14 +189,14 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	{
 		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	hr = pd3dDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
+	hr = _pd3dDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
 		_program->getEntryBufferPointer(), _program->getEntryBytecodeLength(),
 		&_pInputLayout);
 
 	// Create the matrix buffer
-	bd.ByteWidth = sizeof(*_matrix) + (((sizeof(*_matrix) % 16) == 0) ? 0 : (16 - (sizeof(*_matrix) % 16)));
+	bd.ByteWidth = sizeof(*_MVPMatrix) + (((sizeof(*_MVPMatrix) % 16) == 0) ? 0 : (16 - (sizeof(*_MVPMatrix) % 16)));
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pMatrixBuffer);
+	hr = _pd3dDevice->CreateBuffer(&bd, NULL, &_pMVPMatrixBuffer);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Matrix Buffer", "SkyBox", MB_OK);
@@ -219,9 +221,9 @@ void engine::SkyBox::display(GBuffer *g, Camera *cam)
 		return;
 	}
 
-	_matrix->MVP = XMMatrixTranspose(DirectX::XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z));
-	_matrix->MVP *= *_rotateMatrix;
-	_matrix->MVP = cam->getVPMatrix() * _matrix->MVP;
+	*_MVPMatrix = XMMatrixTranspose(DirectX::XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z));
+	*_MVPMatrix *= *_rotateMatrix;
+	*_MVPMatrix = cam->getVPMatrix() * *_MVPMatrix;
 
 	g->enableDepthMask(FALSE);
 	// Shader
@@ -230,8 +232,8 @@ void engine::SkyBox::display(GBuffer *g, Camera *cam)
 	g->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
 
 	// Matrix Buffer
-	g->getContext()->UpdateSubresource(_pMatrixBuffer, 0, NULL, _matrix, 0, 0);
-	g->getContext()->VSSetConstantBuffers(0, 1, &_pMatrixBuffer);
+	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, _MVPMatrix, 0, 0);
+	g->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
 
 	// Texture
 	ID3D11ShaderResourceView *pshr[] =

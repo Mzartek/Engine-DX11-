@@ -2,8 +2,6 @@
 
 engine::GBuffer::GBuffer(void)
 {
-	// Context
-	_pContext = NULL;
 	// Texture
 	_pTexture[GBUF_NORMAL] = NULL;
 	_pTexture[GBUF_MATERIAL] = NULL;
@@ -24,9 +22,6 @@ engine::GBuffer::GBuffer(void)
 
 engine::GBuffer::~GBuffer(void)
 {
-	if (_pContext)
-		_pContext->ClearState();
-
 	// State
 	if (_pRasterizerState)
 		_pRasterizerState->Release();
@@ -58,25 +53,21 @@ engine::GBuffer::~GBuffer(void)
 		_pTexture[GBUF_MATERIAL]->Release();
 	if (_pTexture[GBUF_NORMAL])
 		_pTexture[GBUF_NORMAL]->Release();
-
-	// Context
-	if (_pContext)
-		_pContext->Release();
 }
 
 HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice)
 {
 	HRESULT hr;
-	_width = width;
-	_height = height;
-	_pd3dDevice = pd3dDevice;
-
 	D3D11_TEXTURE2D_DESC descTexture;
 	D3D11_RENDER_TARGET_VIEW_DESC descRenderTargetView;
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDepthView;
 	D3D11_SHADER_RESOURCE_VIEW_DESC descShaderResourceView;
 
-	hr = _pd3dDevice->CreateDeferredContext(0, &_pContext);
+	_width = width;
+	_height = height;
+	_pd3dDevice = pd3dDevice;
+
+	hr = _pd3dDevice->CreateDeferredContext(0, &_pDefferedContext);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Deferred Context", "GBuffer", NULL);
@@ -84,8 +75,8 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	}
 
 	// Normal
-	descTexture.Width = width;
-	descTexture.Height = height;
+	descTexture.Width = _width;
+	descTexture.Height = _height;
 	descTexture.MipLevels = 1;
 	descTexture.ArraySize = 1;
 	descTexture.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -101,6 +92,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create Normal Texture", "GBuffer", NULL);
 		return hr;
 	}
+
 	descRenderTargetView.Format = descTexture.Format;
 	descRenderTargetView.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	descRenderTargetView.Texture2D.MipSlice = 0;
@@ -110,6 +102,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create Normal View", "GBuffer", NULL);
 		return hr;
 	}
+
 	descShaderResourceView.Format = descTexture.Format;
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	descShaderResourceView.Texture2D.MostDetailedMip = 0;
@@ -129,6 +122,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create Material Texture", "GBuffer", NULL);
 		return hr;
 	}
+
 	descRenderTargetView.Format = descTexture.Format;
 	hr = _pd3dDevice->CreateRenderTargetView(_pTexture[GBUF_MATERIAL], &descRenderTargetView, &_pRenderTargetView[GBUF_MATERIAL]);
 	if (FAILED(hr))
@@ -136,6 +130,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create Material View", "GBuffer", NULL);
 		return hr;
 	}
+
 	descShaderResourceView.Format = descTexture.Format;
 	hr = _pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_MATERIAL], &descShaderResourceView, &_pShaderResourceView[GBUF_MATERIAL]);
 	if (FAILED(hr))
@@ -153,6 +148,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create Depth Texture", "GBuffer", NULL);
 		return hr;
 	}
+
 	descDepthView.Format = DXGI_FORMAT_D32_FLOAT;
 	descDepthView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDepthView.Flags = 0;
@@ -163,6 +159,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create Depth View", "GBuffer", NULL);
 		return hr;
 	}
+
 	descShaderResourceView.Format = DXGI_FORMAT_R32_FLOAT;
 	hr = _pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_DEPTH], &descShaderResourceView, &_pShaderResourceView[GBUF_DEPTH]);
 	if (FAILED(hr))
@@ -183,6 +180,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 		MessageBox(NULL, "Failed to create DepthStencil State", "GBuffer", NULL);
 		return hr;
 	}
+
 
 	D3D11_BLEND_DESC descBlend;
 	descBlend.AlphaToCoverageEnable = FALSE;
@@ -226,11 +224,11 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 
-	_pContext->OMSetRenderTargets(GBUF_NUM_TEX - 1, _pRenderTargetView, _pDepthView);
-	_pContext->OMSetDepthStencilState(_pDepthState, 0);
-	_pContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
-	_pContext->RSSetState(_pRasterizerState);
-	_pContext->RSSetViewports(1, &vp);
+	_pDefferedContext->OMSetRenderTargets(GBUF_NUM_TEX - 1, _pRenderTargetView, _pDepthView);
+	_pDefferedContext->OMSetDepthStencilState(_pDepthState, 0);
+	_pDefferedContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
+	_pDefferedContext->RSSetState(_pRasterizerState);
+	_pDefferedContext->RSSetViewports(1, &vp);
 
 	return S_OK;
 }
@@ -238,11 +236,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 ID3D11ShaderResourceView *engine::GBuffer::getShaderResourceView(const UINT &num) const
 {
 	return _pShaderResourceView[num];
-}
-
-ID3D11DeviceContext *engine::GBuffer::getContext(void) const
-{
-	return _pContext;
 }
 
 void engine::GBuffer::enableDepthMask(const BOOL &mask)
@@ -261,12 +254,12 @@ void engine::GBuffer::enableDepthMask(const BOOL &mask)
 	else
 		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthState);
-	_pContext->OMSetDepthStencilState(_pDepthState, 0);
+	_pDefferedContext->OMSetDepthStencilState(_pDepthState, 0);
 }
 
 void engine::GBuffer::clear(void) const
 {
-	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], DirectX::Colors::Transparent);
-	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], DirectX::Colors::Transparent);
-	_pContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	_pDefferedContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], DirectX::Colors::Transparent);
+	_pDefferedContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], DirectX::Colors::Transparent);
+	_pDefferedContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

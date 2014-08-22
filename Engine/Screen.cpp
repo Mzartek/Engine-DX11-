@@ -2,14 +2,18 @@
 
 engine::Screen::Screen()
 {
-	_color = (struct screenColor *)_aligned_malloc(sizeof *_color, 16);
+	_pScreenColorBuffer = NULL;
+	_pVertexBuffer = NULL;
+	_pInputLayout = NULL;
+	_color = new DirectX::XMFLOAT4;
 	_program = NULL;
+	_pd3dDevice = NULL;
+	_pContext = NULL;
 }
 
 engine::Screen::~Screen()
 {
-	_aligned_free(_color);
-
+	delete _color;
 	if (_pInputLayout)
 		_pInputLayout->Release();
 	if (_pVertexBuffer)
@@ -20,11 +24,13 @@ engine::Screen::~Screen()
 
 #define BUFFER_OFFSET(i) ((GLbyte *)NULL + i)
 
-HRESULT engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
+HRESULT engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
 	
 	_program = program;
+	_pd3dDevice = pd3dDevice;
+	_pContext = pContext;
 
 	// Create Constant Buffer
 	D3D11_BUFFER_DESC bd;
@@ -80,7 +86,7 @@ HRESULT engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 
 #undef BUFFER_OFFSET
 
-void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
+void engine::Screen::display(GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
 {
 	if (_program == NULL)
 	{
@@ -89,40 +95,40 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 	}
 
 	// Shader
-	renderer->getImmediateContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
-	renderer->getImmediateContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
-	renderer->getImmediateContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
+	_pContext->VSSetShader(_program->getVertexShader(), NULL, 0);
+	_pContext->GSSetShader(_program->getGeometryShader(), NULL, 0);
+	_pContext->PSSetShader(_program->getPixelShader(), NULL, 0);
 
 	// Texture
 	ID3D11ShaderResourceView *pshr[] =
 	{
 		gbuf->getShaderResourceView(GBUF_MATERIAL),
 	};
-	renderer->getImmediateContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	_pContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
 
 	// Constant Buffer
-	_color->color[0] = r;
-	_color->color[1] = g;
-	_color->color[2] = b;
-	_color->color[3] = a;
-	renderer->getImmediateContext()->UpdateSubresource(_pScreenColorBuffer, 0, NULL, _color, 0, 0);
+	_color->x = r;
+	_color->y = g;
+	_color->z = b;
+	_color->w = a;
+	_pContext->UpdateSubresource(_pScreenColorBuffer, 0, NULL, _color, 0, 0);
 	ID3D11Buffer *buf[] =
 	{
 		_pScreenColorBuffer,
 	};
-	renderer->getImmediateContext()->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+	_pContext->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
 	// Vertex Buffer
 	UINT stride = 2 * sizeof(FLOAT);
 	UINT offset = 0;
-	renderer->getImmediateContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
+	_pContext->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
 
 	// Input Layout
-	renderer->getImmediateContext()->IASetInputLayout(_pInputLayout);
+	_pContext->IASetInputLayout(_pInputLayout);
 
 	// Topology
-	renderer->getImmediateContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// Draw
-	renderer->getImmediateContext()->Draw(4, 0);
+	_pContext->Draw(4, 0);
 }

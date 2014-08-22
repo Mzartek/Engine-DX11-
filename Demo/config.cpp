@@ -37,10 +37,10 @@ HRESULT configModels(void)
 {
 	HRESULT hr;
 
-	FLOAT mat_ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-	FLOAT mat_diffuse[] = { 0.8f, 0.8f, 0.8f, 1.0f };
-	FLOAT mat_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	FLOAT mat_shininess[] = { 20.0f };
+	DirectX::XMFLOAT4 mat_ambient(0.2f, 0.2f, 0.2f, 1.0f);
+	DirectX::XMFLOAT4 mat_diffuse(0.8f, 0.8f, 0.8f, 1.0f);
+	DirectX::XMFLOAT4 mat_specular(1.0f, 1.0f, 1.0f, 1.0f);
+	FLOAT mat_shininess = 20.0f;
 
 	engine::Vertex vertexArray[] = {
 			{ DirectX::XMFLOAT3(-500, 0, -500), DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT3(0, 1, 0) },
@@ -50,24 +50,23 @@ HRESULT configModels(void)
 	};
 	UINT index[] = { 0, 2, 1, 0, 2, 3 };
 
-	hr = sol->config(gObjectProgram, renderer->getD3DDevice());
+	hr = sol->config(gObjectProgram, renderer->getD3DDevice(), renderer->getImmediateContext());
 	if (FAILED(hr))
 		return hr;
 	sol->initD3DObjectArray();
 	hr = sol->createObject(sizeof(vertexArray), (FLOAT *)vertexArray,
 		sizeof index, index,
 		"resources/ornaments.jpg",
-		mat_ambient, mat_diffuse, mat_specular, mat_shininess,
-		renderer->getD3DDevice(), renderer->getImmediateContext());
+		mat_ambient, mat_diffuse, mat_specular, mat_shininess);
 	if (FAILED(hr))
 		return hr;
 
 	// Heli
-	hr = heli->config(gObjectProgram, renderer->getD3DDevice());
+	hr = heli->config(gObjectProgram, renderer->getD3DDevice(), renderer->getImmediateContext());
 	if (FAILED(hr))
 		return hr;
 	heli->initD3DObjectArray();
-	hr = heli->loadFromFile("resources/heli/corps.obj", renderer->getD3DDevice(), renderer->getImmediateContext());
+	hr = heli->loadFromFile("resources/heli/corps.obj");
 	if (FAILED(hr))
 		return hr;
 	heli->sortD3DObject();
@@ -79,7 +78,7 @@ HRESULT configModels(void)
 
 HRESULT configScreen(void)
 {
-	return screen->config(screenProgram, renderer->getD3DDevice());
+	return screen->config(screenProgram, renderer->getD3DDevice(), renderer->getImmediateContext());
 }
 
 HRESULT configSkyBox(void)
@@ -89,7 +88,8 @@ HRESULT configSkyBox(void)
 	hr = skybox->load("resources/Skybox/rightred2.jpg", "resources/Skybox/leftred2.jpg",
 		"resources/Skybox/topred2.jpg", "resources/Skybox/botred2.jpg",
 		"resources/Skybox/frontred2.jpg", "resources/Skybox/backred2.jpg",
-		10, gSkyboxProgram, renderer->getD3DDevice());
+		10, 
+		gSkyboxProgram, renderer->getD3DDevice(), renderer->getImmediateContext());
 	if (FAILED(hr))
 		return hr;
 

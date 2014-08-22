@@ -15,7 +15,7 @@ namespace engine
 	public:
 		Camera(void);
 		Camera(const FLOAT &x, const FLOAT &y, const FLOAT &z);
-		virtual ~Camera(void);
+		~Camera(void);
 		void setPositionCamera(const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void setPositionTarget(const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f);

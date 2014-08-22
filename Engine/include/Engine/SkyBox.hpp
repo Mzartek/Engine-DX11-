@@ -10,11 +10,6 @@ namespace engine
 	class DLLAPI SkyBox : public Object
 	{
 	private:
-		struct matrix
-		{
-			DirectX::XMMATRIX MVP;
-		};
-
 		UINT _numElement;
 		ID3D11Resource *_pResource;
 		ID3D11ShaderResourceView *_pShaderResourceView;
@@ -22,10 +17,12 @@ namespace engine
 		ID3D11Buffer *_pVertexBuffer;
 		ID3D11Buffer *_pIndexBuffer;
 		ID3D11InputLayout *_pInputLayout;
-		ID3D11Buffer *_pMatrixBuffer;
+		ID3D11Buffer *_pMVPMatrixBuffer;
+		DirectX::XMMATRIX *_MVPMatrix;
 		DirectX::XMMATRIX *_rotateMatrix;
 		ShaderProgram *_program;
-		struct matrix *_matrix;
+		ID3D11Device *_pd3dDevice;
+		ID3D11DeviceContext *_pContext;
 	public:
 		SkyBox(void);
 		~SkyBox(void);
@@ -33,7 +30,7 @@ namespace engine
 			const TCHAR *posy, const TCHAR *negy,
 			const TCHAR *posz, const TCHAR *negz,
 			FLOAT dim, ShaderProgram *program,
-			ID3D11Device *pd3dDevice);
+			ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
 		void rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void display(GBuffer *g, Camera *cam);
 	};

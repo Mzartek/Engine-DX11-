@@ -90,6 +90,7 @@
     <ClInclude Include="include\Engine\PlayerCam.hpp" />
     <ClInclude Include="include\Engine\Screen.hpp" />
     <ClInclude Include="include\Engine\ShaderProgram.hpp" />
+    <ClInclude Include="include\Engine\ShadowMap.hpp" />
     <ClInclude Include="include\Engine\SkyBox.hpp" />
     <ClInclude Include="include\Engine\Renderer.hpp" />
   </ItemGroup>
@@ -106,6 +107,7 @@
     <ClCompile Include="PlayerCam.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="textureLoader.cpp" />
     <ClCompile Include="Renderer.cpp" />

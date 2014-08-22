@@ -46,7 +46,7 @@ void display(void)
 	renderer->executeDeferredContext(gBuffer->getContext());
 
 	renderer->clear();
-	screen->display(renderer, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
+	screen->display(gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void idle(void)
@@ -107,7 +107,7 @@ void init(void)
 		exit(1);
 	}
 
-	cam->setPositionCamera(30, 5, 0);
+	cam->setPositionCamera(30, 10, 0);
 	cam->setInitialAngle(-90, 0);
 }
 
@@ -133,7 +133,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderer = new engine::Renderer;
 	input = new engine::Input;
 
-	if (FAILED(renderer->initWindow(hInstance, WndProc, "Demo DirectX", 800, 600, FALSE)))
+	if (FAILED(renderer->initWindow(hInstance, WndProc, "Demo DirectX", 1680, 1050, TRUE)))
 	{
 		MessageBox(NULL, "Error while init window", "Error", MB_OK);
 		return 1;

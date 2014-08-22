@@ -6,9 +6,15 @@
 engine::Model::Model(void)
 {
 	_tD3DObject = NULL;
-	_pMatrixBuffer = NULL;
-	_matrix = (struct matrix *)_aligned_malloc(sizeof *_matrix, 16);
+	_pMVPMatrixBuffer = NULL;
+	_pModelMatrixBuffer = NULL;
+	_pNormalMatrixBuffer = NULL;
+	_MVPMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_MVPMatrix, 16);
+	_ModelMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_ModelMatrix, 16);
+	_NormalMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_NormalMatrix, 16);
 	_program = NULL;
+	_pd3dDevice = NULL;
+	_pContext = NULL;
 
 	matIdentity();
 }
@@ -23,10 +29,16 @@ engine::Model::~Model(void)
 		delete _tD3DObject;
 	}
 
-	_aligned_free(_matrix);
+	_aligned_free(_NormalMatrix);
+	_aligned_free(_ModelMatrix);
+	_aligned_free(_MVPMatrix);
 
-	if (_pMatrixBuffer)
-		_pMatrixBuffer->Release();
+	if (_pNormalMatrixBuffer)
+		_pNormalMatrixBuffer->Release();
+	if (_pModelMatrixBuffer)
+		_pModelMatrixBuffer->Release();
+	if (_pMVPMatrixBuffer)
+		_pMVPMatrixBuffer->Release();
 }
 
 void engine::Model::initD3DObjectArray(void)
@@ -55,24 +67,52 @@ void engine::Model::initD3DObjectMirror(Model *m)
 	_tD3DObject = m->_tD3DObject;
 }
 
-HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
+HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
+	D3D11_BUFFER_DESC bd;
 
 	_program = program;
+	_pd3dDevice = pd3dDevice;
+	_pContext = pContext;
 
-	// Create uniform
-	D3D11_BUFFER_DESC bd;
-	bd.ByteWidth = sizeof(*_matrix) + (((sizeof(*_matrix) % 16) == 0) ? 0 : (16 - (sizeof(*_matrix) % 16)));
+	if (_pMVPMatrixBuffer)
+		_pMVPMatrixBuffer->Release();
+	if (_pModelMatrixBuffer)
+		_pModelMatrixBuffer->Release();
+	if (_pNormalMatrixBuffer)
+		_pNormalMatrixBuffer->Release();
+
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;
 	bd.StructureByteStride = 0;
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pMatrixBuffer);
+
+	// MVPMatrix Buffer
+	bd.ByteWidth = sizeof(*_MVPMatrix) + (((sizeof(*_MVPMatrix) % 16) == 0) ? 0 : (16 - (sizeof(*_MVPMatrix) % 16)));
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pMVPMatrixBuffer);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Constant Buffer", "Model", MB_OK);
+		MessageBox(NULL, "Failed to create MVPMatrix Buffer", "Model", MB_OK);
+		return hr;
+	}
+
+	// ModelMatrix Buffer
+	bd.ByteWidth = sizeof(*_ModelMatrix) + (((sizeof(*_ModelMatrix) % 16) == 0) ? 0 : (16 - (sizeof(*_ModelMatrix) % 16)));
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pModelMatrixBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create ModelMatrix Buffer", "Model", MB_OK);
+		return hr;
+	}
+
+	// NormalMatrix Buffer
+	bd.ByteWidth = sizeof(*_NormalMatrix) + (((sizeof(*_NormalMatrix) % 16) == 0) ? 0 : (16 - (sizeof(*_NormalMatrix) % 16)));
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pNormalMatrixBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create NormalMatrix Buffer", "Model", MB_OK);
 		return hr;
 	}
 
@@ -82,8 +122,7 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 	const UINT &sizeIndexArray, const UINT *indexArray,
 	const TCHAR *pathTexture,
-	const FLOAT *ambient, const FLOAT *diffuse, const FLOAT *specular, const FLOAT *shininess,
-	ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+	const DirectX::XMFLOAT4 &ambient, const DirectX::XMFLOAT4 &diffuse, const DirectX::XMFLOAT4 &specular, const FLOAT &shininess)
 {
 	HRESULT hr;
 	D3DObject *newone = new D3DObject;
@@ -91,14 +130,14 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 	ID3D11ShaderResourceView *pshr;
 	ID3D11SamplerState *psam;
 
-	hr = loadTextureFromFile(pathTexture, &ptex, &pshr, &psam, pd3dDevice, pContext);
+	hr = loadTextureFromFile(pathTexture, &ptex, &pshr, &psam, _pd3dDevice, _pContext);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Fail to load Texture", "Model", MB_OK);
 		return hr;
 	}
 
-	hr = newone->config(_program, pd3dDevice);
+	hr = newone->config(_program, _pd3dDevice, _pContext);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Fail to load ShaderProgram", "Model", MB_OK);
@@ -106,13 +145,12 @@ HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *ve
 	}
 
 	newone->setTexture(ptex, pshr, psam);
-	newone->setAmbient(ambient[0], ambient[1], ambient[2], ambient[3]);
-	newone->setDiffuse(diffuse[0], diffuse[1], diffuse[2], diffuse[3]);
-	newone->setSpecular(specular[0], specular[1], specular[2], specular[3]);
-	newone->setShininess(shininess[0]);
+	newone->setAmbient(ambient);
+	newone->setDiffuse(diffuse);
+	newone->setSpecular(specular);
+	newone->setShininess(shininess);
 	hr = newone->load(sizeVertexArray, vertexArray,
-		sizeIndexArray, indexArray,
-		pd3dDevice);
+		sizeIndexArray, indexArray);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Fail to load an Object", "Model", MB_OK);
@@ -138,8 +176,7 @@ static std::string getDir(const TCHAR *file)
 	return path;
 }
 
-HRESULT engine::Model::loadFromFile(const TCHAR *szFileName, 
-	ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+HRESULT engine::Model::loadFromFile(const TCHAR *szFileName)
 {
 	Assimp::Importer Importer;
 	UINT i, j;
@@ -208,9 +245,8 @@ HRESULT engine::Model::loadFromFile(const TCHAR *szFileName,
 		if (FAILED(createObject(vertices.size() * sizeof(Vertex), (FLOAT *)&vertices[0],
 			indices.size() * sizeof(UINT), &indices[0],
 			fullPath.c_str(),
-			(FLOAT *)&mat_ambient, (FLOAT *)&mat_diffuse, (FLOAT *)&mat_specular,
-			&mat_shininess,
-			pd3dDevice, pContext)))
+			DirectX::XMFLOAT4(mat_ambient.r, mat_ambient.g, mat_ambient.b, mat_ambient.a), DirectX::XMFLOAT4(mat_diffuse.r, mat_diffuse.g, mat_diffuse.b, mat_diffuse.a), DirectX::XMFLOAT4(mat_specular.r, mat_specular.g, mat_specular.b, mat_specular.a),
+			mat_shininess)))
 			return E_FAIL;
 
 		vertices.clear();
@@ -227,30 +263,30 @@ void engine::Model::sortD3DObject(void)
 
 void engine::Model::matIdentity(void)
 {
-	_matrix->modelMatrix = XMMatrixTranspose(DirectX::XMMatrixIdentity());
+	*_ModelMatrix = XMMatrixTranspose(DirectX::XMMatrixIdentity());
 }
 
 void engine::Model::matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixTranslation(x, y, z));
+	*_ModelMatrix *= XMMatrixTranspose(DirectX::XMMatrixTranslation(x, y, z));
 }
 
 void engine::Model::matRotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationAxis(DirectX::XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)DirectX::XM_PI / 180)));
+	*_ModelMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationAxis(DirectX::XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)DirectX::XM_PI / 180)));
 }
 
 void engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	_matrix->modelMatrix *= XMMatrixTranspose(DirectX::XMMatrixScaling(x, y, z));
+	*_ModelMatrix *= XMMatrixTranspose(DirectX::XMMatrixScaling(x, y, z));
 }
 
 DirectX::XMFLOAT3 engine::Model::getPosition(void) const
 {
 	DirectX::XMFLOAT3 tmp;
-	tmp.x = DirectX::XMVectorGetZ(_matrix->modelMatrix.r[0]);
-	tmp.y = DirectX::XMVectorGetZ(_matrix->modelMatrix.r[1]);
-	tmp.z = DirectX::XMVectorGetZ(_matrix->modelMatrix.r[2]);
+	tmp.x = DirectX::XMVectorGetZ(_ModelMatrix->r[0]);
+	tmp.y = DirectX::XMVectorGetZ(_ModelMatrix->r[1]);
+	tmp.z = DirectX::XMVectorGetZ(_ModelMatrix->r[2]);
 
 	return tmp;
 }
@@ -280,17 +316,26 @@ void engine::Model::display(GBuffer *g, Camera *cam)
 		exit(1);
 	}
 
-	_matrix->MVP = cam->getVPMatrix() * _matrix->modelMatrix;
-	_matrix->normalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(NULL, _matrix->modelMatrix));
+	*_MVPMatrix = cam->getVPMatrix() * *_ModelMatrix;
+	*_NormalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(NULL, *_ModelMatrix));
 
 	// Shader
 	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	g->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
 	g->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
   
+	// Matrix Update
+	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, _MVPMatrix, 0, 0);
+	g->getContext()->UpdateSubresource(_pModelMatrixBuffer, 0, NULL, _ModelMatrix, 0, 0);
+	g->getContext()->UpdateSubresource(_pNormalMatrixBuffer, 0, NULL, _NormalMatrix, 0, 0);
+
 	// Matrix Buffer
-	g->getContext()->UpdateSubresource(_pMatrixBuffer, 0, NULL, _matrix, 0, 0);
-	g->getContext()->VSSetConstantBuffers(0, 1, &_pMatrixBuffer);
+	ID3D11Buffer *buf[]
+	{
+		_pMVPMatrixBuffer,
+		_pNormalMatrixBuffer,
+	};
+	g->getContext()->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
   
 	for (i = 0; i<_tD3DObject->size(); i++)
 		if ((*_tD3DObject)[i]->getTransparency() == 1.0f)
