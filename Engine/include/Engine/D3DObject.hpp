@@ -22,7 +22,7 @@ namespace engine
 			DirectX::XMFLOAT4 ambient;
 			DirectX::XMFLOAT4 diffuse;
 			DirectX::XMFLOAT4 specular;
-			FLOAT shininess;
+			FLOAT __declspec(align(16)) shininess;
 		} _material;
 		UINT _numElement;
 		// Do not delete it

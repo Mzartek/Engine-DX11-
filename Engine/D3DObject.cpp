@@ -42,7 +42,7 @@ HRESULT engine::D3DObject::config(ShaderProgram *program, ID3D11Device *pd3dDevi
 
 	// Create uniform
 	D3D11_BUFFER_DESC bd;
-	bd.ByteWidth = sizeof(_material) + (((sizeof(_material) % 16) == 0) ? 0 : (16 - (sizeof(_material) % 16)));
+	bd.ByteWidth = sizeof _material;
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;

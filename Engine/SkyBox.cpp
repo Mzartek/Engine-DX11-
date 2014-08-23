@@ -194,7 +194,7 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 		&_pInputLayout);
 
 	// Create the matrix buffer
-	bd.ByteWidth = sizeof(*_MVPMatrix) + (((sizeof(*_MVPMatrix) % 16) == 0) ? 0 : (16 - (sizeof(*_MVPMatrix) % 16)));
+	bd.ByteWidth = sizeof *_MVPMatrix;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	hr = _pd3dDevice->CreateBuffer(&bd, NULL, &_pMVPMatrixBuffer);
 	if (FAILED(hr))

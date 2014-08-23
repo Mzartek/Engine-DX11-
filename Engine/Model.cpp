@@ -90,7 +90,7 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, 
 	bd.StructureByteStride = 0;
 
 	// MVPMatrix Buffer
-	bd.ByteWidth = sizeof(*_MVPMatrix) + (((sizeof(*_MVPMatrix) % 16) == 0) ? 0 : (16 - (sizeof(*_MVPMatrix) % 16)));
+	bd.ByteWidth = sizeof *_MVPMatrix;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pMVPMatrixBuffer);
 	if (FAILED(hr))
 	{
@@ -99,7 +99,7 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, 
 	}
 
 	// ModelMatrix Buffer
-	bd.ByteWidth = sizeof(*_ModelMatrix) + (((sizeof(*_ModelMatrix) % 16) == 0) ? 0 : (16 - (sizeof(*_ModelMatrix) % 16)));
+	bd.ByteWidth = sizeof *_ModelMatrix;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pModelMatrixBuffer);
 	if (FAILED(hr))
 	{
@@ -108,7 +108,7 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, 
 	}
 
 	// NormalMatrix Buffer
-	bd.ByteWidth = sizeof(*_NormalMatrix) + (((sizeof(*_NormalMatrix) % 16) == 0) ? 0 : (16 - (sizeof(*_NormalMatrix) % 16)));
+	bd.ByteWidth = sizeof *_NormalMatrix;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pNormalMatrixBuffer);
 	if (FAILED(hr))
 	{

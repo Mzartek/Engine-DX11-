@@ -32,10 +32,10 @@ HRESULT engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice,
 	_pd3dDevice = pd3dDevice;
 	_pContext = pContext;
 
-	// Create Constant Buffer
+	// Create Screen Color Buffer
 	D3D11_BUFFER_DESC bd;
 	D3D11_SUBRESOURCE_DATA data;
-	bd.ByteWidth = sizeof(*_color) + (((sizeof(*_color) % 16) == 0) ? 0 : (16 - (sizeof(*_color) % 16)));
+	bd.ByteWidth = sizeof *_color;
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
@@ -56,7 +56,7 @@ HRESULT engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice,
 		1, 1,
 	};
 
-	bd.ByteWidth = ARRAYSIZE(vertex) * sizeof(FLOAT);
+	bd.ByteWidth = sizeof vertex;
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	data.pSysMem = vertex;
