@@ -1,7 +1,4 @@
 Texture2D colorTex : register(t0);
-Texture2D<float4> normalTex : register(t1);
-Texture2D<uint4> materialTex : register(t2);
-Texture2D<float> depthTex : register(t3);
 
 SamplerState colorSampleType : register(s0);
 
@@ -45,8 +42,6 @@ PS_OUTPUT main(PS_INPUT input)
 	}
 	else
 		output.depth = 1.0;
-
-	//output.material = materialTex[input.position.xy];
 
 	return output;
 }

@@ -15,7 +15,7 @@ namespace engine
 		HWND _hWnd;
 		// Device
 		ID3D11Device *_pd3dDevice;
-		ID3D11DeviceContext *_pImmediateContext;
+		ID3D11DeviceContext *_pContext;
 		// Texture
 		IDXGISwapChain *_pSwapChain;
 		ID3D11Texture2D *_pDepthStencilTexture;
@@ -43,11 +43,10 @@ namespace engine
 		HINSTANCE getHINSTANCE(void);
 		HWND getHWND(void);
 		ID3D11Device *getD3DDevice(void);
-		ID3D11DeviceContext *getImmediateContext(void);
+		ID3D11DeviceContext *getContext(void);
+		void enableDepthMask(const BOOL &mask);
 		void mainLoop(int nCmdShow);
 		void stopLoop(void);
-		void enableDepthMask(const BOOL &mask);
-		void executeDeferredContext(ID3D11DeviceContext *context);
 		void clear(void);
 	};
 }

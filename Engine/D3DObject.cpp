@@ -1,46 +1,13 @@
 #include <Engine/D3DObject.hpp>
 
-engine::D3DObject::D3DObject(void)
+engine::D3DObject::D3DObject(ID3D11Device *pd3dDevice)
 {
 	_pTex = NULL;
 	_pShaderResourceView = NULL;
 	_pSamplerState = NULL;
-	_pMaterialBuffer = NULL;
 	_pVertexBuffer = NULL;
 	_pIndexBuffer = NULL;
-	_pInputLayout = NULL;
-	_gProgram = NULL;
-	_pd3dDevice = NULL;
-	_pContext = NULL;
-}
 
-engine::D3DObject::~D3DObject(void)
-{
-	if (_pInputLayout)
-		_pInputLayout->Release();
-	if (_pIndexBuffer)
-		_pIndexBuffer->Release();
-	if (_pVertexBuffer)
-		_pVertexBuffer->Release();
-	if (_pMaterialBuffer)
-		_pMaterialBuffer->Release();
-	if (_pSamplerState)
-		_pSamplerState->Release();
-	if (_pShaderResourceView)
-		_pShaderResourceView->Release();
-	if (_pTex)
-		_pTex->Release();
-}
-
-HRESULT engine::D3DObject::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
-{
-	HRESULT hr;
-
-	_gProgram = program;
-	_pd3dDevice = pd3dDevice;
-	_pContext = pContext;
-
-	// Create uniform
 	D3D11_BUFFER_DESC bd;
 	bd.ByteWidth = sizeof _material;
 	bd.Usage = D3D11_USAGE_DEFAULT;
@@ -48,30 +15,23 @@ HRESULT engine::D3DObject::config(ShaderProgram *program, ID3D11Device *pd3dDevi
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;
 	bd.StructureByteStride = 0;
-	hr = _pd3dDevice->CreateBuffer(&bd, NULL, &_pMaterialBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Constant Buffer", "D3DObject", MB_OK);
-		return hr;
-	}
+	pd3dDevice->CreateBuffer(&bd, NULL, &_pMaterialBuffer);
+}
 
-	// Create and set the input layout
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "IN_TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "IN_NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-	hr = _pd3dDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
-		_gProgram->getEntryBufferPointer(), _gProgram->getEntryBytecodeLength(),
-		&_pInputLayout);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Input Layout", "D3DObject", MB_OK);
-		return hr;
-	}
+engine::D3DObject::~D3DObject(void)
+{
+	_pMaterialBuffer->Release();
 
-	return S_OK;
+	if (_pIndexBuffer)
+		_pIndexBuffer->Release();
+	if (_pVertexBuffer)
+		_pVertexBuffer->Release();
+	if (_pSamplerState)
+		_pSamplerState->Release();
+	if (_pShaderResourceView)
+		_pShaderResourceView->Release();
+	if (_pTex)
+		_pTex->Release();
 }
 
 void engine::D3DObject::setTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState)
@@ -81,48 +41,28 @@ void engine::D3DObject::setTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceVi
 	_pSamplerState = pSamplerState;
 }
 
-void engine::D3DObject::setAmbient(const DirectX::XMFLOAT4 &ambient)
+void engine::D3DObject::setAmbient(const XMFLOAT4 &ambient, ID3D11DeviceContext *pContext)
 {
-	if (!_pContext)
-	{
-		MessageBox(NULL, "You need to config the GLObject before setting the material properties", "D3DObject", MB_OK);
-		return;
-	}
 	_material.ambient = ambient;
-	_pContext->UpdateSubresource(_pMaterialBuffer, 0, NULL, &_material, 0, 0);
+	pContext->UpdateSubresource(_pMaterialBuffer, 0, NULL, &_material, 0, 0);
 }
 
-void engine::D3DObject::setDiffuse(const DirectX::XMFLOAT4 &diffuse)
+void engine::D3DObject::setDiffuse(const XMFLOAT4 &diffuse, ID3D11DeviceContext *pContext)
 {
-	if (!_pContext)
-	{
-		MessageBox(NULL, "You need to config the GLObject before setting the material properties", "D3DObject", MB_OK);
-		return;
-	}
 	_material.diffuse = diffuse;
-	_pContext->UpdateSubresource(_pMaterialBuffer, 0, NULL, &_material, 0, 0);
+	pContext->UpdateSubresource(_pMaterialBuffer, 0, NULL, &_material, 0, 0);
 }
 
-void engine::D3DObject::setSpecular(const DirectX::XMFLOAT4 &specular)
+void engine::D3DObject::setSpecular(const XMFLOAT4 &specular, ID3D11DeviceContext *pContext)
 {
-	if (!_pContext)
-	{
-		MessageBox(NULL, "You need to config the GLObject before setting the material properties", "D3DObject", MB_OK);
-		return;
-	}
 	_material.specular = specular;
-	_pContext->UpdateSubresource(_pMaterialBuffer, 0, NULL, &_material, 0, 0);
+	pContext->UpdateSubresource(_pMaterialBuffer, 0, NULL, &_material, 0, 0);
 }
 
-void engine::D3DObject::setShininess(const FLOAT &shininess)
+void engine::D3DObject::setShininess(const FLOAT &shininess, ID3D11DeviceContext *pContext)
 {
-	if (!_pContext)
-	{
-		MessageBox(NULL, "You need to config the GLObject before setting the material properties", "D3DObject", MB_OK);
-		return;
-	}
 	_material.shininess = shininess;
-	_pContext->UpdateSubresource(_pMaterialBuffer, 0, NULL, &_material, 0, 0);
+	pContext->UpdateSubresource(_pMaterialBuffer, 0, NULL, &_material, 0, 0);
 }
 
 FLOAT engine::D3DObject::getTransparency(void)
@@ -133,7 +73,8 @@ FLOAT engine::D3DObject::getTransparency(void)
 #define BUFFER_OFFSET(i) ((CHAR *)NULL + i)
 
 HRESULT engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertexArray, 
-	const UINT &sizeIndexArray, const UINT *indexArray)
+	const UINT &sizeIndexArray, const UINT *indexArray,
+	ID3D11Device *pd3dDevice)
 {
 	HRESULT hr;
 	D3D11_BUFFER_DESC bd;
@@ -151,7 +92,7 @@ HRESULT engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertex
 	data.pSysMem = vertexArray;
 	data.SysMemPitch = 0;
 	data.SysMemSlicePitch = 0;
-	hr = _pd3dDevice->CreateBuffer(&bd, &data, &_pVertexBuffer);
+	hr = pd3dDevice->CreateBuffer(&bd, &data, &_pVertexBuffer);
 	if (FAILED(hr))
 		return hr;
 
@@ -159,51 +100,24 @@ HRESULT engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertex
 	bd.ByteWidth = sizeIndexArray;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	data.pSysMem = indexArray;
-	hr = _pd3dDevice->CreateBuffer(&bd, &data, &_pIndexBuffer);
+	hr = pd3dDevice->CreateBuffer(&bd, &data, &_pIndexBuffer);
 
 	return hr;
 }
 
 #undef BUFFER_OFFSET
 
-void engine::D3DObject::display(GBuffer *g) const
+void engine::D3DObject::display(ID3D11DeviceContext *pContext) const
 {
-	if (_gProgram == NULL)
-	{
-		MessageBox(NULL, "You need to configure before!", "D3DObject", MB_OK);
-		exit(1);
-	}
+	pContext->PSSetShaderResources(0, 1, &_pShaderResourceView);
+	pContext->PSSetSamplers(0, 1, &_pSamplerState);
 
-	// Shader
-	g->getContext()->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
-	g->getContext()->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
-	g->getContext()->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
+	pContext->PSSetConstantBuffers(0, 1, &_pMaterialBuffer);
 
-	// Texture
-	ID3D11ShaderResourceView *pshr[] =
-	{
-		_pShaderResourceView,
-		g->getShaderResourceView(GBUF_NORMAL),
-		g->getShaderResourceView(GBUF_MATERIAL),
-		g->getShaderResourceView(GBUF_DEPTH),
-	};
-	g->getContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
-	g->getContext()->PSSetSamplers(0, 1, &_pSamplerState);
-
-	// Uniform
-	g->getContext()->PSSetConstantBuffers(0, 1, &_pMaterialBuffer);
-
-	// Vertex And Index Buffer
-	UINT stride = 8 * sizeof(FLOAT);
-	UINT offset = 0;
-	g->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
-	g->getContext()->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
-
-	// Input Layout
-	g->getContext()->IASetInputLayout(_pInputLayout);
-
-	// Draw
-	g->getContext()->DrawIndexed(_numElement, 0, 0);
+	UINT stride = 8 * sizeof(FLOAT), offset = 0;
+	pContext->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
+	pContext->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
+	pContext->DrawIndexed(_numElement, 0, 0);
 }
 
 int engine::comparD3DObject(const void *p1, const void *p2)

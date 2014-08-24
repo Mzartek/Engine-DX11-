@@ -18,8 +18,7 @@ namespace engine
 		ID3D11Buffer *_pIndexBuffer;
 		ID3D11InputLayout *_pInputLayout;
 		ID3D11Buffer *_pMVPMatrixBuffer;
-		DirectX::XMMATRIX *_MVPMatrix;
-		DirectX::XMMATRIX *_rotateMatrix;
+		XMMATRIX *_rotateMatrix;
 		ShaderProgram *_program;
 		ID3D11Device *_pd3dDevice;
 		ID3D11DeviceContext *_pContext;

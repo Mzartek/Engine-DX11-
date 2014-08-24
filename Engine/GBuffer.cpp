@@ -55,7 +55,7 @@ engine::GBuffer::~GBuffer(void)
 		_pTexture[GBUF_NORMAL]->Release();
 }
 
-HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice)
+HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
 	D3D11_TEXTURE2D_DESC descTexture;
@@ -66,8 +66,9 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	_width = width;
 	_height = height;
 	_pd3dDevice = pd3dDevice;
-
-	hr = _pd3dDevice->CreateDeferredContext(0, &_pDefferedContext);
+	_pContext = pContext;
+	
+	hr = _pd3dDevice->CreateDeferredContext(0, &_pDeferredContext);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Deferred Context", "GBuffer", NULL);
@@ -217,12 +218,12 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 
-	_pDefferedContext->OMSetRenderTargets(GBUF_NUM_TEX - 1, _pRenderTargetView, _pDepthView);
-	_pDefferedContext->OMSetDepthStencilState(_pDepthState, 0);
-	_pDefferedContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
-	_pDefferedContext->RSSetState(_pRasterizerState);
-	_pDefferedContext->RSSetViewports(1, &vp);
-	_pDefferedContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	_pDeferredContext->OMSetRenderTargets(GBUF_NUM_TEX - 1, _pRenderTargetView, _pDepthView);
+	_pDeferredContext->OMSetDepthStencilState(_pDepthState, 0);
+	_pDeferredContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
+	_pDeferredContext->RSSetState(_pRasterizerState);
+	_pDeferredContext->RSSetViewports(1, &vp);
+	_pDeferredContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	return S_OK;
 }
@@ -248,12 +249,12 @@ void engine::GBuffer::enableDepthMask(const BOOL &mask)
 	else
 		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthState);
-	_pDefferedContext->OMSetDepthStencilState(_pDepthState, 0);
+	_pDeferredContext->OMSetDepthStencilState(_pDepthState, 0);
 }
 
 void engine::GBuffer::clear(void) const
 {
-	_pDefferedContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], DirectX::Colors::Transparent);
-	_pDefferedContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], DirectX::Colors::Transparent);
-	_pDefferedContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	_pDeferredContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], Colors::Transparent);
+	_pDeferredContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], Colors::Transparent);
+	_pDeferredContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

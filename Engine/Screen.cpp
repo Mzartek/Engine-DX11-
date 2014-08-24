@@ -5,7 +5,7 @@ engine::Screen::Screen()
 	_pScreenColorBuffer = NULL;
 	_pVertexBuffer = NULL;
 	_pInputLayout = NULL;
-	_color = new DirectX::XMFLOAT4;
+	_color = new XMFLOAT4;
 	_program = NULL;
 	_pd3dDevice = NULL;
 	_pContext = NULL;

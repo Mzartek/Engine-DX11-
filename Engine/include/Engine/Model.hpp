@@ -15,9 +15,10 @@ namespace engine
 		ID3D11Buffer *_pMVPMatrixBuffer;
 		ID3D11Buffer *_pModelMatrixBuffer;
 		ID3D11Buffer *_pNormalMatrixBuffer;
-		DirectX::XMMATRIX *_MVPMatrix;
-		DirectX::XMMATRIX *_ModelMatrix;
-		DirectX::XMMATRIX *_NormalMatrix;
+		XMMATRIX *_MVPMatrix;
+		XMMATRIX *_ModelMatrix;
+		XMMATRIX *_NormalMatrix;
+		ID3D11InputLayout *_pInputLayout;
 		// Do not delete it
 		ShaderProgram *_program;
 		ID3D11Device *_pd3dDevice;
@@ -31,14 +32,14 @@ namespace engine
 		HRESULT createObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 				  const UINT &sizeIndexArray, const UINT *indexArray,
 				  const TCHAR *pathTexture,
-				  const DirectX::XMFLOAT4 &ambient, const DirectX::XMFLOAT4 &diffuse, const DirectX::XMFLOAT4 &specular, const FLOAT &shininess);
+				  const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess);
 		HRESULT loadFromFile(const TCHAR *szFileName);
 		void sortD3DObject(void);
 		void matIdentity(void);
 		void matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void matRotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z);
-		DirectX::XMFLOAT3 getPosition(void) const;
+		XMFLOAT3 getPosition(void) const;
 		D3DObject *getD3DObject(UINT num) const;
 		void display(GBuffer *g, Camera *cam);
 	};

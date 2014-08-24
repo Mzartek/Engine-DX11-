@@ -8,10 +8,10 @@ namespace engine
 	class DLLAPI Camera : public Object
 	{
 	protected:
-		DirectX::XMFLOAT3 *_pcamera;
-		DirectX::XMFLOAT3 *_ptarget;
-		DirectX::XMMATRIX *_projectionMatrix;
-		DirectX::XMMATRIX *_VPMatrix;
+		XMVECTOR *_pcamera;
+		XMVECTOR *_ptarget;
+		XMMATRIX *_projectionMatrix;
+		XMMATRIX *_VPMatrix;
 	public:
 		Camera(void);
 		Camera(const FLOAT &x, const FLOAT &y, const FLOAT &z);
@@ -19,10 +19,10 @@ namespace engine
 		void setPositionCamera(const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void setPositionTarget(const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f);
-		DirectX::XMFLOAT3 getPositionCamera(void) const;
-		DirectX::XMFLOAT3 getPositionTarget(void) const;
-		DirectX::XMMATRIX getProjectionMatrix(void) const;
-		DirectX::XMMATRIX getVPMatrix(void) const;
+		XMVECTOR getPositionCamera(void) const;
+		XMVECTOR getPositionTarget(void) const;
+		XMMATRIX getProjectionMatrix(void) const;
+		XMMATRIX getVPMatrix(void) const;
 		void position(void);
 	};
 }

@@ -12,7 +12,7 @@ namespace engine
 		ID3D11Buffer *_pScreenColorBuffer;
 		ID3D11Buffer *_pVertexBuffer;
 		ID3D11InputLayout *_pInputLayout;
-		DirectX::XMFLOAT4 *_color;
+		XMFLOAT4 *_color;
 		// Do not delete it
 		ShaderProgram *_program;
 		ID3D11Device *_pd3dDevice;

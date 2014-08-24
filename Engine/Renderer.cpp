@@ -4,7 +4,7 @@ engine::Renderer::Renderer(void)
 {
 	// Device
 	_pd3dDevice = NULL;
-	_pImmediateContext = NULL;
+	_pContext = NULL;
 	// Texture
 	_pSwapChain = NULL;
 	_pDepthStencilTexture = NULL;
@@ -23,8 +23,8 @@ engine::Renderer::Renderer(void)
 
 engine::Renderer::~Renderer(void)
 {
-	if (_pImmediateContext)
-		_pImmediateContext->ClearState();
+	if (_pContext)
+		_pContext->ClearState();
 
 	// State
 	if (_pRasterizerState)
@@ -47,8 +47,8 @@ engine::Renderer::~Renderer(void)
 		_pSwapChain->Release();
 
 	// Device
-	if (_pImmediateContext)
-		_pImmediateContext->Release();
+	if (_pContext)
+		_pContext->Release();
 	if (_pd3dDevice) 
 		_pd3dDevice->Release();
 }
@@ -110,7 +110,7 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 		D3D_FEATURE_LEVEL_10_0,
 	};
 	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
-		&sd, &_pSwapChain, &_pd3dDevice, NULL, &_pImmediateContext);
+		&sd, &_pSwapChain, &_pd3dDevice, NULL, &_pContext);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Device and SwapChain", "Renderer", NULL);
@@ -225,12 +225,12 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 
-	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
-	_pImmediateContext->OMSetDepthStencilState(_pDepthStencilState, 0);
-	_pImmediateContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
-	_pImmediateContext->RSSetState(_pRasterizerState);
-	_pImmediateContext->RSSetViewports(1, &vp);
-	_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	_pContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
+	_pContext->OMSetDepthStencilState(_pDepthStencilState, 0);
+	_pContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
+	_pContext->RSSetState(_pRasterizerState);
+	_pContext->RSSetViewports(1, &vp);
+	_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	return S_OK;
 }
@@ -275,9 +275,28 @@ ID3D11Device *engine::Renderer::getD3DDevice(void)
 	return _pd3dDevice;
 }
 
-ID3D11DeviceContext *engine::Renderer::getImmediateContext(void)
+ID3D11DeviceContext *engine::Renderer::getContext(void)
 {
-	return _pImmediateContext;
+	return _pContext;
+}
+
+void engine::Renderer::enableDepthMask(const BOOL &mask)
+{
+	D3D11_DEPTH_STENCIL_DESC descDepth;
+	if (_pDepthStencilState == NULL)
+	{
+		MessageBox(NULL, "You need to config the GBuffer before", "Renderer", NULL);
+		return;
+	}
+
+	_pDepthStencilState->GetDesc(&descDepth);
+	_pDepthStencilState->Release();
+	if (mask)
+		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	else
+		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+	_pContext->OMSetDepthStencilState(_pDepthStencilState, 0);
 }
 
 void engine::Renderer::mainLoop(int nCmdShow)
@@ -318,37 +337,8 @@ void engine::Renderer::stopLoop(void)
 	_stopLoop = TRUE;
 }
 
-void engine::Renderer::enableDepthMask(const BOOL &mask)
-{
-	D3D11_DEPTH_STENCIL_DESC descDepth;
-	if (_pDepthStencilState == NULL)
-	{
-		MessageBox(NULL, "You need to configure the GBuffer before", "GBuffer", NULL);
-		return;
-	}
-
-	_pDepthStencilState->GetDesc(&descDepth);
-	_pDepthStencilState->Release();
-	if (mask)
-		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	else
-		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
-	_pImmediateContext->OMSetDepthStencilState(_pDepthStencilState, 0);
-}
-
-void engine::Renderer::executeDeferredContext(ID3D11DeviceContext *context)
-{
-	ID3D11CommandList *commandList;
-
-	context->FinishCommandList(TRUE, &commandList);
-	_pImmediateContext->ExecuteCommandList(commandList, TRUE);
-
-	commandList->Release();
-}
-
 void engine::Renderer::clear(void)
 {
-	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, DirectX::Colors::Transparent);
-	_pImmediateContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	_pContext->ClearRenderTargetView(_pRenderTargetView, Colors::Transparent);
+	_pContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

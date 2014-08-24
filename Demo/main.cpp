@@ -43,7 +43,6 @@ void display(void)
 	skybox->display(gBuffer, cam);
 	sol->display(gBuffer, cam);
 	heli->display(gBuffer, cam);
-	renderer->executeDeferredContext(gBuffer->getContext());
 
 	renderer->clear();
 	screen->display(gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);

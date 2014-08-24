@@ -2,11 +2,17 @@
 
 engine::ShadowMap::ShadowMap()
 {
+	// Texture
 	_pTexture = NULL;
+	// Shader Resouce View
 	_pShaderResourceView = NULL;
+	// View
 	_pDepthView = NULL;
+	// State
 	_pDepthState = NULL;
+	_pSamplerState = NULL;
 	_pRasterizerState = NULL;
+	// ShaderProgram
 	_program = NULL;
 }
 
@@ -15,6 +21,8 @@ engine::ShadowMap::~ShadowMap()
 	// State
 	if (_pRasterizerState)
 		_pRasterizerState->Release();
+	if (_pSamplerState)
+		_pSamplerState->Release();
 	if (_pDepthState)
 		_pDepthState->Release();
 
@@ -31,7 +39,7 @@ engine::ShadowMap::~ShadowMap()
 		_pTexture->Release();
 }
 
-HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice)
+HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
 	D3D11_TEXTURE2D_DESC descTexture;
@@ -40,14 +48,9 @@ HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11D
 
 	_width = width;
 	_height = height;
+	_program = program;
 	_pd3dDevice = pd3dDevice;
-
-	hr = _pd3dDevice->CreateDeferredContext(0, &_pDefferedContext);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Deferred Context", "ShadowMap", NULL);
-		return hr;
-	}
+	_pContext = pContext;
 
 	// Depth
 	descTexture.Width = width;
@@ -87,6 +90,18 @@ HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11D
 	}
 
 	// State
+	D3D11_DEPTH_STENCIL_DESC descDepth;
+	descDepth.DepthEnable = TRUE;
+	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
+	descDepth.StencilEnable = FALSE;
+	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthState);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create DepthStencil State", "ShadowMap", NULL);
+		return hr;
+	}
+
 	D3D11_SAMPLER_DESC descSampler;
 	descSampler.Filter = D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
 	descSampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -105,18 +120,6 @@ HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11D
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Error while creating the SamplerState", "ShadowMap", MB_OK);
-		return hr;
-	}
-
-	D3D11_DEPTH_STENCIL_DESC descDepth;
-	descDepth.DepthEnable = TRUE;
-	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
-	descDepth.StencilEnable = FALSE;
-	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthState);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create DepthStencil State", "ShadowMap", NULL);
 		return hr;
 	}
 
@@ -147,10 +150,26 @@ HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11D
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 
-	_pDefferedContext->OMSetRenderTargets(0, NULL, _pDepthView);
-	_pDefferedContext->OMSetDepthStencilState(_pDepthState, 0);
-	_pDefferedContext->RSSetState(_pRasterizerState);
-	_pDefferedContext->RSSetViewports(1, &vp);
+	_pDeferredContext->OMSetRenderTargets(0, NULL, _pDepthView);
+	_pDeferredContext->OMSetDepthStencilState(_pDepthState, 0);
+	_pDeferredContext->RSSetState(_pRasterizerState);
+	_pDeferredContext->RSSetViewports(1, &vp);
+	_pDeferredContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	return S_OK;
+}
+
+ID3D11ShaderResourceView *engine::ShadowMap::getShaderResourceView(void) const
+{
+	return _pShaderResourceView;
+}
+
+ID3D11SamplerState *engine::ShadowMap::getSamplerState(void) const
+{
+	return _pSamplerState;
+}
+
+void engine::ShadowMap::clear(void) const
+{
+	_pDeferredContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

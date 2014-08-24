@@ -21,13 +21,15 @@
 #include <directxcolors.h>
 #include <dinput.h>
 
+using namespace DirectX;
+
 namespace engine
 {
 	typedef struct Vertex
 	{
-		DirectX::XMFLOAT3 position;
-		DirectX::XMFLOAT2 texCoord;
-		DirectX::XMFLOAT3 normal;
+		XMFLOAT3 position;
+		XMFLOAT2 texCoord;
+		XMFLOAT3 normal;
 	} Vertex;
 
 	extern DLLAPI HRESULT loadTextureFromFile(const TCHAR *szFileName, 

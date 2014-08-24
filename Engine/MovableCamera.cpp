@@ -3,16 +3,18 @@
 engine::MovableCamera::MovableCamera(void)
 {
 	_atheta = _aphi = 0;
-	_vforward = new DirectX::XMFLOAT3;
-	_vleft = new DirectX::XMFLOAT3;
+	_vforward = (XMVECTOR *)_aligned_malloc(sizeof *_vforward, 16);
+	_vleft = (XMVECTOR *)_aligned_malloc(sizeof *_vleft, 16);
 	_speed = 1;
 }
 
 engine::MovableCamera::~MovableCamera(void)
 {
-	delete _vforward;
-	delete _vleft;
+	_aligned_free(_vforward);
+	_aligned_free(_vleft);
 }
+
+#include <DirectXMath.h>
 
 void engine::MovableCamera::setInitialAngle(const FLOAT &t, const FLOAT &p)
 {
@@ -28,23 +30,18 @@ void engine::MovableCamera::setInitialAngle(const FLOAT &t, const FLOAT &p)
 	else if (_aphi < -89)
 		_aphi = -89;
 
-	FLOAT tmp = (FLOAT)cos(_aphi*DirectX::XM_PI / 180);
-	_vforward->y = (FLOAT)sin(_aphi*DirectX::XM_PI / 180);
-	_vforward->z = tmp*(FLOAT)cos(_atheta*DirectX::XM_PI / 180);
-	_vforward->x = tmp*(FLOAT)sin(_atheta*DirectX::XM_PI / 180);
+	FLOAT tmp = (FLOAT)cos(_aphi*XM_PI / 180);
+	*_vforward = XMVectorSetX(*_vforward, tmp*(FLOAT)sin(_atheta*XM_PI / 180));
+	*_vforward = XMVectorSetY(*_vforward, (FLOAT)sin(_aphi*XM_PI / 180));
+	*_vforward = XMVectorSetZ(*_vforward, tmp*(FLOAT)cos(_atheta*XM_PI / 180));
 
-	_vleft->x = 1 * _vforward->z;
-	_vleft->y = 0;
-	_vleft->z = -(1 * _vforward->x);
+	*_vleft = XMVectorSetX(*_vleft, 1 * XMVectorGetZ(*_vforward));
+	*_vleft = XMVectorSetY(*_vleft, 0);
+	*_vleft = XMVectorSetZ(*_vleft, -(1 * XMVectorGetX(*_vforward)));
 
-	tmp = (FLOAT)sqrt(_vleft->x*_vleft->x + _vleft->y*_vleft->y + _vleft->z*_vleft->z);
-	_vleft->x /= tmp;
-	_vleft->y /= tmp;
-	_vleft->z /= tmp;
+	*_vleft = XMVector3Normalize(*_vleft);
 
-	_ptarget->x = _pcamera->x + _vforward->x;
-	_ptarget->y = _pcamera->y + _vforward->y;
-	_ptarget->z = _pcamera->z + _vforward->z;
+	*_ptarget = *_pcamera + *_vforward;
 }
 
 void engine::MovableCamera::setSpeed(const FLOAT &v)
@@ -65,32 +62,27 @@ void engine::MovableCamera::mouseMove(const INT &xrel, const INT &yrel)
 		_aphi = 89;
 	else if (_aphi < -89)
 		_aphi = -89;
-  
-	FLOAT tmp = (FLOAT)cos(_aphi*DirectX::XM_PI/180);
-	_vforward->y = (FLOAT)sin(_aphi*DirectX::XM_PI / 180);
-	_vforward->z = tmp*(FLOAT)cos(_atheta*DirectX::XM_PI / 180);
-	_vforward->x = tmp*(FLOAT)sin(_atheta*DirectX::XM_PI / 180);
 
-	_vleft->x = 1*_vforward->z;
-	_vleft->y = 0;
-	_vleft->z = -(1*_vforward->x);
+	FLOAT tmp = (FLOAT)cos(_aphi*XM_PI / 180);
+	*_vforward = XMVectorSetX(*_vforward, tmp*(FLOAT)sin(_atheta*XM_PI / 180));
+	*_vforward = XMVectorSetY(*_vforward, (FLOAT)sin(_aphi*XM_PI / 180));
+	*_vforward = XMVectorSetZ(*_vforward, tmp*(FLOAT)cos(_atheta*XM_PI / 180));
 
-	tmp = (FLOAT)sqrt(_vleft->x*_vleft->x + _vleft->y*_vleft->y + _vleft->z*_vleft->z);
-	_vleft->x /= tmp;
-	_vleft->y /= tmp;
-	_vleft->z /= tmp;
-  
-	_ptarget->x = _pcamera->x + _vforward->x;
-	_ptarget->y = _pcamera->y + _vforward->y;
-	_ptarget->z = _pcamera->z + _vforward->z;
+	*_vleft = XMVectorSetX(*_vleft, 1 * XMVectorGetZ(*_vforward));
+	*_vleft = XMVectorSetY(*_vleft, 0);
+	*_vleft = XMVectorSetZ(*_vleft, -(1 * XMVectorGetX(*_vforward)));
+
+	*_vleft = XMVector3Normalize(*_vleft);
+
+	*_ptarget = *_pcamera + *_vforward;
 }
 
-DirectX::XMFLOAT3 engine::MovableCamera::getForward(void) const
+XMVECTOR engine::MovableCamera::getForward(void) const
 {
 	return *_vforward;
 }
 
-DirectX::XMFLOAT3 engine::MovableCamera::getLeft(void) const
+XMVECTOR engine::MovableCamera::getLeft(void) const
 {
 	return *_vleft;
 }

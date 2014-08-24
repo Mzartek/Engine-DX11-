@@ -24,7 +24,7 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName,
 	D3D11_TEXTURE2D_DESC descTexture;
 	descTexture.Width = FreeImage_GetWidth(image);
 	descTexture.Height = FreeImage_GetHeight(image);
-	descTexture.MipLevels = 6;
+	descTexture.MipLevels = 9;
 	descTexture.ArraySize = 1;
 	descTexture.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	descTexture.SampleDesc.Count = 1;

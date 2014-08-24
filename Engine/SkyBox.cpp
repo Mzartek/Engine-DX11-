@@ -10,17 +10,15 @@ engine::SkyBox::SkyBox()
 	_pIndexBuffer = NULL;
 	_pInputLayout = NULL;
 	_pMVPMatrixBuffer = NULL;
-	_MVPMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_MVPMatrix, 16);
-	_rotateMatrix = (DirectX::XMMATRIX *)_aligned_malloc(sizeof *_rotateMatrix, 16);
+	_rotateMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_rotateMatrix, 16);
 	_program = NULL;
 
-	*_rotateMatrix = XMMatrixTranspose(DirectX::XMMatrixIdentity());
+	*_rotateMatrix = XMMatrixTranspose(XMMatrixIdentity());
 }
 
 engine::SkyBox::~SkyBox()
 {
 	_aligned_free(_rotateMatrix);
-	_aligned_free(_MVPMatrix);
 
 	if (_pMVPMatrixBuffer)
 		_pMVPMatrixBuffer->Release();
@@ -194,7 +192,7 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 		&_pInputLayout);
 
 	// Create the matrix buffer
-	bd.ByteWidth = sizeof *_MVPMatrix;
+	bd.ByteWidth = sizeof XMMATRIX;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	hr = _pd3dDevice->CreateBuffer(&bd, NULL, &_pMVPMatrixBuffer);
 	if (FAILED(hr))
@@ -210,46 +208,52 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 
 void engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	*_rotateMatrix *= XMMatrixTranspose(DirectX::XMMatrixRotationAxis(DirectX::XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)DirectX::XM_PI / 180)));
+	*_rotateMatrix *= XMMatrixTranspose(XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)XM_PI / 180)));
 }
 
 void engine::SkyBox::display(GBuffer *g, Camera *cam)
 {
-	if(_program == NULL)
+	XMMATRIX pos;
+	if (_program == NULL)
 	{
-		std::cerr << "You need to load a SkyBox before" << std::endl;
-		return;
+		MessageBox(NULL, "Need to config the SkyBox before displaying", "SkyBox", MB_OK);
+		exit(1);
+	}
+	if (g == NULL)
+	{
+		MessageBox(NULL, "Bad GBuffer", "SkyBox", MB_OK);
+		exit(1);
+	}
+	if (cam == NULL)
+	{
+		MessageBox(NULL, "Bad Camera", "SkyBox", MB_OK);
+		exit(1);
 	}
 
-	*_MVPMatrix = XMMatrixTranspose(DirectX::XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z));
-	*_MVPMatrix *= *_rotateMatrix;
-	*_MVPMatrix = cam->getVPMatrix() * *_MVPMatrix;
+	pos = XMMatrixTranspose(XMMatrixTranslation(XMVectorGetX(cam->getPositionCamera()), XMVectorGetY(cam->getPositionCamera()), XMVectorGetZ(cam->getPositionCamera())));
+	pos *= *_rotateMatrix;
+	pos = cam->getVPMatrix() * pos;
 
 	g->enableDepthMask(FALSE);
-	// Shader
+
 	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	g->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
 	g->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
+	g->getContext()->IASetInputLayout(_pInputLayout);
 
-	// Matrix Buffer
-	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, _MVPMatrix, 0, 0);
+	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &pos, 0, 0);
 	g->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
 
-	// Texture
 	g->getContext()->PSSetShaderResources(0, 1, &_pShaderResourceView);
 	g->getContext()->PSSetSamplers(0, 1, &_pSamplerState);
 
 	// Vertex And Index Buffer
-	UINT stride = 3 * sizeof(FLOAT);
-	UINT offset = 0;
+	UINT stride = 3 * sizeof(FLOAT), offset = 0;
 	g->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
 	g->getContext()->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
-
-	// Input Layout
-	g->getContext()->IASetInputLayout(_pInputLayout);
-
-	// Draw
 	g->getContext()->DrawIndexed(_numElement, 0, 0);
 
 	g->enableDepthMask(TRUE);
+
+	g->executeContext();
 }
