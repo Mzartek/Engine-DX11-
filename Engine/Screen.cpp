@@ -7,8 +7,6 @@ engine::Screen::Screen()
 	_pInputLayout = NULL;
 	_color = new XMFLOAT4;
 	_program = NULL;
-	_pd3dDevice = NULL;
-	_pContext = NULL;
 }
 
 engine::Screen::~Screen()
@@ -24,13 +22,11 @@ engine::Screen::~Screen()
 
 #define BUFFER_OFFSET(i) ((GLbyte *)NULL + i)
 
-HRESULT engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+void engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 {
 	HRESULT hr;
 	
 	_program = program;
-	_pd3dDevice = pd3dDevice;
-	_pContext = pContext;
 
 	// Create Screen Color Buffer
 	D3D11_BUFFER_DESC bd;
@@ -44,8 +40,8 @@ HRESULT engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice,
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pScreenColorBuffer);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Constant Buffer 0", "Screen", MB_OK);
-		return hr;
+		MessageBox(NULL, "Failed to create Screen Buffer", "Screen", MB_OK);
+		exit(1);
 	}
 
 	// Create Vertex Buffer
@@ -64,7 +60,7 @@ HRESULT engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice,
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Vertex Buffer", "Screen", MB_OK);
-		return hr;
+		exit(1);
 	}
 
 	// Create Input Layout
@@ -77,51 +73,49 @@ HRESULT engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice,
 		&_pInputLayout);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Input Layout", "D3DObject", MB_OK);
-		return hr;
+		MessageBox(NULL, "Failed to create Input Layout", "Screen", MB_OK);
+		exit(1);
 	}
-
-	return S_OK;
 }
 
 #undef BUFFER_OFFSET
 
-void engine::Screen::display(GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
+void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
 {
 	if (_program == NULL)
 	{
-		MessageBox(NULL, "You need to configure before!", "SCreen", MB_OK);
+		MessageBox(NULL, "You need to configure before!", "Screen", MB_OK);
 		exit(1);
 	}
 
 	// Shader
-	_pContext->VSSetShader(_program->getVertexShader(), NULL, 0);
-	_pContext->GSSetShader(_program->getGeometryShader(), NULL, 0);
-	_pContext->PSSetShader(_program->getPixelShader(), NULL, 0);
+	renderer->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
+	renderer->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
+	renderer->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
 
 	// Texture
 	ID3D11ShaderResourceView *pshr[] =
 	{
 		gbuf->getShaderResourceView(GBUF_MATERIAL),
 	};
-	_pContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	renderer->getContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
 
 	// Constant Buffer
 	_color->x = r;
 	_color->y = g;
 	_color->z = b;
 	_color->w = a;
-	_pContext->UpdateSubresource(_pScreenColorBuffer, 0, NULL, _color, 0, 0);
-	_pContext->PSSetConstantBuffers(0, 1, &_pScreenColorBuffer);
+	renderer->getContext()->UpdateSubresource(_pScreenColorBuffer, 0, NULL, _color, 0, 0);
+	renderer->getContext()->PSSetConstantBuffers(0, 1, &_pScreenColorBuffer);
 
 	// Vertex Buffer
 	UINT stride = 2 * sizeof(FLOAT);
 	UINT offset = 0;
-	_pContext->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
+	renderer->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
 
 	// Input Layout
-	_pContext->IASetInputLayout(_pInputLayout);
+	renderer->getContext()->IASetInputLayout(_pInputLayout);
 
 	// Draw
-	_pContext->Draw(4, 0);
+	renderer->getContext()->Draw(4, 0);
 }

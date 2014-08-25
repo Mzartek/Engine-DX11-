@@ -25,38 +25,60 @@ engine::Input::~Input(void)
 		_pDirectInputObject->Release();
 }
 
-HRESULT engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
+void engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
 {
 	HRESULT hr;
 	hr = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&_pDirectInputObject, NULL);
 	if (FAILED(hr))
-		return hr;
+	{
+		MessageBox(NULL, "Failed to create Input", "Input", MB_OK);
+		exit(1);
+	}
 
 	hr = _pDirectInputObject->CreateDevice(GUID_SysKeyboard, &_pKeyBoard, NULL);
 	if (FAILED(hr))
-		return hr;
+	{
+		MessageBox(NULL, "Failed to create KeyBoard Device", "Input", MB_OK);
+		exit(1);
+	}
+
 	hr = _pDirectInputObject->CreateDevice(GUID_SysMouse, &_pMouse, NULL);
 	if (FAILED(hr))
-		return hr;
+	{
+		MessageBox(NULL, "Failed to create Mouse Device", "Input", MB_OK);
+		exit(1);
+	}
 
 	hr = _pKeyBoard->SetDataFormat(&c_dfDIKeyboard);
 	if (FAILED(hr))
-		return hr;
+	{
+		MessageBox(NULL, "Failed to set Keyboard DataFormat", "Input", MB_OK);
+		exit(1);
+	}
+
 	hr = _pKeyBoard->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
 	if (FAILED(hr))
-		return hr;
+	{
+		MessageBox(NULL, "Failed to set Keyboard CooperativeLevel", "Input", MB_OK);
+		exit(1);
+	}
 
 	hr = _pMouse->SetDataFormat(&c_dfDIMouse);
 	if (FAILED(hr))
-		return hr;
+	{
+		MessageBox(NULL, "Failed to set Mouse DataFormat", "Input", MB_OK);
+		exit(1);
+	}
+
 	hr = _pMouse->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
 	if (FAILED(hr))
-		return hr;
+	{
+		MessageBox(NULL, "Failed to set Mouse CooperativeLevel", "Input", MB_OK);
+		exit(1);
+	}
 
 	_pKeyBoard->Acquire();
 	_pMouse->Acquire();
-
-	return S_OK;
 }
 
 void engine::Input::refresh(void)

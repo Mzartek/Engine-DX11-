@@ -1,7 +1,7 @@
 #include <Engine/DXHead.hpp>
 #include <FreeImage.h>
 
-HRESULT engine::loadTextureFromFile(const TCHAR *szFileName, 
+void engine::loadTextureFromFile(const TCHAR *szFileName, 
 	ID3D11Texture2D **pptex, ID3D11ShaderResourceView **ppshr, ID3D11SamplerState **ppsam,
 	ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
@@ -15,7 +15,7 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName,
 		std::string text = "Fail to load file: ";
 		text.append(szFileName);
 		MessageBox(NULL, text.c_str(), "Texture", MB_OK);
-		return E_FAIL;
+		exit(1);
 	}
 	tmp = image;
 	image = FreeImage_ConvertTo32Bits(image);
@@ -38,7 +38,7 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName,
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Error while creating the Texture2D", "Texture", MB_OK);
-		return hr;
+		exit(1);
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC descShaderResourceView;
@@ -50,7 +50,7 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName,
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Error while creating the ShaderResourceView", "Texture", MB_OK);
-		return hr;
+		exit(1);
 	}
 
 	pContext->UpdateSubresource(*pptex, 0, NULL, FreeImage_GetBits(image), 4 * descTexture.Width, 4 * descTexture.Width * descTexture.Height);
@@ -74,10 +74,8 @@ HRESULT engine::loadTextureFromFile(const TCHAR *szFileName,
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Error while creating the SamplerState", "Texture", MB_OK);
-		return hr;
+		exit(1);
 	}
 
 	FreeImage_Unload(image);
-
-	return hr;
 }

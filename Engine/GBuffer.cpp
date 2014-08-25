@@ -55,7 +55,7 @@ engine::GBuffer::~GBuffer(void)
 		_pTexture[GBUF_NORMAL]->Release();
 }
 
-HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
 	D3D11_TEXTURE2D_DESC descTexture;
@@ -72,7 +72,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Deferred Context", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// Normal
@@ -91,7 +91,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Normal Texture", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
 	descRenderTargetView.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
@@ -100,7 +100,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Normal View", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -110,7 +110,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Normal Shader Resource View", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// Material
@@ -119,21 +119,21 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Material Texture", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
 	hr = _pd3dDevice->CreateRenderTargetView(_pTexture[GBUF_MATERIAL], &descRenderTargetView, &_pRenderTargetView[GBUF_MATERIAL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Material View", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
 	hr = _pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_MATERIAL], &descShaderResourceView, &_pShaderResourceView[GBUF_MATERIAL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Material Shader Resource View", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// Depth
@@ -143,7 +143,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Texture", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 	descDepthView.Format = DXGI_FORMAT_D32_FLOAT;
 	descDepthView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -153,14 +153,14 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth View", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 	descShaderResourceView.Format = DXGI_FORMAT_R32_FLOAT;
 	hr = _pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_DEPTH], &descShaderResourceView, &_pShaderResourceView[GBUF_DEPTH]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Shader Resource View", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// State
@@ -173,7 +173,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil State", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	D3D11_BLEND_DESC descBlend;
@@ -188,17 +188,17 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Blend State", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	D3D11_RASTERIZER_DESC descRasterizer;
 	descRasterizer.FillMode = D3D11_FILL_SOLID;
 	descRasterizer.CullMode = D3D11_CULL_NONE;
 	descRasterizer.FrontCounterClockwise = FALSE;
-	descRasterizer.DepthBias = FALSE;
-	descRasterizer.DepthBiasClamp = FALSE;
-	descRasterizer.SlopeScaledDepthBias = FALSE;
-	descRasterizer.DepthClipEnable = FALSE;
+	descRasterizer.DepthBias = 0;
+	descRasterizer.DepthBiasClamp = 0.0f;
+	descRasterizer.SlopeScaledDepthBias = 0.0f;
+	descRasterizer.DepthClipEnable = TRUE;
 	descRasterizer.ScissorEnable = FALSE;
 	descRasterizer.MultisampleEnable = FALSE;
 	descRasterizer.AntialiasedLineEnable = FALSE;
@@ -206,7 +206,7 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Rasterizer State", "GBuffer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// Create the Viewport
@@ -224,8 +224,6 @@ HRESULT engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Dev
 	_pDeferredContext->RSSetState(_pRasterizerState);
 	_pDeferredContext->RSSetViewports(1, &vp);
 	_pDeferredContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	return S_OK;
 }
 
 ID3D11ShaderResourceView *engine::GBuffer::getShaderResourceView(const UINT &num) const

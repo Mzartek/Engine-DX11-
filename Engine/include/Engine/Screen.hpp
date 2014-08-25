@@ -15,13 +15,11 @@ namespace engine
 		XMFLOAT4 *_color;
 		// Do not delete it
 		ShaderProgram *_program;
-		ID3D11Device *_pd3dDevice;
-		ID3D11DeviceContext *_pContext;
 	public:
 		Screen();
 		~Screen();
-		HRESULT config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
-		void display(GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a);
+		void config(ShaderProgram *program, ID3D11Device *pd3dDevice);
+		void display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a);
 	};
 }
 

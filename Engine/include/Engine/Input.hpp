@@ -22,7 +22,7 @@ namespace engine
 	public:
 		Input(void);
 		~Input(void);
-		HRESULT initInput(const HINSTANCE &hInstance, const HWND &hWnd);
+		void initInput(const HINSTANCE &hInstance, const HWND &hWnd);
 		void refresh(void);
 		BOOL getKeyBoardState(const BYTE &button);
 		BOOL getMouseState(const BYTE &button);

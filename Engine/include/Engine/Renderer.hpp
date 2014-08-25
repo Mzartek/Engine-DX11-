@@ -5,6 +5,8 @@
 
 namespace engine
 {
+	extern D3D_FEATURE_LEVEL EngineGraphicsFeatureLevel;
+	extern std::string EngineShaderLevel;
 	class DLLAPI Renderer : public Object
 	{
 	private:
@@ -33,7 +35,7 @@ namespace engine
 	public:
 		Renderer(void);
 		~Renderer(void);
-		HRESULT initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), 
+		void initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), 
 			const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen);
 		void setDisplayFunc(void(*f) (void));
 		void setIdleFunc(void(*f) (void));

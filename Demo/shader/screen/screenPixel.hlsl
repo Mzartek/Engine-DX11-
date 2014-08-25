@@ -15,13 +15,18 @@ struct PS_OUTPUT
 	float4 finalColor : SV_TARGET;
 };
 
+int4 unpack(uint4 a, int v)
+{
+	return (0x000000FF & (a >> (v * 8)));
+}
+
 PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
 	uint4 material = materialTex[input.position.xy];
 
-	output.finalColor = float4(0x000000FF & (int4(material) >> 24)) / 255;
+	output.finalColor = float4(unpack(material, 3)) / 255;
 	output.finalColor *= color;
 
 	return output;

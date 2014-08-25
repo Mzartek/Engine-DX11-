@@ -77,12 +77,12 @@ void engine::MovableCamera::mouseMove(const INT &xrel, const INT &yrel)
 	*_ptarget = *_pcamera + *_vforward;
 }
 
-XMVECTOR engine::MovableCamera::getForward(void) const
+XMFLOAT3 engine::MovableCamera::getForward(void) const
 {
-	return *_vforward;
+	return XMFLOAT3(XMVectorGetX(*_vforward), XMVectorGetY(*_vforward), XMVectorGetZ(*_vforward));
 }
 
-XMVECTOR engine::MovableCamera::getLeft(void) const
+XMFLOAT3 engine::MovableCamera::getLeft(void) const
 {
-	return *_vleft;
+	return XMFLOAT3(XMVectorGetX(*_vleft), XMVectorGetY(*_vleft), XMVectorGetZ(*_vleft));
 }

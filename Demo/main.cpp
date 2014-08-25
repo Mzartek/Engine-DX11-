@@ -37,15 +37,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void display(void)
 {
-	cam->position();
-
 	gBuffer->clear();
+	renderer->clear();
+
 	skybox->display(gBuffer, cam);
 	sol->display(gBuffer, cam);
 	heli->display(gBuffer, cam);
 
-	renderer->clear();
-	screen->display(gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
+	screen->display(renderer, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void idle(void)
@@ -61,6 +60,8 @@ void idle(void)
 		cam->setSpeed(0.25f);
 
 	heli->matRotate(0.1f, 0, 1, 0);
+
+	cam->position();
 }
 
 void reshape(UINT width, UINT height)
@@ -80,33 +81,13 @@ void init(void)
 	gSkyboxProgram = new engine::ShaderProgram;
 	screenProgram = new engine::ShaderProgram;
 
-	if (FAILED(configShader()))
-	{
-		MessageBox(NULL, "Error Config Shader", "Main", MB_OK);
-		exit(1);
-	}
-	if (FAILED(configBuffer()))
-	{
-		MessageBox(NULL, "Error Config Buffer", "Main", MB_OK);
-		exit(1);
-	}
-	if (FAILED(configModels()))
-	{
-		MessageBox(NULL, "Error Config Models", "Main", MB_OK);
-		exit(1);
-	}
-	if (FAILED(configScreen()))
-	{
-		MessageBox(NULL, "Error Config Screen", "Main", MB_OK);
-		exit(1);
-	}
-	if (FAILED(configSkyBox()))
-	{
-		MessageBox(NULL, "Error Config SkyBox", "Main", MB_OK);
-		exit(1);
-	}
+	configShader();
+	configBuffer();
+	configModels();
+	configScreen();
+	configSkyBox();
 
-	cam->setPositionCamera(30, 10, 0);
+	cam->setPositionCamera(XMFLOAT3(30, 10, 0));
 	cam->setInitialAngle(-90, 0);
 }
 
@@ -128,23 +109,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	std::string text;
 	renderer = new engine::Renderer;
 	input = new engine::Input;
 
-	if (FAILED(renderer->initWindow(hInstance, WndProc, "Demo DirectX", 800, 600, FALSE)))
-	{
-		MessageBox(NULL, "Error while init window", "Error", MB_OK);
-		return 1;
-	}
-	if (FAILED(input->initInput(hInstance, renderer->getHWND())))
-	{
-		MessageBox(NULL, "Error while init input", "Error", MB_OK);
-		return 1;
-	}
+	renderer->initWindow(hInstance, WndProc, "Demo DirectX", 800, 600, FALSE);
 	renderer->setReshapeFunc(reshape);
 	renderer->setIdleFunc(idle);
 	renderer->setDisplayFunc(display);
+
+	input->initInput(hInstance, renderer->getHWND());
 
 	init();
 
@@ -157,6 +130,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	if (engine::Object::getMemoryState() != 0)
 	{
+		std::string text;
 		text = std::to_string(engine::Object::getMemoryState());
 		MessageBox(NULL, text.c_str(), "memState", MB_OK);
 	}

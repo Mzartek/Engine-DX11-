@@ -72,7 +72,7 @@ FLOAT engine::D3DObject::getTransparency(void)
 
 #define BUFFER_OFFSET(i) ((CHAR *)NULL + i)
 
-HRESULT engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertexArray, 
+void engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertexArray, 
 	const UINT &sizeIndexArray, const UINT *indexArray,
 	ID3D11Device *pd3dDevice)
 {
@@ -94,15 +94,21 @@ HRESULT engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertex
 	data.SysMemSlicePitch = 0;
 	hr = pd3dDevice->CreateBuffer(&bd, &data, &_pVertexBuffer);
 	if (FAILED(hr))
-		return hr;
+	{
+		MessageBox(NULL, "Failed to create Vertex Buffer", "D3DObject", MB_OK);
+		exit(1);
+	}
 
 	// Create index buffer
 	bd.ByteWidth = sizeIndexArray;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	data.pSysMem = indexArray;
 	hr = pd3dDevice->CreateBuffer(&bd, &data, &_pIndexBuffer);
-
-	return hr;
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Index Buffer", "D3DObject", MB_OK);
+		exit(1);
+	}
 }
 
 #undef BUFFER_OFFSET

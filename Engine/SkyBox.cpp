@@ -3,7 +3,7 @@
 
 engine::SkyBox::SkyBox()
 {
-	_pResource = NULL;
+	_pTexture = NULL;
 	_pShaderResourceView = NULL;
 	_pSamplerState = NULL;
 	_pVertexBuffer = NULL;
@@ -32,17 +32,16 @@ engine::SkyBox::~SkyBox()
 		_pSamplerState->Release();
 	if (_pShaderResourceView)
 		_pShaderResourceView->Release();
-	if (_pResource)
-		_pResource->Release();
+	if (_pTexture)
+		_pTexture->Release();
 }
 
 #define BUFFER_OFFSET(i) ((GLbyte *)NULL + i)
 
-HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
+void engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	const TCHAR *posy, const TCHAR *negy,
 	const TCHAR *posz, const TCHAR *negz,
-	FLOAT dim, ShaderProgram *program,
-	ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+	FLOAT dim, ShaderProgram *program, ID3D11Device *pd3dDevice)
 {
 	HRESULT hr;
 	UINT i;
@@ -50,8 +49,6 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	FIBITMAP *tmp = NULL;
 
 	_program = program;
-	_pd3dDevice = pd3dDevice;
-	_pContext = pContext;
 
 	image[0] = FreeImage_Load(FreeImage_GetFileType(posx), posx);
 	image[1] = FreeImage_Load(FreeImage_GetFileType(negx), negx);
@@ -73,14 +70,13 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	descTexture.CPUAccessFlags = 0;
 	descTexture.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
-	ID3D11Texture2D *tex;
 	D3D11_SUBRESOURCE_DATA data[6];
 	for (i = 0; i < 6; i++)
 	{
 		if (image == NULL)
 		{
-			MessageBox(NULL, "Fail to load a Image", "SkyBox", MB_OK);
-			return E_FAIL;
+			MessageBox(NULL, "Fail to load an Image", "SkyBox", MB_OK);
+			exit(1);
 		}
 		tmp = image[i];
 		image[i] = FreeImage_ConvertTo32Bits(image[i]);
@@ -90,11 +86,11 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 		data[i].SysMemPitch = 4 * descTexture.Width;
 		data[i].SysMemSlicePitch = 0;
 	}
-	hr = _pd3dDevice->CreateTexture2D(&descTexture, data, &tex);
+	hr = pd3dDevice->CreateTexture2D(&descTexture, data, &_pTexture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create the Cube Texture", "SkyBox", MB_OK);
-		return hr;
+		exit(1);
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC descShaderResourceView;
@@ -102,11 +98,11 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 	descShaderResourceView.TextureCube.MostDetailedMip = 0;
 	descShaderResourceView.TextureCube.MipLevels = descTexture.MipLevels;
-	hr = _pd3dDevice->CreateShaderResourceView(tex, &descShaderResourceView, &_pShaderResourceView);
+	hr = pd3dDevice->CreateShaderResourceView(_pTexture, &descShaderResourceView, &_pShaderResourceView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create the ShaderResourceView", "SkyBox", MB_OK);
-		return hr;
+		exit(1);
 	}
 
 	D3D11_SAMPLER_DESC descSampler;
@@ -123,14 +119,12 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	descSampler.BorderColor[3] = 0.0f;
 	descSampler.MinLOD = 0;
 	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	hr = _pd3dDevice->CreateSamplerState(&descSampler, &_pSamplerState);
+	hr = pd3dDevice->CreateSamplerState(&descSampler, &_pSamplerState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Error while creating the SamplerState", "SkyBox", MB_OK);
-		return hr;
+		exit(1);
 	}
-
-	_pShaderResourceView->GetResource(&_pResource);
 
 	// Create the Cube
 	FLOAT vertexArray[] = {
@@ -164,22 +158,22 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	data[0].pSysMem = vertexArray;
 	data[0].SysMemPitch = 0;
 	data[0].SysMemSlicePitch = 0;
-	hr = _pd3dDevice->CreateBuffer(&bd, data, &_pVertexBuffer);
+	hr = pd3dDevice->CreateBuffer(&bd, data, &_pVertexBuffer);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Vertex Buffer", "SkyBox", MB_OK);
-		return hr;
+		exit(1);
 	}
 
 	// Create Index Buffer
 	bd.ByteWidth = sizeof indexArray;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	data[0].pSysMem = indexArray;
-	hr = _pd3dDevice->CreateBuffer(&bd, data, &_pIndexBuffer);
+	hr = pd3dDevice->CreateBuffer(&bd, data, &_pIndexBuffer);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Index Buffer", "SkyBox", MB_OK);
-		return hr;
+		exit(1);
 	}
 
 	// Create Input Layout
@@ -187,21 +181,19 @@ HRESULT engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	{
 		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	hr = _pd3dDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
+	hr = pd3dDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
 		_program->getEntryBufferPointer(), _program->getEntryBytecodeLength(),
 		&_pInputLayout);
 
 	// Create the matrix buffer
 	bd.ByteWidth = sizeof XMMATRIX;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	hr = _pd3dDevice->CreateBuffer(&bd, NULL, &_pMVPMatrixBuffer);
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pMVPMatrixBuffer);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Matrix Buffer", "SkyBox", MB_OK);
-		return hr;
+		exit(1);
 	}
-
-	return S_OK;
 }
 
 #undef BUFFER_OFFSET
@@ -230,7 +222,7 @@ void engine::SkyBox::display(GBuffer *g, Camera *cam)
 		exit(1);
 	}
 
-	pos = XMMatrixTranspose(XMMatrixTranslation(XMVectorGetX(cam->getPositionCamera()), XMVectorGetY(cam->getPositionCamera()), XMVectorGetZ(cam->getPositionCamera())));
+	pos = XMMatrixTranspose(XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z));
 	pos *= *_rotateMatrix;
 	pos = cam->getVPMatrix() * pos;
 

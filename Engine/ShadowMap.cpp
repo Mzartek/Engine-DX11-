@@ -39,7 +39,7 @@ engine::ShadowMap::~ShadowMap()
 		_pTexture->Release();
 }
 
-HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
 	D3D11_TEXTURE2D_DESC descTexture;
@@ -66,7 +66,7 @@ HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderP
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Texture", "ShadowMap", NULL);
-		return hr;
+		exit(1);
 	}
 	descDepthView.Format = DXGI_FORMAT_D32_FLOAT;
 	descDepthView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -76,7 +76,7 @@ HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderP
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth View", "ShadowMap", NULL);
-		return hr;
+		exit(1);
 	}
 	descShaderResourceView.Format = DXGI_FORMAT_R32_FLOAT;
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -86,7 +86,7 @@ HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderP
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Shader Resource View", "ShadowMap", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// State
@@ -99,7 +99,7 @@ HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderP
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil State", "ShadowMap", NULL);
-		return hr;
+		exit(1);
 	}
 
 	D3D11_SAMPLER_DESC descSampler;
@@ -120,17 +120,17 @@ HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderP
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Error while creating the SamplerState", "ShadowMap", MB_OK);
-		return hr;
+		exit(1);
 	}
 
 	D3D11_RASTERIZER_DESC descRasterizer;
 	descRasterizer.FillMode = D3D11_FILL_SOLID;
 	descRasterizer.CullMode = D3D11_CULL_NONE;
 	descRasterizer.FrontCounterClockwise = FALSE;
-	descRasterizer.DepthBias = FALSE;
-	descRasterizer.DepthBiasClamp = FALSE;
-	descRasterizer.SlopeScaledDepthBias = FALSE;
-	descRasterizer.DepthClipEnable = FALSE;
+	descRasterizer.DepthBias = 0;
+	descRasterizer.DepthBiasClamp = 0.0f;
+	descRasterizer.SlopeScaledDepthBias = 0.0f;
+	descRasterizer.DepthClipEnable = TRUE;
 	descRasterizer.ScissorEnable = FALSE;
 	descRasterizer.MultisampleEnable = FALSE;
 	descRasterizer.AntialiasedLineEnable = FALSE;
@@ -138,7 +138,7 @@ HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderP
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Rasterizer State", "ShadowMap", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// Create the Viewport
@@ -155,8 +155,6 @@ HRESULT engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderP
 	_pDeferredContext->RSSetState(_pRasterizerState);
 	_pDeferredContext->RSSetViewports(1, &vp);
 	_pDeferredContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	return S_OK;
 }
 
 ID3D11ShaderResourceView *engine::ShadowMap::getShaderResourceView(void) const

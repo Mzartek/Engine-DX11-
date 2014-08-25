@@ -23,10 +23,10 @@ extern engine::ShaderProgram*		gObjectProgram;
 extern engine::ShaderProgram*		gSkyboxProgram;
 extern engine::ShaderProgram*		screenProgram;
 
-extern HRESULT configShader(void);
-extern HRESULT configBuffer(void);
-extern HRESULT configModels(void);
-extern HRESULT configScreen(void);
-extern HRESULT configSkyBox(void);
+extern void configShader(void);
+extern void configBuffer(void);
+extern void configModels(void);
+extern void configScreen(void);
+extern void configSkyBox(void);
 
 #endif

@@ -13,7 +13,6 @@ namespace engine
 		BOOL isMirror;
 		std::vector<D3DObject *> *_tD3DObject;
 		ID3D11Buffer *_pMVPMatrixBuffer;
-		ID3D11Buffer *_pModelMatrixBuffer;
 		ID3D11Buffer *_pNormalMatrixBuffer;
 		XMMATRIX *_MVPMatrix;
 		XMMATRIX *_ModelMatrix;
@@ -28,12 +27,12 @@ namespace engine
 		~Model();
 		void initD3DObjectArray(void);
 		void initD3DObjectMirror(Model *m);
-		HRESULT config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
-		HRESULT createObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
+		void config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
+		void createObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 				  const UINT &sizeIndexArray, const UINT *indexArray,
 				  const TCHAR *pathTexture,
 				  const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess);
-		HRESULT loadFromFile(const TCHAR *szFileName);
+		void loadFromFile(const TCHAR *szFileName);
 		void sortD3DObject(void);
 		void matIdentity(void);
 		void matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z);

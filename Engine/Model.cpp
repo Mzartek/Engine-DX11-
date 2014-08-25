@@ -7,7 +7,6 @@ engine::Model::Model(void)
 {
 	_tD3DObject = NULL;
 	_pMVPMatrixBuffer = NULL;
-	_pModelMatrixBuffer = NULL;
 	_pNormalMatrixBuffer = NULL;
 	_MVPMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_MVPMatrix, 16);
 	_ModelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_ModelMatrix, 16);
@@ -39,8 +38,6 @@ engine::Model::~Model(void)
 
 	if (_pNormalMatrixBuffer)
 		_pNormalMatrixBuffer->Release();
-	if (_pModelMatrixBuffer)
-		_pModelMatrixBuffer->Release();
 	if (_pMVPMatrixBuffer)
 		_pMVPMatrixBuffer->Release();
 }
@@ -71,7 +68,7 @@ void engine::Model::initD3DObjectMirror(Model *m)
 	_tD3DObject = m->_tD3DObject;
 }
 
-HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+void engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
 	D3D11_BUFFER_DESC bd;
@@ -82,8 +79,6 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, 
 
 	if (_pMVPMatrixBuffer)
 		_pMVPMatrixBuffer->Release();
-	if (_pModelMatrixBuffer)
-		_pModelMatrixBuffer->Release();
 	if (_pNormalMatrixBuffer)
 		_pNormalMatrixBuffer->Release();
 
@@ -99,16 +94,7 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, 
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create MVPMatrix Buffer", "Model", MB_OK);
-		return hr;
-	}
-
-	// ModelMatrix Buffer
-	bd.ByteWidth = sizeof *_ModelMatrix;
-	hr = _pd3dDevice->CreateBuffer(&bd, NULL, &_pModelMatrixBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create ModelMatrix Buffer", "Model", MB_OK);
-		return hr;
+		exit(1);
 	}
 
 	// NormalMatrix Buffer
@@ -117,7 +103,7 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, 
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create NormalMatrix Buffer", "Model", MB_OK);
-		return hr;
+		exit(1);
 	}
 
 	// Create and set the input layout
@@ -133,47 +119,32 @@ HRESULT engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, 
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Input Layout", "D3DObject", MB_OK);
-		return hr;
+		exit(1);
 	}
-
-	return hr;
 }
 
-HRESULT engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
+void engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 	const UINT &sizeIndexArray, const UINT *indexArray,
 	const TCHAR *pathTexture,
 	const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess)
 {
-	HRESULT hr;
 	D3DObject *newone = new D3DObject(_pd3dDevice);
 	ID3D11Texture2D *ptex;
 	ID3D11ShaderResourceView *pshr;
 	ID3D11SamplerState *psam;
 
-	hr = loadTextureFromFile(pathTexture, &ptex, &pshr, &psam, _pd3dDevice, _pContext);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Fail to load Texture", "Model", MB_OK);
-		return hr;
-	}
+	loadTextureFromFile(pathTexture, &ptex, &pshr, &psam, _pd3dDevice, _pContext);
 
 	newone->setTexture(ptex, pshr, psam);
 	newone->setAmbient(ambient, _pContext);
 	newone->setDiffuse(diffuse, _pContext);
 	newone->setSpecular(specular, _pContext);
 	newone->setShininess(shininess, _pContext);
-	hr = newone->load(sizeVertexArray, vertexArray,
+	newone->load(sizeVertexArray, vertexArray,
 		sizeIndexArray, indexArray,
 		_pd3dDevice);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Fail to load an Object", "Model", MB_OK);
-		return hr;
-	}
   
 	_tD3DObject->push_back(newone);
-
-	return S_OK;
 }
 
 static std::string getDir(const TCHAR *file)
@@ -190,7 +161,7 @@ static std::string getDir(const TCHAR *file)
 	return path;
 }
 
-HRESULT engine::Model::loadFromFile(const TCHAR *szFileName)
+void engine::Model::loadFromFile(const TCHAR *szFileName)
 {
 	Assimp::Importer Importer;
 	UINT i, j;
@@ -202,7 +173,12 @@ HRESULT engine::Model::loadFromFile(const TCHAR *szFileName)
 
 	const aiScene *pScene = Importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
 	if (!pScene)
-		return E_FAIL;
+	{
+		std::string mes = "Failed to load File: ";
+		mes.append(szFileName);
+		MessageBox(NULL, mes.c_str(), "D3DObject", MB_OK);
+		exit(1);
+	}
 
 	std::vector<Vertex> vertices;
 	std::vector<UINT> indices;
@@ -256,18 +232,15 @@ HRESULT engine::Model::loadFromFile(const TCHAR *szFileName)
 		mat_diffuse.a = opacity;
 		mat_specular.a = opacity;
 
-		if (FAILED(createObject(vertices.size() * sizeof(Vertex), (FLOAT *)&vertices[0],
+		createObject(vertices.size() * sizeof(Vertex), (FLOAT *)&vertices[0],
 			indices.size() * sizeof(UINT), &indices[0],
 			fullPath.c_str(),
 			XMFLOAT4(mat_ambient.r, mat_ambient.g, mat_ambient.b, mat_ambient.a), XMFLOAT4(mat_diffuse.r, mat_diffuse.g, mat_diffuse.b, mat_diffuse.a), XMFLOAT4(mat_specular.r, mat_specular.g, mat_specular.b, mat_specular.a),
-			mat_shininess)))
-			return E_FAIL;
+			mat_shininess);
 
 		vertices.clear();
 		indices.clear();
 	}
-
-	return S_OK;
 }
 
 void engine::Model::sortD3DObject(void)
@@ -339,7 +312,6 @@ void engine::Model::display(GBuffer *g, Camera *cam)
 	*_NormalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
 
 	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, _MVPMatrix, 0, 0);
-	g->getContext()->UpdateSubresource(_pModelMatrixBuffer, 0, NULL, _ModelMatrix, 0, 0);
 	g->getContext()->UpdateSubresource(_pNormalMatrixBuffer, 0, NULL, _NormalMatrix, 0, 0);
 
 	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);

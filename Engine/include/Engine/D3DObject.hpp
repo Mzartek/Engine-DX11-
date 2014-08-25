@@ -33,7 +33,7 @@ namespace engine
 		void setSpecular(const XMFLOAT4 &specular, ID3D11DeviceContext *pContext);
 		void setShininess(const FLOAT &shininess, ID3D11DeviceContext *pContext);
 		FLOAT getTransparency(void);
-		HRESULT load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
+		void load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 			const UINT &sizeIndexArray, const UINT *indexArray,
 			ID3D11Device *pd3dDevice);
 		void display(ID3D11DeviceContext *pContext) const;

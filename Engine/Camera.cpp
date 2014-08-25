@@ -28,14 +28,14 @@ engine::Camera::~Camera(void)
 	_aligned_free(_VPMatrix);
 }
 
-void engine::Camera::setPositionCamera(const FLOAT &x, const FLOAT &y, const FLOAT &z)
+void engine::Camera::setPositionCamera(const XMFLOAT3 &pos)
 {
-	*_pcamera = XMVectorSet(x, y, z, 0.0f);
+	*_pcamera = XMVectorSet(pos.x, pos.y, pos.z, 0.0f);
 }
 
-void engine::Camera::setPositionTarget(const FLOAT &x, const FLOAT &y, const FLOAT &z)
+void engine::Camera::setPositionTarget(const XMFLOAT3 &pos)
 {
-	*_ptarget = XMVectorSet(x, y, z, 0.0f);
+	*_ptarget = XMVectorSet(pos.x, pos.y, pos.z, 0.0f);
 }
 
 void engine::Camera::setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f)
@@ -43,14 +43,14 @@ void engine::Camera::setPerspective(const FLOAT &fov, const UINT &width, const U
 	*_projectionMatrix = XMMatrixPerspectiveFovRH(fov*((FLOAT)XM_PI / 180), (FLOAT)width / (FLOAT)height, n, f);
 }
 
-XMVECTOR engine::Camera::getPositionCamera(void) const
+XMFLOAT3 engine::Camera::getPositionCamera(void) const
 {
-	return *_pcamera;
+	return XMFLOAT3(XMVectorGetX(*_pcamera), XMVectorGetY(*_pcamera), XMVectorGetZ(*_pcamera));
 }
 
-XMVECTOR engine::Camera::getPositionTarget(void) const
+XMFLOAT3 engine::Camera::getPositionTarget(void) const
 {
-	return *_ptarget;
+	return XMFLOAT3(XMVectorGetX(*_ptarget), XMVectorGetY(*_ptarget), XMVectorGetZ(*_ptarget));
 }
 
 XMMATRIX engine::Camera::getProjectionMatrix(void) const

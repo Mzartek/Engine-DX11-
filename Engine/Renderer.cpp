@@ -1,5 +1,27 @@
 #include <Engine/Renderer.hpp>
 
+D3D_FEATURE_LEVEL engine::EngineGraphicsFeatureLevel;
+std::string engine::EngineShaderLevel;
+
+static void checkShaderVersion(void)
+{
+	switch (engine::EngineGraphicsFeatureLevel)
+	{
+	case D3D_FEATURE_LEVEL_11_1:
+		engine::EngineShaderLevel = "5_0";
+		break;
+	case D3D_FEATURE_LEVEL_11_0:
+		engine::EngineShaderLevel = "5_0";
+		break;
+	case D3D_FEATURE_LEVEL_10_1:
+		engine::EngineShaderLevel = "4_1";
+		break;
+	case D3D_FEATURE_LEVEL_10_0:
+		engine::EngineShaderLevel = "4_0";
+		break;
+	}
+}
+
 engine::Renderer::Renderer(void)
 {
 	// Device
@@ -53,7 +75,7 @@ engine::Renderer::~Renderer(void)
 		_pd3dDevice->Release();
 }
 
-HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), 
+void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), 
 	const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
 {
 	HRESULT hr;
@@ -61,7 +83,7 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	_height = height;
 
 	WNDCLASS wcex;
-	wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+	wcex.style = CS_GLOBALCLASS;
 	wcex.lpfnWndProc = WndProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
@@ -80,7 +102,7 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	if (!_hWnd)
 	{
 		MessageBox(NULL, "Failed to create Renderer", "Renderer", NULL);
-		return E_FAIL;
+		exit(1);
 	}
 
 	// Init swap chain
@@ -110,12 +132,13 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 		D3D_FEATURE_LEVEL_10_0,
 	};
 	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
-		&sd, &_pSwapChain, &_pd3dDevice, NULL, &_pContext);
+		&sd, &_pSwapChain, &_pd3dDevice, &EngineGraphicsFeatureLevel, &_pContext);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Device and SwapChain", "Renderer", NULL);
-		return hr;
+		exit(1);
 	}
+	checkShaderVersion();
 
 	// Create the RenderTargetView
 	ID3D11Texture2D *pBackBuffer;
@@ -123,13 +146,13 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to get BackBuffer", "Renderer", NULL);
-		return hr;
+		exit(1);
 	}
 	hr = _pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &_pRenderTargetView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create RenderTarget View", "Renderer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// Create the DepthStencilTexture
@@ -149,7 +172,7 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil Texture", "Renderer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// Create the DepthStencilView
@@ -162,7 +185,7 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil View", "Renderer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// Create the DepthStencilState
@@ -175,7 +198,7 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil State", "Renderer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// Create the BlendState
@@ -194,7 +217,7 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Blend State", "Renderer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// Create the RasterizerState
@@ -202,10 +225,10 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	descRasterizer.FillMode = D3D11_FILL_SOLID;
 	descRasterizer.CullMode = D3D11_CULL_NONE;
 	descRasterizer.FrontCounterClockwise = FALSE;
-	descRasterizer.DepthBias = FALSE;
-	descRasterizer.DepthBiasClamp = FALSE;
-	descRasterizer.SlopeScaledDepthBias = FALSE;
-	descRasterizer.DepthClipEnable = FALSE;
+	descRasterizer.DepthBias = 0;
+	descRasterizer.DepthBiasClamp = 0.0f;
+	descRasterizer.SlopeScaledDepthBias = 0.0f;
+	descRasterizer.DepthClipEnable = TRUE;
 	descRasterizer.ScissorEnable = FALSE;
 	descRasterizer.MultisampleEnable = FALSE;
 	descRasterizer.AntialiasedLineEnable = FALSE;
@@ -213,7 +236,7 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Rasterizer State", "Renderer", NULL);
-		return hr;
+		exit(1);
 	}
 
 	// Create the Viewport
@@ -231,8 +254,6 @@ HRESULT engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBAC
 	_pContext->RSSetState(_pRasterizerState);
 	_pContext->RSSetViewports(1, &vp);
 	_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	return S_OK;
 }
 
 void engine::Renderer::setDisplayFunc(void (*f) (void))

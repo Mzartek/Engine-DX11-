@@ -11,7 +11,7 @@ namespace engine
 	{
 	private:
 		UINT _numElement;
-		ID3D11Resource *_pResource;
+		ID3D11Texture2D *_pTexture;
 		ID3D11ShaderResourceView *_pShaderResourceView;
 		ID3D11SamplerState *_pSamplerState;
 		ID3D11Buffer *_pVertexBuffer;
@@ -20,16 +20,13 @@ namespace engine
 		ID3D11Buffer *_pMVPMatrixBuffer;
 		XMMATRIX *_rotateMatrix;
 		ShaderProgram *_program;
-		ID3D11Device *_pd3dDevice;
-		ID3D11DeviceContext *_pContext;
 	public:
 		SkyBox(void);
 		~SkyBox(void);
-		HRESULT load(const TCHAR *posx, const TCHAR *negx,
+		void load(const TCHAR *posx, const TCHAR *negx,
 			const TCHAR *posy, const TCHAR *negy,
 			const TCHAR *posz, const TCHAR *negz,
-			FLOAT dim, ShaderProgram *program,
-			ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
+			FLOAT dim, ShaderProgram *program, ID3D11Device *pd3dDevice);
 		void rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void display(GBuffer *g, Camera *cam);
 	};

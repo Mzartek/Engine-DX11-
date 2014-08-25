@@ -1,12 +1,12 @@
 #include <Engine/ShaderProgram.hpp>
 
-static HRESULT CompileShaderFromFile(WCHAR *szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob **ppBlobOut)
+static void CompileShaderFromFile(WCHAR *szFileName, LPCSTR szEntryPoint, std::string szShaderModel, ID3DBlob **ppBlobOut)
 {
 	HRESULT hr;
 	DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 	ID3DBlob *pErrorBlob = NULL;
 
-	hr = D3DCompileFromFile(szFileName, NULL, NULL, szEntryPoint, szShaderModel,
+	hr = D3DCompileFromFile(szFileName, NULL, NULL, szEntryPoint, szShaderModel.c_str(),
 		dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
 	if (FAILED(hr))
 	{
@@ -16,17 +16,17 @@ static HRESULT CompileShaderFromFile(WCHAR *szFileName, LPCSTR szEntryPoint, LPC
 			MessageBox(NULL, (char *)pErrorBlob->GetBufferPointer(), "ShaderProgram", MB_OK);
 			pErrorBlob->Release();
 		}
-		return hr;
+		exit(1);
 	}
 	if (pErrorBlob) 
 		pErrorBlob->Release();
-
-	return S_OK;
 }
 
 engine::ShaderProgram::ShaderProgram(void)
 {
 	_pVertexShader = NULL;
+	_pHullShader = NULL;
+	_pDomainShader = NULL;
 	_pGeometryShader = NULL;
 	_pPixelShader = NULL;
 	_pBlob = NULL;
@@ -36,6 +36,10 @@ engine::ShaderProgram::~ShaderProgram(void)
 {
 	if (_pVertexShader) 
 		_pVertexShader->Release();
+	if (_pHullShader)
+		_pHullShader->Release();
+	if (_pDomainShader)
+		_pDomainShader->Release();
 	if (_pGeometryShader)
 		_pGeometryShader->Release();
 	if (_pPixelShader) 
@@ -44,14 +48,25 @@ engine::ShaderProgram::~ShaderProgram(void)
 		_pBlob->Release();
 }
 
-HRESULT engine::ShaderProgram::loadProgram(WCHAR *vs, WCHAR *gs, WCHAR *ps, ID3D11Device *pDevice)
+void engine::ShaderProgram::loadProgram(WCHAR *vs, WCHAR *hs, WCHAR *ds, WCHAR *gs, WCHAR *ps, ID3D11Device *pDevice)
 {
 	HRESULT hr;
+	ID3DBlob *pTmpBlob;
 
 	if (_pVertexShader)
 	{
 		_pVertexShader->Release();
 		_pVertexShader = NULL;
+	}
+	if (_pHullShader)
+	{
+		_pHullShader->Release();
+		_pHullShader = NULL;
+	}
+	if (_pDomainShader)
+	{
+		_pDomainShader->Release();
+		_pDomainShader = NULL;
 	}
 	if (_pGeometryShader)
 	{
@@ -63,78 +78,100 @@ HRESULT engine::ShaderProgram::loadProgram(WCHAR *vs, WCHAR *gs, WCHAR *ps, ID3D
 		_pPixelShader->Release();
 		_pPixelShader = NULL;
 	}
-
-	// Compile and create the pixel shader
-	if (ps != NULL)
+	if (_pBlob)
 	{
-		if (_pBlob)
-			_pBlob->Release();
-		hr = CompileShaderFromFile(ps, "main", "ps_4_0", &_pBlob);
-		if (FAILED(hr))
-		{
-			MessageBox(NULL, "Failed compiling Pixel Shader.", "ShaderProgram", MB_OK);
-			return hr;
-		}
-		hr = pDevice->CreatePixelShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pPixelShader);
-		if (FAILED(hr))
-		{
-			MessageBox(NULL, "Failed to create Pixel Shader.", "ShaderProgram", MB_OK);
-			return hr;
-		}
+		_pBlob->Release();
+		_pBlob = NULL;
 	}
 
-	// Compile and create the geometry shader
-	if (gs != NULL)
+	// Compile and create the Vertex Shader
+	if (vs == NULL)
 	{
-		if (_pBlob)
-			_pBlob->Release();
-		hr = CompileShaderFromFile(gs, "main", "gs_4_0", &_pBlob);
+		MessageBox(NULL, "Need a Vertex Shader for ShaderProgram", "ShaderProgram", NULL);
+		exit(1);
+	}
+	CompileShaderFromFile(vs, "main", "vs_" + engine::EngineShaderLevel, &_pBlob);
+	hr = pDevice->CreateVertexShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pVertexShader);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Vertex Shader.", "ShaderProgram", MB_OK);
+		exit(1);
+	}
+
+	// Compile and create the Hull Shader
+	if (hs != NULL)
+	{
+		CompileShaderFromFile(hs, "main", "hs_" + engine::EngineShaderLevel, &pTmpBlob);
+		hr = pDevice->CreateHullShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pHullShader);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed compiling Geometry Shader.", "ShaderProgram", MB_OK);
-			return hr;
+			MessageBox(NULL, "Failed to create Hull Shader.", "ShaderProgram", MB_OK);
+			exit(1);
 		}
-		hr = pDevice->CreateGeometryShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pGeometryShader);
+		pTmpBlob->Release();
+	}
+
+	// Compile and create the Domain Shader
+	if (ds != NULL)
+	{
+		CompileShaderFromFile(ds, "main", "ds_" + engine::EngineShaderLevel, &pTmpBlob);
+		hr = pDevice->CreateDomainShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pDomainShader);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Domain Shader.", "ShaderProgram", MB_OK);
+			exit(1);
+		}
+		pTmpBlob->Release();
+	}
+
+	// Compile and create the Geometry Shader
+	if (gs != NULL)
+	{
+		CompileShaderFromFile(gs, "main", "gs_" + engine::EngineShaderLevel, &pTmpBlob);
+		hr = pDevice->CreateGeometryShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pGeometryShader);
 		if (FAILED(hr))
 		{
 			MessageBox(NULL, "Failed to create Geometry Shader.", "ShaderProgram", MB_OK);
-			return hr;
+			exit(1);
 		}
+		pTmpBlob->Release();
 	}
 
-	// Compile and create the vertex shader
-	if (vs != NULL)
+	// Compile and create the Pixel Shader
+	if (ps != NULL)
 	{
-		if (_pBlob)
-			_pBlob->Release();
-		hr = CompileShaderFromFile(vs, "main", "vs_4_0", &_pBlob);
+		CompileShaderFromFile(ps, "main", "ps_" + engine::EngineShaderLevel, &pTmpBlob);
+		hr = pDevice->CreatePixelShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pPixelShader);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed compiling Vertex Shader.", "ShaderProgram", MB_OK);
-			return hr;
+			MessageBox(NULL, "Failed to create Pixel Shader.", "ShaderProgram", MB_OK);
+			exit(1);
 		}
-		hr = pDevice->CreateVertexShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pVertexShader);
-		if (FAILED(hr))
-		{
-			MessageBox(NULL, "Failed to create Vertex Shader.", "ShaderProgram", MB_OK);
-			return hr;
-		}
+		pTmpBlob->Release();
 	}
-
-	return S_OK;
 }
 
-ID3D11VertexShader *engine::ShaderProgram::getVertexShader(void)
+ID3D11VertexShader *engine::ShaderProgram::getVertexShader(void) const
 {
 	return _pVertexShader;
 }
 
-ID3D11GeometryShader *engine::ShaderProgram::getGeometryShader(void)
+ID3D11HullShader *engine::ShaderProgram::getHullShader(void) const
+{
+	return _pHullShader;
+}
+
+ID3D11DomainShader *engine::ShaderProgram::getDomainShader(void) const
+{
+	return _pDomainShader;
+}
+
+ID3D11GeometryShader *engine::ShaderProgram::getGeometryShader(void) const
 {
 	return _pGeometryShader;
 }
 
-ID3D11PixelShader *engine::ShaderProgram::getPixelShader(void)
+ID3D11PixelShader *engine::ShaderProgram::getPixelShader(void) const
 {
 	return _pPixelShader;
 }
