@@ -1,5 +1,4 @@
 Texture2D colorTex : register(t0);
-
 SamplerState colorSampleType : register(s0);
 
 cbuffer materialBuffer : register(b0)

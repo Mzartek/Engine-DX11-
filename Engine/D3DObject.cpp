@@ -82,16 +82,17 @@ void engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertexArr
 
 	_numElement = sizeIndexArray / (UINT)sizeof(UINT);
 
-	// Create vertex buffer
-	bd.ByteWidth = sizeVertexArray;
 	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;
 	bd.StructureByteStride = 0;
-	data.pSysMem = vertexArray;
 	data.SysMemPitch = 0;
 	data.SysMemSlicePitch = 0;
+
+	// Create vertex buffer
+	bd.ByteWidth = sizeVertexArray;
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	data.pSysMem = vertexArray;
 	hr = pd3dDevice->CreateBuffer(&bd, &data, &_pVertexBuffer);
 	if (FAILED(hr))
 	{

@@ -1,6 +1,8 @@
 #ifndef DX_HEAD
 #define DX_HEAD
 
+#pragma warning(disable:4324)
+
 #ifdef ENGINE_EXPORTS
 #define DLLAPI __declspec(dllexport)
 #else

@@ -1,5 +1,4 @@
 TextureCube cubeTex : register(t0);
-
 SamplerState cubeSamplerState : register(s0);
 
 struct PS_INPUT

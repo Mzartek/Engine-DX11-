@@ -10,8 +10,9 @@ engine::ShadowMap::ShadowMap()
 	_pDepthView = NULL;
 	// State
 	_pDepthState = NULL;
-	_pSamplerState = NULL;
+	_pBlendState = NULL;
 	_pRasterizerState = NULL;
+	_pSamplerComparisonState = NULL;
 	// ShaderProgram
 	_program = NULL;
 }
@@ -19,10 +20,12 @@ engine::ShadowMap::ShadowMap()
 engine::ShadowMap::~ShadowMap()
 {
 	// State
+	if (_pSamplerComparisonState)
+		_pSamplerComparisonState->Release();
 	if (_pRasterizerState)
 		_pRasterizerState->Release();
-	if (_pSamplerState)
-		_pSamplerState->Release();
+	if (_pBlendState)
+		_pBlendState->Release();
 	if (_pDepthState)
 		_pDepthState->Release();
 
@@ -52,6 +55,13 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProg
 	_pd3dDevice = pd3dDevice;
 	_pContext = pContext;
 
+	hr = _pd3dDevice->CreateDeferredContext(0, &_pDeferredContext);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Deferred Context", "GBuffer", NULL);
+		exit(1);
+	}
+
 	// Depth
 	descTexture.Width = width;
 	descTexture.Height = height;
@@ -62,6 +72,8 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProg
 	descTexture.SampleDesc.Quality = 0;
 	descTexture.Usage = D3D11_USAGE_DEFAULT;
 	descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
+	descTexture.CPUAccessFlags = 0;
+	descTexture.MiscFlags = 0;
 	hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture);
 	if (FAILED(hr))
 	{
@@ -102,24 +114,15 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProg
 		exit(1);
 	}
 
-	D3D11_SAMPLER_DESC descSampler;
-	descSampler.Filter = D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
-	descSampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	descSampler.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	descSampler.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	descSampler.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-	descSampler.MipLODBias = 0.0f;
-	descSampler.MaxAnisotropy = 1;
-	descSampler.BorderColor[0] = 0.0f;
-	descSampler.BorderColor[1] = 0.0f;
-	descSampler.BorderColor[2] = 0.0f;
-	descSampler.BorderColor[3] = 0.0f;
-	descSampler.MinLOD = 0;
-	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	hr = pd3dDevice->CreateSamplerState(&descSampler, &_pSamplerState);
+	D3D11_BLEND_DESC descBlend;
+	descBlend.AlphaToCoverageEnable = FALSE;
+	descBlend.IndependentBlendEnable = FALSE;
+	descBlend.RenderTarget[0].BlendEnable = FALSE;
+	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	hr = _pd3dDevice->CreateBlendState(&descBlend, &_pBlendState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Error while creating the SamplerState", "ShadowMap", MB_OK);
+		MessageBox(NULL, "Failed to create Blend State", "ShadowMap", NULL);
 		exit(1);
 	}
 
@@ -141,6 +144,27 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProg
 		exit(1);
 	}
 
+	D3D11_SAMPLER_DESC descSampler;
+	descSampler.Filter = D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+	descSampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	descSampler.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	descSampler.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	descSampler.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	descSampler.MipLODBias = 0.0f;
+	descSampler.MaxAnisotropy = 1;
+	descSampler.BorderColor[0] = 0.0f;
+	descSampler.BorderColor[1] = 0.0f;
+	descSampler.BorderColor[2] = 0.0f;
+	descSampler.BorderColor[3] = 0.0f;
+	descSampler.MinLOD = 0;
+	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
+	hr = pd3dDevice->CreateSamplerState(&descSampler, &_pSamplerComparisonState);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Error while creating the SamplerState", "ShadowMap", MB_OK);
+		exit(1);
+	}
+
 	// Create the Viewport
 	D3D11_VIEWPORT vp;
 	vp.TopLeftX = 0.0f;
@@ -152,9 +176,9 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProg
 
 	_pDeferredContext->OMSetRenderTargets(0, NULL, _pDepthView);
 	_pDeferredContext->OMSetDepthStencilState(_pDepthState, 0);
+	_pDeferredContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
 	_pDeferredContext->RSSetState(_pRasterizerState);
 	_pDeferredContext->RSSetViewports(1, &vp);
-	_pDeferredContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 ID3D11ShaderResourceView *engine::ShadowMap::getShaderResourceView(void) const
@@ -162,9 +186,9 @@ ID3D11ShaderResourceView *engine::ShadowMap::getShaderResourceView(void) const
 	return _pShaderResourceView;
 }
 
-ID3D11SamplerState *engine::ShadowMap::getSamplerState(void) const
+ID3D11SamplerState *engine::ShadowMap::getSamplerComparisonState(void) const
 {
-	return _pSamplerState;
+	return _pSamplerComparisonState;
 }
 
 void engine::ShadowMap::clear(void) const

@@ -253,7 +253,6 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	_pContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
 	_pContext->RSSetState(_pRasterizerState);
 	_pContext->RSSetViewports(1, &vp);
-	_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
 void engine::Renderer::setDisplayFunc(void (*f) (void))

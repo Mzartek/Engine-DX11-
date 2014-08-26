@@ -14,10 +14,10 @@ namespace engine
 		std::vector<D3DObject *> *_tD3DObject;
 		ID3D11Buffer *_pMVPMatrixBuffer;
 		ID3D11Buffer *_pNormalMatrixBuffer;
+		ID3D11InputLayout *_pInputLayout;
 		XMMATRIX *_MVPMatrix;
 		XMMATRIX *_ModelMatrix;
 		XMMATRIX *_NormalMatrix;
-		ID3D11InputLayout *_pInputLayout;
 		// Do not delete it
 		ShaderProgram *_program;
 		ID3D11Device *_pd3dDevice;

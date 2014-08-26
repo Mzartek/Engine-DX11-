@@ -2,31 +2,42 @@
 #define GRAPHICS
 
 #include <Engine/Renderer.hpp>
-#include <Engine/Screen.hpp>
 #include <Engine/Input.hpp>
-#include <Engine/GBuffer.hpp>
+#include <Engine/Object.hpp>
+#include <Engine/ShaderProgram.hpp>
+#include <Engine/ShadowMap.hpp>
 #include <Engine/FreeCam.hpp>
+#include <Engine/DirLight.hpp>
+#include <Engine/SpotLight.hpp>
 #include <Engine/Model.hpp>
 #include <Engine/SkyBox.hpp>
-#include <Engine/ShaderProgram.hpp>
+#include <Engine/Screen.hpp>
+#include <Engine/GBuffer.hpp>
 
 // Globales variables
-extern engine::Renderer*			renderer;
-extern engine::Input*				input;
-extern engine::GBuffer*				gBuffer;
-extern engine::FreeCam*				cam;
-extern engine::Model*				sol;
-extern engine::Model*				heli;
-extern engine::Screen*				screen;
-extern engine::SkyBox*				skybox;
-extern engine::ShaderProgram*		gObjectProgram;
-extern engine::ShaderProgram*		gSkyboxProgram;
-extern engine::ShaderProgram*		screenProgram;
+extern engine::Renderer *renderer;
+extern engine::Input *input;
+extern engine::FreeCam *cam;
+extern engine::DirLight *sun;
+extern engine::SpotLight *torch;
+extern engine::Model *sol;
+extern engine::Model *heli;
+extern engine::SkyBox *skybox;
+extern engine::Screen *screen;
+extern engine::GBuffer *gBuffer;
 
-extern void configShader(void);
-extern void configBuffer(void);
-extern void configModels(void);
+extern engine::ShaderProgram *gObjectProgram;
+extern engine::ShaderProgram *dirLightProgram;
+extern engine::ShaderProgram *spotLightProgram;
+extern engine::ShaderProgram *shadowProgram;
+extern engine::ShaderProgram *gSkyboxProgram;
+extern engine::ShaderProgram *screenProgram;
+
+extern void configShaders(void);
+extern void configBuffers(void);
+extern void configLights(void);
 extern void configScreen(void);
-extern void configSkyBox(void);
+extern void configModels(void);
+extern void configSkybox(void);
 
 #endif

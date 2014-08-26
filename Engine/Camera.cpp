@@ -40,7 +40,7 @@ void engine::Camera::setPositionTarget(const XMFLOAT3 &pos)
 
 void engine::Camera::setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f)
 {
-	*_projectionMatrix = XMMatrixPerspectiveFovRH(fov*((FLOAT)XM_PI / 180), (FLOAT)width / (FLOAT)height, n, f);
+	*_projectionMatrix = XMMatrixTranspose(XMMatrixPerspectiveFovRH(fov*((FLOAT)XM_PI / 180), (FLOAT)width / (FLOAT)height, n, f));
 }
 
 XMFLOAT3 engine::Camera::getPositionCamera(void) const
@@ -65,5 +65,5 @@ XMMATRIX engine::Camera::getVPMatrix(void) const
 
 void engine::Camera::position(void)
 {
-	*_VPMatrix = XMMatrixTranspose(*_projectionMatrix) * XMMatrixTranspose(XMMatrixLookAtRH(*_pcamera, *_ptarget, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
+	*_VPMatrix = *_projectionMatrix * XMMatrixTranspose(XMMatrixLookAtRH(*_pcamera, *_ptarget, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
 }

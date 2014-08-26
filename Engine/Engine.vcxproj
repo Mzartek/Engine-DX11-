@@ -78,11 +78,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Engine\Camera.hpp" />
+    <ClInclude Include="include\Engine\DirLight.hpp" />
     <ClInclude Include="include\Engine\DXHead.hpp" />
     <ClInclude Include="include\Engine\FrameBuffer.hpp" />
     <ClInclude Include="include\Engine\FreeCam.hpp" />
     <ClInclude Include="include\Engine\GBuffer.hpp" />
     <ClInclude Include="include\Engine\Input.hpp" />
+    <ClInclude Include="include\Engine\Light.hpp" />
     <ClInclude Include="include\Engine\Model.hpp" />
     <ClInclude Include="include\Engine\MovableCamera.hpp" />
     <ClInclude Include="include\Engine\D3DObject.hpp" />
@@ -93,13 +95,16 @@
     <ClInclude Include="include\Engine\ShadowMap.hpp" />
     <ClInclude Include="include\Engine\SkyBox.hpp" />
     <ClInclude Include="include\Engine\Renderer.hpp" />
+    <ClInclude Include="include\Engine\SpotLight.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DirLight.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="FreeCam.cpp" />
     <ClCompile Include="GBuffer.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="MovableCamera.cpp" />
     <ClCompile Include="D3DObject.cpp" />
@@ -109,6 +114,7 @@
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="SkyBox.cpp" />
+    <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="textureLoader.cpp" />
     <ClCompile Include="Renderer.cpp" />
   </ItemGroup>

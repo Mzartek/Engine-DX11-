@@ -67,7 +67,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	_height = height;
 	_pd3dDevice = pd3dDevice;
 	_pContext = pContext;
-	
+
 	hr = _pd3dDevice->CreateDeferredContext(0, &_pDeferredContext);
 	if (FAILED(hr))
 	{
@@ -223,7 +223,6 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	_pDeferredContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
 	_pDeferredContext->RSSetState(_pRasterizerState);
 	_pDeferredContext->RSSetViewports(1, &vp);
-	_pDeferredContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 ID3D11ShaderResourceView *engine::GBuffer::getShaderResourceView(const UINT &num) const

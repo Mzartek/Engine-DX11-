@@ -8,10 +8,10 @@ engine::Model::Model(void)
 	_tD3DObject = NULL;
 	_pMVPMatrixBuffer = NULL;
 	_pNormalMatrixBuffer = NULL;
+	_pInputLayout = NULL;
 	_MVPMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_MVPMatrix, 16);
 	_ModelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_ModelMatrix, 16);
 	_NormalMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_NormalMatrix, 16);
-	_pInputLayout = NULL;
 	_program = NULL;
 	_pd3dDevice = NULL;
 	_pContext = NULL;
@@ -29,13 +29,12 @@ engine::Model::~Model(void)
 		delete _tD3DObject;
 	}
 
-	if (_pInputLayout)
-		_pInputLayout->Release();
-
 	_aligned_free(_NormalMatrix);
 	_aligned_free(_ModelMatrix);
 	_aligned_free(_MVPMatrix);
 
+	if (_pInputLayout)
+		_pInputLayout->Release();
 	if (_pNormalMatrixBuffer)
 		_pNormalMatrixBuffer->Release();
 	if (_pMVPMatrixBuffer)
@@ -318,6 +317,7 @@ void engine::Model::display(GBuffer *g, Camera *cam)
 	g->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
 	g->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
 	g->getContext()->IASetInputLayout(_pInputLayout);
+	g->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	g->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
 	g->getContext()->VSSetConstantBuffers(1, 1, &_pNormalMatrixBuffer);
@@ -326,5 +326,5 @@ void engine::Model::display(GBuffer *g, Camera *cam)
 		if ((*_tD3DObject)[i]->getTransparency() == 1.0f)
 			(*_tD3DObject)[i]->display(g->getContext());
 
-	g->executeContext();
+	g->executeDeferredContext();
 }

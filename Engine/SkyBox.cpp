@@ -227,11 +227,11 @@ void engine::SkyBox::display(GBuffer *g, Camera *cam)
 	pos = cam->getVPMatrix() * pos;
 
 	g->enableDepthMask(FALSE);
-
 	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	g->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
 	g->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
 	g->getContext()->IASetInputLayout(_pInputLayout);
+	g->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &pos, 0, 0);
 	g->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
@@ -247,5 +247,5 @@ void engine::SkyBox::display(GBuffer *g, Camera *cam)
 
 	g->enableDepthMask(TRUE);
 
-	g->executeContext();
+	g->executeDeferredContext();
 }

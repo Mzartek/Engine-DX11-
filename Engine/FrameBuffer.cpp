@@ -2,10 +2,8 @@
 
 engine::FrameBuffer::FrameBuffer(void)
 {
-	// Device and Context
 	_pd3dDevice = NULL;
 	_pContext = NULL;
-	// DefferedContext
 	_pDeferredContext = NULL;
 }
 
@@ -33,16 +31,10 @@ ID3D11DeviceContext *engine::FrameBuffer::getContext(void) const
 	return _pDeferredContext;
 }
 
-void engine::FrameBuffer::executeContext(void) const
+void engine::FrameBuffer::executeDeferredContext(void) const
 {
-	ID3D11CommandList *commandList;
-	if (_pContext == NULL)
-	{
-		MessageBox(NULL, "Need to config FrameBuffer before execution", "FrameBuffer", MB_OK);
-		exit(1);
-	}
-
-	_pDeferredContext->FinishCommandList(TRUE, &commandList);
-	_pContext->ExecuteCommandList(commandList, TRUE);
-	commandList->Release();
+	ID3D11CommandList *pCommandList;
+	_pDeferredContext->FinishCommandList(TRUE, &pCommandList);
+	_pContext->ExecuteCommandList(pCommandList, TRUE);
+	pCommandList->Release();
 }

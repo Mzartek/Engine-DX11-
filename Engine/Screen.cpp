@@ -3,8 +3,8 @@
 engine::Screen::Screen()
 {
 	_pScreenColorBuffer = NULL;
-	_pVertexBuffer = NULL;
 	_pInputLayout = NULL;
+	_pVertexBuffer = NULL;
 	_color = new XMFLOAT4;
 	_program = NULL;
 }
@@ -12,10 +12,10 @@ engine::Screen::Screen()
 engine::Screen::~Screen()
 {
 	delete _color;
-	if (_pInputLayout)
-		_pInputLayout->Release();
 	if (_pVertexBuffer)
 		_pVertexBuffer->Release();
+	if (_pInputLayout)
+		_pInputLayout->Release();
 	if (_pScreenColorBuffer)
 		_pScreenColorBuffer->Release();
 }
@@ -44,6 +44,20 @@ void engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 		exit(1);
 	}
 
+	// Create Input Layout
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	hr = pd3dDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
+		_program->getEntryBufferPointer(), _program->getEntryBytecodeLength(),
+		&_pInputLayout);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Input Layout", "Screen", MB_OK);
+		exit(1);
+	}
+
 	// Create Vertex Buffer
 	FLOAT vertex[] = {
 		-1, -1,
@@ -62,20 +76,6 @@ void engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 		MessageBox(NULL, "Failed to create Vertex Buffer", "Screen", MB_OK);
 		exit(1);
 	}
-
-	// Create Input Layout
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	hr = pd3dDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
-		_program->getEntryBufferPointer(), _program->getEntryBytecodeLength(),
-		&_pInputLayout);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Input Layout", "Screen", MB_OK);
-		exit(1);
-	}
 }
 
 #undef BUFFER_OFFSET
@@ -92,6 +92,8 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 	renderer->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	renderer->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
 	renderer->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
+	renderer->getContext()->IASetInputLayout(_pInputLayout);
+	renderer->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// Texture
 	ID3D11ShaderResourceView *pshr[] =
@@ -109,12 +111,8 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 	renderer->getContext()->PSSetConstantBuffers(0, 1, &_pScreenColorBuffer);
 
 	// Vertex Buffer
-	UINT stride = 2 * sizeof(FLOAT);
-	UINT offset = 0;
+	UINT stride = 2 * sizeof(FLOAT), offset = 0;
 	renderer->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
-
-	// Input Layout
-	renderer->getContext()->IASetInputLayout(_pInputLayout);
 
 	// Draw
 	renderer->getContext()->Draw(4, 0);

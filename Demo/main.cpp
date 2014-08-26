@@ -1,17 +1,23 @@
 #include "include/config.hpp"
 
 // Globales variables
-engine::Renderer*			renderer = NULL;
-engine::Input*				input = NULL;
-engine::GBuffer*			gBuffer = NULL;
-engine::FreeCam*			cam = NULL;
-engine::Model*				sol = NULL;
-engine::Model*				heli = NULL;
-engine::Screen*				screen = NULL;
-engine::SkyBox*				skybox = NULL;
-engine::ShaderProgram*		gObjectProgram = NULL;
-engine::ShaderProgram*		gSkyboxProgram = NULL;
-engine::ShaderProgram*		screenProgram = NULL;
+engine::Renderer *renderer;
+engine::Input *input;
+engine::FreeCam *cam;
+engine::DirLight *sun;
+engine::SpotLight *torch;
+engine::Model *sol;
+engine::Model *heli;
+engine::SkyBox *skybox;
+engine::Screen *screen;
+engine::GBuffer *gBuffer;
+
+engine::ShaderProgram *gObjectProgram;
+engine::ShaderProgram *dirLightProgram;
+engine::ShaderProgram *spotLightProgram;
+engine::ShaderProgram *shadowProgram;
+engine::ShaderProgram *gSkyboxProgram;
+engine::ShaderProgram *screenProgram;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -37,12 +43,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void display(void)
 {
-	gBuffer->clear();
 	renderer->clear();
+	gBuffer->clear();
+	//sun->clear();
+	//torch->clear();
 
 	skybox->display(gBuffer, cam);
 	sol->display(gBuffer, cam);
 	heli->display(gBuffer, cam);
+
+	/*sol->displayShadow(sun);
+	heli->displayShadow(sun);
+
+	sol->displayShadow(torch);
+	heli->displayShadow(torch);*/
+
+	sun->display(gBuffer, cam);
+	//torch->display(gBuffer, cam);
 
 	screen->display(renderer, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
 }
@@ -62,6 +79,8 @@ void idle(void)
 	heli->matRotate(0.1f, 0, 1, 0);
 
 	cam->position();
+	//sun->position(heli->getPosition(), 25);
+	//torch->position();
 }
 
 void reshape(UINT width, UINT height)
@@ -71,21 +90,28 @@ void reshape(UINT width, UINT height)
 
 void init(void)
 {
-	gBuffer = new engine::GBuffer;
 	cam = new engine::FreeCam;
+	sun = new engine::DirLight;
+	torch = new engine::SpotLight;
 	sol = new engine::Model;
 	heli = new engine::Model;
-	screen = new engine::Screen;
 	skybox = new engine::SkyBox;
+	screen = new engine::Screen;
+	gBuffer = new engine::GBuffer;
+
 	gObjectProgram = new engine::ShaderProgram;
+	dirLightProgram = new engine::ShaderProgram;
+	spotLightProgram = new engine::ShaderProgram;
+	shadowProgram = new engine::ShaderProgram;
 	gSkyboxProgram = new engine::ShaderProgram;
 	screenProgram = new engine::ShaderProgram;
 
-	configShader();
-	configBuffer();
-	configModels();
+	configShaders();
+	configBuffers();
+	configLights();
 	configScreen();
-	configSkyBox();
+	configModels();
+	configSkybox();
 
 	cam->setPositionCamera(XMFLOAT3(30, 10, 0));
 	cam->setInitialAngle(-90, 0);
@@ -95,13 +121,19 @@ void kill()
 {
 	delete screenProgram;
 	delete gSkyboxProgram;
+	delete shadowProgram;
+	delete spotLightProgram;
+	delete dirLightProgram;
 	delete gObjectProgram;
-	delete skybox;
+
+	delete gBuffer;
 	delete screen;
+	delete skybox;
 	delete heli;
 	delete sol;
+	delete torch;
+	delete sun;
 	delete cam;
-	delete gBuffer;
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
