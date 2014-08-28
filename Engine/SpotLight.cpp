@@ -168,8 +168,8 @@ void engine::SpotLight::position(void)
 	XMVECTOR EyePosition = XMVectorSet(_lightInfo.position.x, _lightInfo.position.y, _lightInfo.position.z, 0.0f);
 	XMVECTOR FocusPosition = XMVectorSet(_lightInfo.position.x - _lightInfo.direction.x, _lightInfo.position.y - _lightInfo.direction.y, _lightInfo.position.z - _lightInfo.direction.z, 0.0f);
 
-	*_VPMatrix = XMMatrixTranspose(XMMatrixPerspectiveFovRH(_lightInfo.spotCutOff * 2 * ((FLOAT)XM_PI / 180), (FLOAT)_shadow->getWidth() / _shadow->getHeight(), 0.1f, 1000.0f)) *
-		XMMatrixTranspose(XMMatrixLookAtRH(EyePosition, FocusPosition, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
+	*_VPMatrix = XMMatrixLookAtRH(EyePosition, FocusPosition, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) * 
+		XMMatrixPerspectiveFovRH(_lightInfo.spotCutOff * 2 * ((FLOAT)XM_PI / 180), (FLOAT)_shadow->getWidth() / _shadow->getHeight(), 0.1f, 1000.0f);
 }
 
 void engine::SpotLight::display(GBuffer *g, Camera *cam)
@@ -199,13 +199,13 @@ void engine::SpotLight::display(GBuffer *g, Camera *cam)
 	g->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	g->actualizeResource();
-	ID3D11ShaderResourceView *pshr[]
+	ID3D11ShaderResourceView *gshr[]
 	{
 		g->getShaderResourceView(GBUF_NORMAL),
-			g->getShaderResourceView(GBUF_MATERIAL),
-			g->getShaderResourceView(GBUF_DEPTH),
+		g->getShaderResourceView(GBUF_MATERIAL),
+		g->getShaderResourceView(GBUF_DEPTH),
 	};
-	g->getContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	g->getContext()->PSSetShaderResources(0, ARRAYSIZE(gshr), gshr);
 
 	// ShadowMap
 	if (_lightInfo.withShadowMapping == TRUE)
@@ -219,7 +219,7 @@ void engine::SpotLight::display(GBuffer *g, Camera *cam)
 		tmp.r[1] = XMVectorSet(0.0f, 0.5f, 0.0f, 0.0f);
 		tmp.r[2] = XMVectorSet(0.0f, 0.0f, 0.5f, 0.0f);
 		tmp.r[3] = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
-		tmp *= *_VPMatrix;
+		tmp = *_VPMatrix * tmp;
 		g->getContext()->UpdateSubresource(_pShadowMatrixBuffer, 0, NULL, &tmp, 0, 0);
 		g->getContext()->PSSetConstantBuffers(0, 1, &_pShadowMatrixBuffer);
 	}

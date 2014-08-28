@@ -70,8 +70,8 @@ int4 unpack(uint4 a, int v)
 float3 getPosition(float2 pixelCoord)
 {
 	float depth = depthTex[pixelCoord];
-	float4 tmp1 = float4(pixelCoord / screen * 2.0 - 1.0, depth, 1.0);
-	float4 tmp2 = mul(tmp1, IVPMatrix);
+	float4 tmp1 = float4(pixelCoord.x / screen.x * 2.0 - 1.0, (1.0 - (pixelCoord.y / screen.y)) * 2.0 - 1.0, depth, 1.0);
+	float4 tmp2 = mul(IVPMatrix, tmp1);
 	return tmp2.xyz / tmp2.w;
 }
 
@@ -146,7 +146,7 @@ PS_OUTPUT main(PS_INPUT input)
 
 	float s = 1.0;
 	if (withShadowMapping)
-		s = calcShadow(mul(float4(position, 1.0), shadowMatrix), 1.0);
+		s = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 1.0);
 	light l = calcSpotLight(normal.xyz, camPosition - position, position, normal.w, s);
 	finalColor *= matAmbient + (matDiffuse * float4(l.diff, 1.0)) + (matSpecular * float4(l.spec, 1.0));
 	finalColor = clamp(finalColor, 0.0, 1.0);

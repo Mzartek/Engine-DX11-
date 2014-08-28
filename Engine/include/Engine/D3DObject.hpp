@@ -37,6 +37,7 @@ namespace engine
 			const UINT &sizeIndexArray, const UINT *indexArray,
 			ID3D11Device *pd3dDevice);
 		void display(ID3D11DeviceContext *pContext) const;
+		void displayShadow(ID3D11DeviceContext *pContext) const;
 	};
   
 	int comparD3DObject(const void *p1, const void *p2);

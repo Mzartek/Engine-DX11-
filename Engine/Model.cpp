@@ -9,9 +9,7 @@ engine::Model::Model(void)
 	_pMVPMatrixBuffer = NULL;
 	_pNormalMatrixBuffer = NULL;
 	_pInputLayout = NULL;
-	_MVPMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_MVPMatrix, 16);
 	_ModelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_ModelMatrix, 16);
-	_NormalMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_NormalMatrix, 16);
 	_program = NULL;
 	_pd3dDevice = NULL;
 	_pContext = NULL;
@@ -29,9 +27,7 @@ engine::Model::~Model(void)
 		delete _tD3DObject;
 	}
 
-	_aligned_free(_NormalMatrix);
 	_aligned_free(_ModelMatrix);
-	_aligned_free(_MVPMatrix);
 
 	if (_pInputLayout)
 		_pInputLayout->Release();
@@ -88,7 +84,7 @@ void engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3
 	bd.StructureByteStride = 0;
 
 	// MVPMatrix Buffer
-	bd.ByteWidth = sizeof *_MVPMatrix;
+	bd.ByteWidth = sizeof XMMATRIX;
 	hr = _pd3dDevice->CreateBuffer(&bd, NULL, &_pMVPMatrixBuffer);
 	if (FAILED(hr))
 	{
@@ -97,7 +93,7 @@ void engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3
 	}
 
 	// NormalMatrix Buffer
-	bd.ByteWidth = sizeof *_NormalMatrix;
+	bd.ByteWidth = sizeof XMMATRIX;
 	hr = _pd3dDevice->CreateBuffer(&bd, NULL, &_pNormalMatrixBuffer);
 	if (FAILED(hr))
 	{
@@ -249,30 +245,30 @@ void engine::Model::sortD3DObject(void)
 
 void engine::Model::matIdentity(void)
 {
-	*_ModelMatrix = XMMatrixTranspose(XMMatrixIdentity());
+	*_ModelMatrix = XMMatrixIdentity();
 }
 
 void engine::Model::matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	*_ModelMatrix *= XMMatrixTranspose(XMMatrixTranslation(x, y, z));
+	*_ModelMatrix = XMMatrixTranslation(x, y, z) * *_ModelMatrix;
 }
 
 void engine::Model::matRotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	*_ModelMatrix *= XMMatrixTranspose(XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)XM_PI / 180)));
+	*_ModelMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)XM_PI / 180)) * *_ModelMatrix;
 }
 
 void engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	*_ModelMatrix *= XMMatrixTranspose(XMMatrixScaling(x, y, z));
+	*_ModelMatrix = XMMatrixScaling(x, y, z) * *_ModelMatrix;
 }
 
 XMFLOAT3 engine::Model::getPosition(void) const
 {
 	XMFLOAT3 tmp;
-	tmp.x = XMVectorGetZ(_ModelMatrix->r[0]);
-	tmp.y = XMVectorGetZ(_ModelMatrix->r[1]);
-	tmp.z = XMVectorGetZ(_ModelMatrix->r[2]);
+	tmp.x = XMVectorGetW(_ModelMatrix->r[0]);
+	tmp.y = XMVectorGetW(_ModelMatrix->r[1]);
+	tmp.z = XMVectorGetW(_ModelMatrix->r[2]);
 
 	return tmp;
 }
@@ -287,7 +283,7 @@ engine::D3DObject *engine::Model::getD3DObject(UINT num) const
 	return (*_tD3DObject)[num];
 }
   
-void engine::Model::display(GBuffer *g, Camera *cam)
+void engine::Model::display(GBuffer *g, Camera *cam) const
 {
 	UINT i;
 
@@ -307,11 +303,10 @@ void engine::Model::display(GBuffer *g, Camera *cam)
 		exit(1);
 	}
 
-	*_MVPMatrix = cam->getVPMatrix() * *_ModelMatrix;
-	*_NormalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
-
-	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, _MVPMatrix, 0, 0);
-	g->getContext()->UpdateSubresource(_pNormalMatrixBuffer, 0, NULL, _NormalMatrix, 0, 0);
+	XMMATRIX MVPMatrix = *_ModelMatrix * cam->getVPMatrix();
+	XMMATRIX NormalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
+	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &MVPMatrix, 0, 0);
+	g->getContext()->UpdateSubresource(_pNormalMatrixBuffer, 0, NULL, &NormalMatrix, 0, 0);
 
 	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	g->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
@@ -327,4 +322,42 @@ void engine::Model::display(GBuffer *g, Camera *cam)
 			(*_tD3DObject)[i]->display(g->getContext());
 
 	g->executeDeferredContext();
+}
+
+void engine::Model::displayShadow(Light *l) const
+{
+	UINT i;
+
+	if (_program == NULL)
+	{
+		MessageBox(NULL, "Need to config the Model before displaying Shadow", "Model", MB_OK);
+		exit(1);
+	}
+	if (l == NULL)
+	{
+		MessageBox(NULL, "Bad Light!", "Model", MB_OK);
+		exit(1);
+	}
+	if (l->getShadowMap() == NULL)
+	{
+		MessageBox(NULL, "Need to config the ShadowMap before displaying", "Model", MB_OK);
+		exit(1);
+	}
+
+	XMMATRIX MVPMatrix = *_ModelMatrix * l->getVPMatrix();
+	l->getShadowMap()->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &MVPMatrix, 0, 0);
+
+	l->getShadowMap()->getContext()->VSSetShader(l->getShadowMap()->getProgram()->getVertexShader(), NULL, 0);
+	l->getShadowMap()->getContext()->GSSetShader(l->getShadowMap()->getProgram()->getGeometryShader(), NULL, 0);
+	l->getShadowMap()->getContext()->PSSetShader(l->getShadowMap()->getProgram()->getPixelShader(), NULL, 0);
+	l->getShadowMap()->getContext()->IASetInputLayout(_pInputLayout);
+	l->getShadowMap()->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	l->getShadowMap()->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
+
+	for (i = 0; i<_tD3DObject->size(); i++)
+		if ((*_tD3DObject)[i]->getTransparency() == 1.0f)
+			(*_tD3DObject)[i]->displayShadow(l->getShadowMap()->getContext());
+
+	l->getShadowMap()->executeDeferredContext();
 }

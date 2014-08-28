@@ -187,6 +187,12 @@ ID3D11SamplerState *engine::ShadowMap::getSamplerComparisonState(void) const
 	return _pSamplerComparisonState;
 }
 
+
+engine::ShaderProgram *engine::ShadowMap::getProgram(void) const
+{
+	return _program;
+}
+
 void engine::ShadowMap::clear(void) const
 {
 	_pDeferredContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);

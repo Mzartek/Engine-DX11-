@@ -13,7 +13,7 @@ engine::SkyBox::SkyBox()
 	_rotateMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_rotateMatrix, 16);
 	_program = NULL;
 
-	*_rotateMatrix = XMMatrixTranspose(XMMatrixIdentity());
+	*_rotateMatrix = XMMatrixIdentity();
 }
 
 engine::SkyBox::~SkyBox()
@@ -200,12 +200,11 @@ void engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 
 void engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	*_rotateMatrix *= XMMatrixTranspose(XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)XM_PI / 180)));
+	*_rotateMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)XM_PI / 180)) * *_rotateMatrix;
 }
 
 void engine::SkyBox::display(GBuffer *g, Camera *cam)
 {
-	XMMATRIX pos;
 	if (_program == NULL)
 	{
 		MessageBox(NULL, "Need to config the SkyBox before displaying", "SkyBox", MB_OK);
@@ -222,9 +221,9 @@ void engine::SkyBox::display(GBuffer *g, Camera *cam)
 		exit(1);
 	}
 
-	pos = XMMatrixTranspose(XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z));
-	pos *= *_rotateMatrix;
-	pos = cam->getVPMatrix() * pos;
+	XMMATRIX pos = XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z);
+	pos = *_rotateMatrix * pos;
+	pos *= cam->getVPMatrix();
 
 	g->enableDepthMask(FALSE);
 	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);

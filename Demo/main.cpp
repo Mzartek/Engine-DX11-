@@ -45,21 +45,21 @@ void display(void)
 {
 	renderer->clear();
 	gBuffer->clear();
-	//sun->clear();
-	//torch->clear();
+	sun->clear();
+	torch->clear();
 
 	skybox->display(gBuffer, cam);
 	sol->display(gBuffer, cam);
 	heli->display(gBuffer, cam);
 
-	/*sol->displayShadow(sun);
+	sol->displayShadow(sun);
 	heli->displayShadow(sun);
 
 	sol->displayShadow(torch);
-	heli->displayShadow(torch);*/
+	heli->displayShadow(torch);
 
-	//sun->display(gBuffer, cam);
-	torch->display(gBuffer, cam);
+	sun->display(gBuffer, cam);
+	//torch->display(gBuffer, cam);
 
 	screen->display(renderer, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
 }
@@ -79,13 +79,13 @@ void idle(void)
 	heli->matRotate(0.1f, 0, 1, 0);
 
 	cam->position();
-	//sun->position(heli->getPosition(), 25);
-	//torch->position();
+	sun->position(heli->getPosition(), 25);
+	torch->position();
 }
 
 void reshape(UINT width, UINT height)
 {
-	cam->setPerspective(90.0f, width, height, 0.1f, 1500.0f);
+	cam->setPerspective(90.0f, width, height, 0.1f, 1000.0f);
 }
 
 void init(void)
