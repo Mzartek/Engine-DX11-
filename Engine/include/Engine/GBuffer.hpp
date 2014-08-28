@@ -13,11 +13,11 @@ namespace engine
 	class DLLAPI GBuffer : public FrameBuffer
 	{
 	private:
-		// Texture
-		ID3D11Texture2D *_pTexture[GBUF_NUM_TEX];
 		// Shader Resource View
+		ID3D11Texture2D *_pResourceTexture[GBUF_NUM_TEX];
 		ID3D11ShaderResourceView *_pShaderResourceView[GBUF_NUM_TEX];
 		// View
+		ID3D11Texture2D *_pRenderTexture[GBUF_NUM_TEX];
 		ID3D11RenderTargetView *_pRenderTargetView[GBUF_NUM_TEX - 1];
 		ID3D11DepthStencilView *_pDepthView;
 		// State
@@ -31,6 +31,7 @@ namespace engine
 		ID3D11ShaderResourceView *getShaderResourceView(const UINT &num) const;
 		void enableDepthMask(const BOOL &mask);
 		void clear(void) const;
+		void actualizeResource(void) const;
 	};
 }
 

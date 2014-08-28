@@ -10,7 +10,6 @@ engine::ShadowMap::ShadowMap()
 	_pDepthView = NULL;
 	// State
 	_pDepthState = NULL;
-	_pBlendState = NULL;
 	_pRasterizerState = NULL;
 	_pSamplerComparisonState = NULL;
 	// ShaderProgram
@@ -24,8 +23,6 @@ engine::ShadowMap::~ShadowMap()
 		_pSamplerComparisonState->Release();
 	if (_pRasterizerState)
 		_pRasterizerState->Release();
-	if (_pBlendState)
-		_pBlendState->Release();
 	if (_pDepthState)
 		_pDepthState->Release();
 
@@ -45,9 +42,6 @@ engine::ShadowMap::~ShadowMap()
 void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
-	D3D11_TEXTURE2D_DESC descTexture;
-	D3D11_DEPTH_STENCIL_VIEW_DESC descDepthView;
-	D3D11_SHADER_RESOURCE_VIEW_DESC descShaderResourceView;
 
 	_width = width;
 	_height = height;
@@ -62,43 +56,58 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProg
 		exit(1);
 	}
 
-	// Depth
-	descTexture.Width = width;
-	descTexture.Height = height;
+	D3D11_TEXTURE2D_DESC descTexture;
+	descTexture.Width = _width;
+	descTexture.Height = _height;
 	descTexture.MipLevels = 1;
 	descTexture.ArraySize = 1;
-	descTexture.Format = DXGI_FORMAT_R32_TYPELESS;
 	descTexture.SampleDesc.Count = 1;
 	descTexture.SampleDesc.Quality = 0;
 	descTexture.Usage = D3D11_USAGE_DEFAULT;
 	descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
 	descTexture.CPUAccessFlags = 0;
 	descTexture.MiscFlags = 0;
-	hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Depth Texture", "ShadowMap", NULL);
-		exit(1);
-	}
-	descDepthView.Format = DXGI_FORMAT_D32_FLOAT;
-	descDepthView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	descDepthView.Flags = 0;
-	descDepthView.Texture2D.MipSlice = 0;
-	hr = _pd3dDevice->CreateDepthStencilView(_pTexture, &descDepthView, &_pDepthView);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Depth View", "ShadowMap", NULL);
-		exit(1);
-	}
-	descShaderResourceView.Format = DXGI_FORMAT_R32_FLOAT;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC descShaderResourceView;
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	descShaderResourceView.Texture2D.MostDetailedMip = 0;
 	descShaderResourceView.Texture2D.MipLevels = 1;
-	hr = _pd3dDevice->CreateShaderResourceView(_pTexture, &descShaderResourceView, &_pShaderResourceView);
-	if (FAILED(hr))
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC descDepthView;
+	descDepthView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDepthView.Flags = 0;
+	descDepthView.Texture2D.MipSlice = 0;
+
+	// Depth
 	{
-		MessageBox(NULL, "Failed to create Depth Shader Resource View", "ShadowMap", NULL);
-		exit(1);
+		// Format
+		descTexture.Format = DXGI_FORMAT_R32_TYPELESS;
+		descShaderResourceView.Format = DXGI_FORMAT_R32_FLOAT;
+		descDepthView.Format = DXGI_FORMAT_D32_FLOAT;
+
+		// Create Texture
+		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Depth Texture", "GBuffer", NULL);
+			exit(1);
+		}
+
+		// Create Resource
+		hr = _pd3dDevice->CreateShaderResourceView(_pTexture, &descShaderResourceView, &_pShaderResourceView);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Depth Resource View", "GBuffer", NULL);
+			exit(1);
+		}
+
+		// Create Render
+		hr = _pd3dDevice->CreateDepthStencilView(_pTexture, &descDepthView, &_pDepthView);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Depth Render View", "GBuffer", NULL);
+			exit(1);
+		}
 	}
 
 	// State
@@ -111,18 +120,6 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProg
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil State", "ShadowMap", NULL);
-		exit(1);
-	}
-
-	D3D11_BLEND_DESC descBlend;
-	descBlend.AlphaToCoverageEnable = FALSE;
-	descBlend.IndependentBlendEnable = FALSE;
-	descBlend.RenderTarget[0].BlendEnable = FALSE;
-	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	hr = _pd3dDevice->CreateBlendState(&descBlend, &_pBlendState);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Blend State", "ShadowMap", NULL);
 		exit(1);
 	}
 
@@ -176,7 +173,6 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProg
 
 	_pDeferredContext->OMSetRenderTargets(0, NULL, _pDepthView);
 	_pDeferredContext->OMSetDepthStencilState(_pDepthState, 0);
-	_pDeferredContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
 	_pDeferredContext->RSSetState(_pRasterizerState);
 	_pDeferredContext->RSSetViewports(1, &vp);
 }

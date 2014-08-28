@@ -96,6 +96,7 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 	renderer->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// Texture
+	gbuf->actualizeResource();
 	ID3D11ShaderResourceView *pshr[] =
 	{
 		gbuf->getShaderResourceView(GBUF_MATERIAL),

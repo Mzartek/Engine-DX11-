@@ -58,8 +58,8 @@ void display(void)
 	sol->displayShadow(torch);
 	heli->displayShadow(torch);*/
 
-	sun->display(gBuffer, cam);
-	//torch->display(gBuffer, cam);
+	//sun->display(gBuffer, cam);
+	torch->display(gBuffer, cam);
 
 	screen->display(renderer, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
 }

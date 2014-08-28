@@ -168,15 +168,13 @@ void engine::SpotLight::position(void)
 	XMVECTOR EyePosition = XMVectorSet(_lightInfo.position.x, _lightInfo.position.y, _lightInfo.position.z, 0.0f);
 	XMVECTOR FocusPosition = XMVectorSet(_lightInfo.position.x - _lightInfo.direction.x, _lightInfo.position.y - _lightInfo.direction.y, _lightInfo.position.z - _lightInfo.direction.z, 0.0f);
 
-	*_VPMatrix = XMMatrixPerspectiveFovRH(_lightInfo.spotCutOff * 2 * ((FLOAT)XM_PI / 180), (FLOAT)_shadow->getWidth() / _shadow->getHeight(), 0.1f, 1000.0f) *
-		XMMatrixLookAtRH(EyePosition, FocusPosition, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+	*_VPMatrix = XMMatrixTranspose(XMMatrixPerspectiveFovRH(_lightInfo.spotCutOff * 2 * ((FLOAT)XM_PI / 180), (FLOAT)_shadow->getWidth() / _shadow->getHeight(), 0.1f, 1000.0f)) *
+		XMMatrixTranspose(XMMatrixLookAtRH(EyePosition, FocusPosition, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
 }
 
 void engine::SpotLight::display(GBuffer *g, Camera *cam)
 {
 	XMMATRIX tmp;
-	XMUINT2 screen(g->getWidth(), g->getHeight());
-	XMFLOAT3 pos = cam->getPositionCamera();
 	if (_program == NULL)
 	{
 		MessageBox(NULL, "Need to config the DirLight before displaying", "DirLight", MB_OK);
@@ -200,6 +198,7 @@ void engine::SpotLight::display(GBuffer *g, Camera *cam)
 	g->getContext()->IASetInputLayout(_pInputLayout);
 	g->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
+	g->actualizeResource();
 	ID3D11ShaderResourceView *pshr[]
 	{
 		g->getShaderResourceView(GBUF_NORMAL),
@@ -225,13 +224,15 @@ void engine::SpotLight::display(GBuffer *g, Camera *cam)
 		g->getContext()->PSSetConstantBuffers(0, 1, &_pShadowMatrixBuffer);
 	}
 
-	tmp = XMMatrixInverse(NULL, *_VPMatrix);
+	tmp = XMMatrixInverse(NULL, cam->getVPMatrix());
 	g->getContext()->UpdateSubresource(_pIVPMatrixBuffer, 0, NULL, &tmp, 0, 0);
 	g->getContext()->PSSetConstantBuffers(1, 1, &_pIVPMatrixBuffer);
 
+	XMUINT2 screen(g->getWidth(), g->getHeight());
 	g->getContext()->UpdateSubresource(_pScreenBuffer, 0, NULL, &screen, 0, 0);
 	g->getContext()->PSSetConstantBuffers(2, 1, &_pScreenBuffer);
 
+	XMFLOAT3 pos = cam->getPositionCamera();
 	g->getContext()->UpdateSubresource(_pCameraBuffer, 0, NULL, &pos, 0, 0);
 	g->getContext()->PSSetConstantBuffers(3, 1, &_pCameraBuffer);
 
@@ -241,6 +242,8 @@ void engine::SpotLight::display(GBuffer *g, Camera *cam)
 	g->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
 
 	g->getContext()->Draw(4, 0);
+
+	g->enableDepthMask(TRUE);
 
 	g->executeDeferredContext();
 }

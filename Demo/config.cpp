@@ -22,7 +22,7 @@ void configLights(void)
 	sun->setColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
 	sun->setDirection(XMFLOAT3(1.0f, -1.0f, 0.0f));
 	sun->activateShadowMapping(FALSE);
-	//sun->configShadowMap(1024, 1024, shadowProgram, renderer->getD3DDevice(), renderer->getContext());
+	sun->configShadowMap(1024, 1024, shadowProgram, renderer->getD3DDevice(), renderer->getContext());
 
 	torch->config(spotLightProgram, renderer->getD3DDevice(), renderer->getContext());
 	torch->setColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
@@ -30,7 +30,7 @@ void configLights(void)
 	torch->setDirection(XMFLOAT3(-0.5f, -1.0f, 0.0f));
 	torch->setSpotCutOff(45.0f);
 	torch->activateShadowMapping(FALSE);
-	//torch->configShadowMap(1024, 1024, shadowProgram, renderer->getD3DDevice(), renderer->getContext());
+	torch->configShadowMap(1024, 1024, shadowProgram, renderer->getD3DDevice(), renderer->getContext());
 }
 
 void configScreen(void)

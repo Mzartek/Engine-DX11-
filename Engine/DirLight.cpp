@@ -153,8 +153,6 @@ void engine::DirLight::position(const XMFLOAT3 &position, const FLOAT &dim)
 void engine::DirLight::display(GBuffer *g, Camera *cam)
 {
 	XMMATRIX tmp;
-	XMUINT2 screen(g->getWidth(), g->getHeight());
-	XMFLOAT3 pos = cam->getPositionCamera();
 	if (_program == NULL)
 	{
 		MessageBox(NULL, "Need to config the DirLight before displaying", "DirLight", MB_OK);
@@ -178,13 +176,15 @@ void engine::DirLight::display(GBuffer *g, Camera *cam)
 	g->getContext()->IASetInputLayout(_pInputLayout);
 	g->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	ID3D11ShaderResourceView *pshr[]
+	g->actualizeResource();
+	ID3D11ShaderResourceView *gshr[]
 	{
 		g->getShaderResourceView(GBUF_NORMAL),
 		g->getShaderResourceView(GBUF_MATERIAL),
 		g->getShaderResourceView(GBUF_DEPTH),
 	};
-	g->getContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+
+	g->getContext()->PSSetShaderResources(0, ARRAYSIZE(gshr), gshr);
 
 	// ShadowMap
 	if (_lightInfo.withShadowMapping == TRUE)
@@ -203,13 +203,15 @@ void engine::DirLight::display(GBuffer *g, Camera *cam)
 		g->getContext()->PSSetConstantBuffers(0, 1, &_pShadowMatrixBuffer);
 	}
 
-	tmp = XMMatrixInverse(NULL, *_VPMatrix);
+	tmp = XMMatrixInverse(NULL, cam->getVPMatrix());
 	g->getContext()->UpdateSubresource(_pIVPMatrixBuffer, 0, NULL, &tmp, 0, 0);
 	g->getContext()->PSSetConstantBuffers(1, 1, &_pIVPMatrixBuffer);
 
+	XMUINT2 screen(g->getWidth(), g->getHeight());
 	g->getContext()->UpdateSubresource(_pScreenBuffer, 0, NULL, &screen, 0, 0);
 	g->getContext()->PSSetConstantBuffers(2, 1, &_pScreenBuffer);
 
+	XMFLOAT3 pos = cam->getPositionCamera();
 	g->getContext()->UpdateSubresource(_pCameraBuffer, 0, NULL, &pos, 0, 0);
 	g->getContext()->PSSetConstantBuffers(3, 1, &_pCameraBuffer);
 
@@ -218,7 +220,9 @@ void engine::DirLight::display(GBuffer *g, Camera *cam)
 	UINT stride = 2 * sizeof(FLOAT), offset = 0;
 	g->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
 
-	g->getContext()->Draw(4, 0);
+	g->getContext()->Draw(4, 0); 
+	
+	g->enableDepthMask(TRUE);
 
 	g->executeDeferredContext();
 }
