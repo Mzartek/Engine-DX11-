@@ -6,7 +6,7 @@
 #define GBUF_NUM_TEX 3
 #define GBUF_NORMAL 0
 #define GBUF_MATERIAL 1
-#define GBUF_DEPTH 2
+#define GBUF_DEPTH_STENCIL 2
 
 namespace engine
 {
@@ -19,7 +19,7 @@ namespace engine
 		// View
 		ID3D11Texture2D *_pRenderTexture[GBUF_NUM_TEX];
 		ID3D11RenderTargetView *_pRenderTargetView[GBUF_NUM_TEX - 1];
-		ID3D11DepthStencilView *_pDepthView;
+		ID3D11DepthStencilView *_pDepthStencilView;
 		// State
 		ID3D11DepthStencilState *_pDepthState;
 		ID3D11BlendState *_pBlendState;

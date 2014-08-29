@@ -78,7 +78,14 @@ float lookUp(float4 coord, float2 offSet, int2 texSize)
 	coord.x += offSet.x * (1.0 / texSize.x);
 	coord.y += offSet.y * (1.0 / texSize.y);
 	coord.z -= 0.005;
-	return shadowMap.SampleCmp(shadowMapSamplerComparisonState, coord.xy / coord.w, coord.z / coord.w);
+
+	coord.x = 0.5f + (coord.x / coord.w * 0.5f);
+	coord.y = 0.5f - (coord.y / coord.w * 0.5f);
+	coord.z /= coord.w;
+
+	if (coord.x > 1.0 || coord.x < 0.0 || coord.y > 1.0 || coord.y < 0.0)
+		return 1.0;
+	return shadowMap.SampleCmp(shadowMapSamplerComparisonState, coord.xy, coord.z);
 }
 
 float calcShadow(float4 coord, float pcf)
@@ -108,7 +115,7 @@ light calcDirLight(float3 N, float3 eyeVec, float shininess, float shadow) // N 
 	L = normalize(lightDirection);
 
 	cosTheta = dot(-L,N);
-	if(cosTheta > 0.0 && shadow != 0.0)
+	if(cosTheta > 0.0 && shadow > 0.0)
 	{
 		E = normalize(eyeVec);
 		R = reflect(L, N);
@@ -136,7 +143,7 @@ PS_OUTPUT main(PS_INPUT input)
 	
 	float s = 1.0;
 	if (withShadowMapping)
-		s = calcShadow(mul(shadowMatrix, float4(position, 1.0)), s);
+		s = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 1.0);
 	light l = calcDirLight(normal.xyz, camPosition - position, normal.w, s);
 	finalColor *= matAmbient + (matDiffuse * float4(l.diff, 1.0)) + (matSpecular * float4(l.spec, 1.0));
 	finalColor = clamp(finalColor, 0.0, 1.0);

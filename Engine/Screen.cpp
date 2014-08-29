@@ -20,8 +20,6 @@ engine::Screen::~Screen()
 		_pScreenColorBuffer->Release();
 }
 
-#define BUFFER_OFFSET(i) ((GLbyte *)NULL + i)
-
 void engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 {
 	HRESULT hr;
@@ -77,8 +75,6 @@ void engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 		exit(1);
 	}
 }
-
-#undef BUFFER_OFFSET
 
 void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
 {

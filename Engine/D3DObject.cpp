@@ -70,8 +70,6 @@ FLOAT engine::D3DObject::getTransparency(void)
 	return _material.diffuse.w;
 }
 
-#define BUFFER_OFFSET(i) ((CHAR *)NULL + i)
-
 void engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertexArray, 
 	const UINT &sizeIndexArray, const UINT *indexArray,
 	ID3D11Device *pd3dDevice)
@@ -111,8 +109,6 @@ void engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertexArr
 		exit(1);
 	}
 }
-
-#undef BUFFER_OFFSET
 
 void engine::D3DObject::display(ID3D11DeviceContext *pContext) const
 {

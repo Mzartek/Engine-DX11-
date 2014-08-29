@@ -165,10 +165,10 @@ void engine::SpotLight::position(void)
 		exit(1);
 	}
 
-	XMVECTOR EyePosition = XMVectorSet(_lightInfo.position.x, _lightInfo.position.y, _lightInfo.position.z, 0.0f);
-	XMVECTOR FocusPosition = XMVectorSet(_lightInfo.position.x - _lightInfo.direction.x, _lightInfo.position.y - _lightInfo.direction.y, _lightInfo.position.z - _lightInfo.direction.z, 0.0f);
+	XMVECTOR pos = XMVectorSet(_lightInfo.position.x, _lightInfo.position.y, _lightInfo.position.z, 0.0f);
+	XMVECTOR dir = XMVectorSet(_lightInfo.direction.x, _lightInfo.direction.y, _lightInfo.direction.z, 0.0f);
 
-	*_VPMatrix = XMMatrixLookAtRH(EyePosition, FocusPosition, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) * 
+	*_VPMatrix = XMMatrixLookAtRH(pos, pos + dir, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) *
 		XMMatrixPerspectiveFovRH(_lightInfo.spotCutOff * 2 * ((FLOAT)XM_PI / 180), (FLOAT)_shadow->getWidth() / _shadow->getHeight(), 0.1f, 1000.0f);
 }
 
@@ -203,7 +203,7 @@ void engine::SpotLight::display(GBuffer *g, Camera *cam)
 	{
 		g->getShaderResourceView(GBUF_NORMAL),
 		g->getShaderResourceView(GBUF_MATERIAL),
-		g->getShaderResourceView(GBUF_DEPTH),
+		g->getShaderResourceView(GBUF_DEPTH_STENCIL),
 	};
 	g->getContext()->PSSetShaderResources(0, ARRAYSIZE(gshr), gshr);
 
@@ -215,12 +215,7 @@ void engine::SpotLight::display(GBuffer *g, Camera *cam)
 		g->getContext()->PSSetShaderResources(3, 1, &shadowResourceView);
 		g->getContext()->PSSetSamplers(0, 1, &shadowSampler);
 
-		tmp.r[0] = XMVectorSet(0.5f, 0.0f, 0.0f, 0.0f);
-		tmp.r[1] = XMVectorSet(0.0f, 0.5f, 0.0f, 0.0f);
-		tmp.r[2] = XMVectorSet(0.0f, 0.0f, 0.5f, 0.0f);
-		tmp.r[3] = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
-		tmp = *_VPMatrix * tmp;
-		g->getContext()->UpdateSubresource(_pShadowMatrixBuffer, 0, NULL, &tmp, 0, 0);
+		g->getContext()->UpdateSubresource(_pShadowMatrixBuffer, 0, NULL, _VPMatrix, 0, 0);
 		g->getContext()->PSSetConstantBuffers(0, 1, &_pShadowMatrixBuffer);
 	}
 

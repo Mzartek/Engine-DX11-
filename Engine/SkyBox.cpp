@@ -36,8 +36,6 @@ engine::SkyBox::~SkyBox()
 		_pTexture->Release();
 }
 
-#define BUFFER_OFFSET(i) ((GLbyte *)NULL + i)
-
 void engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	const TCHAR *posy, const TCHAR *negy,
 	const TCHAR *posz, const TCHAR *negz,
@@ -195,8 +193,6 @@ void engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 		exit(1);
 	}
 }
-
-#undef BUFFER_OFFSET
 
 void engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {

@@ -81,9 +81,9 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProg
 	// Depth
 	{
 		// Format
-		descTexture.Format = DXGI_FORMAT_R32_TYPELESS;
-		descShaderResourceView.Format = DXGI_FORMAT_R32_FLOAT;
-		descDepthView.Format = DXGI_FORMAT_D32_FLOAT;
+		descTexture.Format = DXGI_FORMAT_R24G8_TYPELESS;
+		descShaderResourceView.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		descDepthView.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
 		// Create Texture
 		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture);
@@ -142,17 +142,17 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProg
 	}
 
 	D3D11_SAMPLER_DESC descSampler;
-	descSampler.Filter = D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
-	descSampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	descSampler.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	descSampler.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	descSampler.Filter = D3D11_FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR;
+	descSampler.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	descSampler.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	descSampler.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
 	descSampler.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 	descSampler.MipLODBias = 0.0f;
 	descSampler.MaxAnisotropy = 1;
-	descSampler.BorderColor[0] = 0.0f;
-	descSampler.BorderColor[1] = 0.0f;
-	descSampler.BorderColor[2] = 0.0f;
-	descSampler.BorderColor[3] = 0.0f;
+	descSampler.BorderColor[0] = 1.0f;
+	descSampler.BorderColor[1] = 1.0f;
+	descSampler.BorderColor[2] = 1.0f;
+	descSampler.BorderColor[3] = 1.0f;
 	descSampler.MinLOD = 0;
 	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
 	hr = pd3dDevice->CreateSamplerState(&descSampler, &_pSamplerComparisonState);

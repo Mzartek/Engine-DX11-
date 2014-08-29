@@ -80,7 +80,14 @@ float lookUp(float4 coord, float2 offSet, int2 texSize)
 	coord.x += offSet.x * (1.0 / texSize.x);
 	coord.y += offSet.y * (1.0 / texSize.y);
 	coord.z -= 0.005;
-	return shadowMap.SampleCmp(shadowMapSamplerComparisonState, coord.xy / coord.w, coord.z / coord.w);
+
+	coord.x = 0.5f + (coord.x / coord.w * 0.5f);
+	coord.y = 0.5f - (coord.y / coord.w * 0.5f);
+	coord.z /= coord.w;
+
+	if (coord.x > 1.0 || coord.x < 0.0 || coord.y > 1.0 || coord.y < 0.0)
+		return 1.0;
+	return shadowMap.SampleCmp(shadowMapSamplerComparisonState, coord.xy, coord.z);
 }
 
 float calcShadow(float4 coord, float pcf)
@@ -111,7 +118,7 @@ light calcSpotLight(float3 N, float3 eyeVec, float3 position, float shininess, f
 	L = normalize(position - lightPosition);
 
 	cosTheta = dot(-L,N);
-	if(cosTheta > 0.0 && shadow != 0.0)
+	if(cosTheta > 0.0 && shadow > 0.0)
 	{
 		D = normalize(lightDirection);
 		E = normalize(eyeVec);
