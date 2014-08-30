@@ -221,7 +221,8 @@ void engine::SkyBox::display(GBuffer *g, Camera *cam)
 	pos = *_rotateMatrix * pos;
 	pos *= cam->getVPMatrix();
 
-	g->enableDepthMask(FALSE);
+	g->depthMask(D3D11_DEPTH_WRITE_MASK_ZERO);
+
 	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	g->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
 	g->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
@@ -240,7 +241,5 @@ void engine::SkyBox::display(GBuffer *g, Camera *cam)
 	g->getContext()->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
 	g->getContext()->DrawIndexed(_numElement, 0, 0);
 
-	g->enableDepthMask(TRUE);
-
-	g->executeDeferredContext();
+	g->depthMask(D3D11_DEPTH_WRITE_MASK_ALL);
 }

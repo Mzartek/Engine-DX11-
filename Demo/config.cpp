@@ -51,11 +51,11 @@ void configModels(void)
 			{ XMFLOAT3(500, 0, 500), XMFLOAT2(1, 1), XMFLOAT3(0, 1, 0) },
 			{ XMFLOAT3(500, 0, -500), XMFLOAT2(1, 0), XMFLOAT3(0, 1, 0) }
 	};
-	UINT index[] = { 0, 2, 1, 0, 2, 3 };
+	UINT index[] = { 2, 0, 1, 0, 2, 3 };
 
 	sol->config(gObjectProgram, renderer->getD3DDevice(), renderer->getContext());
 	sol->initD3DObjectArray();
-	sol->createObject(sizeof(vertexArray), (FLOAT *)vertexArray,
+	sol->createD3DObject(sizeof(vertexArray), (FLOAT *)vertexArray,
 		sizeof index, index,
 		"resources/ornaments.jpg",
 		mat_ambient, mat_diffuse, mat_specular, mat_shininess);

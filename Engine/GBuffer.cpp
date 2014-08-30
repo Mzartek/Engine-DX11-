@@ -2,24 +2,34 @@
 
 engine::GBuffer::GBuffer(void)
 {
+	// Texture
+	_pTextureA[GBUF_NORMAL] = NULL;
+	_pTextureA[GBUF_MATERIAL] = NULL;
+	_pTextureA[GBUF_DEPTH_STENCIL] = NULL;
+	_pTextureB[GBUF_NORMAL] = NULL;
+	_pTextureB[GBUF_MATERIAL] = NULL;
+	_pTextureB[GBUF_DEPTH_STENCIL] = NULL;
 	// Shader Resouce View
-	_pResourceTexture[GBUF_NORMAL] = NULL;
-	_pResourceTexture[GBUF_MATERIAL] = NULL;
-	_pResourceTexture[GBUF_DEPTH_STENCIL] = NULL;
-	_pShaderResourceView[GBUF_NORMAL] = NULL;
-	_pShaderResourceView[GBUF_MATERIAL] = NULL;
-	_pShaderResourceView[GBUF_DEPTH_STENCIL] = NULL;
-	// View
-	_pRenderTexture[GBUF_NORMAL] = NULL;
-	_pRenderTexture[GBUF_MATERIAL] = NULL;
-	_pRenderTexture[GBUF_DEPTH_STENCIL] = NULL;
-	_pRenderTargetView[GBUF_NORMAL] = NULL;
-	_pRenderTargetView[GBUF_MATERIAL] = NULL;
-	_pDepthStencilView = NULL;
+	_pShaderResourceViewA[GBUF_NORMAL] = NULL;
+	_pShaderResourceViewA[GBUF_MATERIAL] = NULL;
+	_pShaderResourceViewA[GBUF_DEPTH_STENCIL] = NULL;
+	_pShaderResourceViewB[GBUF_NORMAL] = NULL;
+	_pShaderResourceViewB[GBUF_MATERIAL] = NULL;
+	_pShaderResourceViewB[GBUF_DEPTH_STENCIL] = NULL;
+	// Render View
+	_pRenderTargetViewA[GBUF_NORMAL] = NULL;
+	_pRenderTargetViewA[GBUF_MATERIAL] = NULL;
+	_pRenderTargetViewB[GBUF_NORMAL] = NULL;
+	_pRenderTargetViewB[GBUF_MATERIAL] = NULL;
+	// Depth View
+	_pDepthStencilViewA = NULL;
+	_pDepthStencilViewB = NULL;
 	// State
-	_pDepthState = NULL;
+	_pDepthStencilState = NULL;
 	_pBlendState = NULL;
 	_pRasterizerState = NULL;
+	// Bool
+	_buffer = 0;
 }
 
 engine::GBuffer::~GBuffer(void)
@@ -29,36 +39,52 @@ engine::GBuffer::~GBuffer(void)
 		_pRasterizerState->Release();
 	if (_pBlendState)
 		_pBlendState->Release();
-	if (_pDepthState)
-		_pDepthState->Release();
+	if (_pDepthStencilState)
+		_pDepthStencilState->Release();
 
-	// View
-	if (_pDepthStencilView)
-		_pDepthStencilView->Release();
-	if (_pRenderTargetView[GBUF_MATERIAL])
-		_pRenderTargetView[GBUF_MATERIAL]->Release();
-	if (_pRenderTargetView[GBUF_NORMAL])
-		_pRenderTargetView[GBUF_NORMAL]->Release();
-	if (_pRenderTexture[GBUF_DEPTH_STENCIL])
-		_pRenderTexture[GBUF_DEPTH_STENCIL]->Release();
-	if (_pRenderTexture[GBUF_MATERIAL])
-		_pRenderTexture[GBUF_MATERIAL]->Release();
-	if (_pRenderTexture[GBUF_NORMAL])
-		_pRenderTexture[GBUF_NORMAL]->Release();
+	// Depth View
+	if (_pDepthStencilViewB)
+		_pDepthStencilViewB->Release();
+	if (_pDepthStencilViewA)
+		_pDepthStencilViewA->Release();
+
+	// Render View
+	if (_pRenderTargetViewB[GBUF_MATERIAL])
+		_pRenderTargetViewB[GBUF_MATERIAL]->Release();
+	if (_pRenderTargetViewB[GBUF_NORMAL])
+		_pRenderTargetViewB[GBUF_NORMAL]->Release();
+	if (_pRenderTargetViewA[GBUF_MATERIAL])
+		_pRenderTargetViewA[GBUF_MATERIAL]->Release();
+	if (_pRenderTargetViewA[GBUF_NORMAL])
+		_pRenderTargetViewA[GBUF_NORMAL]->Release();
 
 	// Shader Resource View
-	if (_pShaderResourceView[GBUF_DEPTH_STENCIL])
-		_pShaderResourceView[GBUF_DEPTH_STENCIL]->Release();
-	if (_pShaderResourceView[GBUF_MATERIAL])
-		_pShaderResourceView[GBUF_MATERIAL]->Release();
-	if (_pShaderResourceView[GBUF_NORMAL])
-		_pShaderResourceView[GBUF_NORMAL]->Release();
-	if (_pResourceTexture[GBUF_DEPTH_STENCIL])
-		_pResourceTexture[GBUF_DEPTH_STENCIL]->Release();
-	if (_pResourceTexture[GBUF_MATERIAL])
-		_pResourceTexture[GBUF_MATERIAL]->Release();
-	if (_pResourceTexture[GBUF_NORMAL])
-		_pResourceTexture[GBUF_NORMAL]->Release();
+	if (_pShaderResourceViewB[GBUF_DEPTH_STENCIL])
+		_pShaderResourceViewB[GBUF_DEPTH_STENCIL]->Release();
+	if (_pShaderResourceViewB[GBUF_MATERIAL])
+		_pShaderResourceViewB[GBUF_MATERIAL]->Release();
+	if (_pShaderResourceViewB[GBUF_NORMAL])
+		_pShaderResourceViewB[GBUF_NORMAL]->Release();
+	if (_pShaderResourceViewA[GBUF_DEPTH_STENCIL])
+		_pShaderResourceViewA[GBUF_DEPTH_STENCIL]->Release();
+	if (_pShaderResourceViewA[GBUF_MATERIAL])
+		_pShaderResourceViewA[GBUF_MATERIAL]->Release();
+	if (_pShaderResourceViewA[GBUF_NORMAL])
+		_pShaderResourceViewA[GBUF_NORMAL]->Release();
+
+	// Texture
+	if (_pTextureB[GBUF_DEPTH_STENCIL])
+		_pTextureB[GBUF_DEPTH_STENCIL]->Release();
+	if (_pTextureB[GBUF_MATERIAL])
+		_pTextureB[GBUF_MATERIAL]->Release();
+	if (_pTextureB[GBUF_NORMAL])
+		_pTextureB[GBUF_NORMAL]->Release();
+	if (_pTextureA[GBUF_DEPTH_STENCIL])
+		_pTextureA[GBUF_DEPTH_STENCIL]->Release();
+	if (_pTextureA[GBUF_MATERIAL])
+		_pTextureA[GBUF_MATERIAL]->Release();
+	if (_pTextureA[GBUF_NORMAL])
+		_pTextureA[GBUF_NORMAL]->Release();
 }
 
 void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
@@ -85,6 +111,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	descTexture.SampleDesc.Count = 1;
 	descTexture.SampleDesc.Quality = 0;
 	descTexture.Usage = D3D11_USAGE_DEFAULT;
+	descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	descTexture.CPUAccessFlags = 0;
 	descTexture.MiscFlags = 0;
 
@@ -109,33 +136,45 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 		descShaderResourceView.Format = descTexture.Format;
 		descRenderTargetView.Format = descTexture.Format;
 
-		// Create Resource
-		descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pResourceTexture[GBUF_NORMAL]);
+		// Create Texture
+		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTextureA[GBUF_NORMAL]);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed to create Normal Resource Texture", "GBuffer", NULL);
+			MessageBox(NULL, "Failed to create Normal Texture A", "GBuffer", NULL);
 			exit(1);
 		}
-		hr = _pd3dDevice->CreateShaderResourceView(_pResourceTexture[GBUF_NORMAL], &descShaderResourceView, &_pShaderResourceView[GBUF_NORMAL]);
+		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTextureB[GBUF_NORMAL]);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed to create Normal Resource View", "GBuffer", NULL);
+			MessageBox(NULL, "Failed to create Normal Texture B", "GBuffer", NULL);
+			exit(1);
+		}
+
+		// Create Shader Resource
+		hr = _pd3dDevice->CreateShaderResourceView(_pTextureA[GBUF_NORMAL], &descShaderResourceView, &_pShaderResourceViewA[GBUF_NORMAL]);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Normal Resource View A", "GBuffer", NULL);
+			exit(1);
+		}
+		hr = _pd3dDevice->CreateShaderResourceView(_pTextureB[GBUF_NORMAL], &descShaderResourceView, &_pShaderResourceViewB[GBUF_NORMAL]);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Normal Resource View B", "GBuffer", NULL);
 			exit(1);
 		}
 
 		// Create Render
-		descTexture.BindFlags = D3D11_BIND_RENDER_TARGET;
-		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pRenderTexture[GBUF_NORMAL]);
+		hr = _pd3dDevice->CreateRenderTargetView(_pTextureA[GBUF_NORMAL], &descRenderTargetView, &_pRenderTargetViewA[GBUF_NORMAL]);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed to create Normal Render Texture", "GBuffer", NULL);
+			MessageBox(NULL, "Failed to create Normal Render View A", "GBuffer", NULL);
 			exit(1);
 		}
-		hr = _pd3dDevice->CreateRenderTargetView(_pRenderTexture[GBUF_NORMAL], &descRenderTargetView, &_pRenderTargetView[GBUF_NORMAL]);
+		hr = _pd3dDevice->CreateRenderTargetView(_pTextureB[GBUF_NORMAL], &descRenderTargetView, &_pRenderTargetViewB[GBUF_NORMAL]);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed to create Normal Render View", "GBuffer", NULL);
+			MessageBox(NULL, "Failed to create Normal Render View B", "GBuffer", NULL);
 			exit(1);
 		}
 	}
@@ -148,32 +187,44 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 		descShaderResourceView.Format = descTexture.Format;
 
 		// Create Resource
-		descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pResourceTexture[GBUF_MATERIAL]);
+		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTextureA[GBUF_MATERIAL]);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed to create Material Resource Texture", "GBuffer", NULL);
+			MessageBox(NULL, "Failed to create Material Texture A", "GBuffer", NULL);
 			exit(1);
 		}
-		hr = _pd3dDevice->CreateShaderResourceView(_pResourceTexture[GBUF_MATERIAL], &descShaderResourceView, &_pShaderResourceView[GBUF_MATERIAL]);
+		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTextureB[GBUF_MATERIAL]);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed to create Material Resource View", "GBuffer", NULL);
+			MessageBox(NULL, "Failed to create Material Texture B", "GBuffer", NULL);
+			exit(1);
+		}
+
+		// Create Shader Resource
+		hr = _pd3dDevice->CreateShaderResourceView(_pTextureA[GBUF_MATERIAL], &descShaderResourceView, &_pShaderResourceViewA[GBUF_MATERIAL]);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Material Resource View A", "GBuffer", NULL);
+			exit(1);
+		}
+		hr = _pd3dDevice->CreateShaderResourceView(_pTextureB[GBUF_MATERIAL], &descShaderResourceView, &_pShaderResourceViewB[GBUF_MATERIAL]);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Material Resource View B", "GBuffer", NULL);
 			exit(1);
 		}
 
 		// Create Render
-		descTexture.BindFlags = D3D11_BIND_RENDER_TARGET;
-		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pRenderTexture[GBUF_MATERIAL]);
+		hr = _pd3dDevice->CreateRenderTargetView(_pTextureA[GBUF_MATERIAL], &descRenderTargetView, &_pRenderTargetViewA[GBUF_MATERIAL]);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed to create Material Render Texture", "GBuffer", NULL);
+			MessageBox(NULL, "Failed to create Material Render View A", "GBuffer", NULL);
 			exit(1);
 		}
-		hr = _pd3dDevice->CreateRenderTargetView(_pRenderTexture[GBUF_MATERIAL], &descRenderTargetView, &_pRenderTargetView[GBUF_MATERIAL]);
+		hr = _pd3dDevice->CreateRenderTargetView(_pTextureB[GBUF_MATERIAL], &descRenderTargetView, &_pRenderTargetViewB[GBUF_MATERIAL]);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed to create Material Render View", "GBuffer", NULL);
+			MessageBox(NULL, "Failed to create Material Render View B", "GBuffer", NULL);
 			exit(1);
 		}
 	}
@@ -186,32 +237,45 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 		descDepthView.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
 		// Create Resource
-		descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pResourceTexture[GBUF_DEPTH_STENCIL]);
+		descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
+		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTextureA[GBUF_DEPTH_STENCIL]);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed to create Depth Resource Texture", "GBuffer", NULL);
+			MessageBox(NULL, "Failed to create Depth Texture A", "GBuffer", NULL);
 			exit(1);
 		}
-		hr = _pd3dDevice->CreateShaderResourceView(_pResourceTexture[GBUF_DEPTH_STENCIL], &descShaderResourceView, &_pShaderResourceView[GBUF_DEPTH_STENCIL]);
+		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTextureB[GBUF_DEPTH_STENCIL]);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed to create Depth Resource View", "GBuffer", NULL);
+			MessageBox(NULL, "Failed to create Depth Texture B", "GBuffer", NULL);
+			exit(1);
+		}
+
+		// Create Shader Resource
+		hr = _pd3dDevice->CreateShaderResourceView(_pTextureA[GBUF_DEPTH_STENCIL], &descShaderResourceView, &_pShaderResourceViewA[GBUF_DEPTH_STENCIL]);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Depth Resource View A", "GBuffer", NULL);
+			exit(1);
+		}
+		hr = _pd3dDevice->CreateShaderResourceView(_pTextureB[GBUF_DEPTH_STENCIL], &descShaderResourceView, &_pShaderResourceViewB[GBUF_DEPTH_STENCIL]);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Failed to create Depth Resource View B", "GBuffer", NULL);
 			exit(1);
 		}
 
 		// Create Render
-		descTexture.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pRenderTexture[GBUF_DEPTH_STENCIL]);
+		hr = _pd3dDevice->CreateDepthStencilView(_pTextureA[GBUF_DEPTH_STENCIL], &descDepthView, &_pDepthStencilViewA);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed to create Depth Render Texture", "GBuffer", NULL);
+			MessageBox(NULL, "Failed to create Depth Render View A", "GBuffer", NULL);
 			exit(1);
 		}
-		hr = _pd3dDevice->CreateDepthStencilView(_pRenderTexture[GBUF_DEPTH_STENCIL], &descDepthView, &_pDepthStencilView);
+		hr = _pd3dDevice->CreateDepthStencilView(_pTextureB[GBUF_DEPTH_STENCIL], &descDepthView, &_pDepthStencilViewB);
 		if (FAILED(hr))
 		{
-			MessageBox(NULL, "Failed to create Depth Render View", "GBuffer", NULL);
+			MessageBox(NULL, "Failed to create Depth Render View B", "GBuffer", NULL);
 			exit(1);
 		}
 	}
@@ -222,7 +286,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
-	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthState);
+	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil State", "GBuffer", NULL);
@@ -246,8 +310,8 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 
 	D3D11_RASTERIZER_DESC descRasterizer;
 	descRasterizer.FillMode = D3D11_FILL_SOLID;
-	descRasterizer.CullMode = D3D11_CULL_NONE;
-	descRasterizer.FrontCounterClockwise = FALSE;
+	descRasterizer.CullMode = D3D11_CULL_BACK;
+	descRasterizer.FrontCounterClockwise = TRUE;
 	descRasterizer.DepthBias = 0;
 	descRasterizer.DepthBiasClamp = 0.0f;
 	descRasterizer.SlopeScaledDepthBias = 0.0f;
@@ -271,47 +335,87 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 
-	_pDeferredContext->OMSetRenderTargets(GBUF_NUM_TEX - 1, _pRenderTargetView, _pDepthStencilView);
-	_pDeferredContext->OMSetDepthStencilState(_pDepthState, 0);
+	_pDeferredContext->OMSetRenderTargets(GBUF_NUM_TEX - 1, _pRenderTargetViewA, _pDepthStencilViewA);
+	_pDeferredContext->OMSetDepthStencilState(_pDepthStencilState, 0);
 	_pDeferredContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
 	_pDeferredContext->RSSetState(_pRasterizerState);
 	_pDeferredContext->RSSetViewports(1, &vp);
+
+	_buffer = 0;
 }
 
-ID3D11ShaderResourceView *engine::GBuffer::getShaderResourceView(const UINT &num) const
+ID3D11ShaderResourceView *engine::GBuffer::getBindBufferResourceView(const UINT &num) const
 {
-	return _pShaderResourceView[num];
+	if (_buffer == 0)
+		return _pShaderResourceViewA[num];
+	return _pShaderResourceViewB[num];
 }
 
-void engine::GBuffer::enableDepthMask(const BOOL &mask)
+ID3D11ShaderResourceView *engine::GBuffer::getUnbindBufferResourceView(const UINT &num) const
+{
+	if (_buffer == 1)
+		return _pShaderResourceViewA[num];
+	return _pShaderResourceViewB[num];
+}
+
+void engine::GBuffer::depthMask(const D3D11_DEPTH_WRITE_MASK &writeMask)
 {
 	D3D11_DEPTH_STENCIL_DESC descDepth;
-	if (_pDepthState == NULL)
+	if (_pDepthStencilState == NULL)
 	{
 		MessageBox(NULL, "You need to configure the GBuffer before", "GBuffer", NULL);
 		return;
 	}
 
-	_pDepthState->GetDesc(&descDepth);
-	_pDepthState->Release();
-	if (mask)
-		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	else
-		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthState);
-	_pDeferredContext->OMSetDepthStencilState(_pDepthState, 0);
+	_pDepthStencilState->GetDesc(&descDepth);
+	_pDepthStencilState->Release();
+	descDepth.DepthWriteMask = writeMask;
+	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+	_pDeferredContext->OMSetDepthStencilState(_pDepthStencilState, 0);
+}
+
+void engine::GBuffer::depthFunc(const D3D11_COMPARISON_FUNC &func)
+{
+	D3D11_DEPTH_STENCIL_DESC descDepth;
+	if (_pDepthStencilState == NULL)
+	{
+		MessageBox(NULL, "You need to configure the GBuffer before", "GBuffer", NULL);
+		return;
+	}
+
+	_pDepthStencilState->GetDesc(&descDepth);
+	_pDepthStencilState->Release();
+	descDepth.DepthFunc = func;
+	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+	_pDeferredContext->OMSetDepthStencilState(_pDepthStencilState, 0);
 }
 
 void engine::GBuffer::clear(void) const
 {
-	_pDeferredContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], Colors::Transparent);
-	_pDeferredContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], Colors::Transparent);
-	_pDeferredContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	if (_buffer == 0)
+	{
+		_pDeferredContext->ClearRenderTargetView(_pRenderTargetViewA[GBUF_NORMAL], Colors::Transparent);
+		_pDeferredContext->ClearRenderTargetView(_pRenderTargetViewA[GBUF_MATERIAL], Colors::Transparent);
+		_pDeferredContext->ClearDepthStencilView(_pDepthStencilViewA, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	}
+	else
+	{
+		_pDeferredContext->ClearRenderTargetView(_pRenderTargetViewB[GBUF_NORMAL], Colors::Transparent);
+		_pDeferredContext->ClearRenderTargetView(_pRenderTargetViewB[GBUF_MATERIAL], Colors::Transparent);
+		_pDeferredContext->ClearDepthStencilView(_pDepthStencilViewB, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	}
 }
 
-void engine::GBuffer::actualizeResource(void) const
+void engine::GBuffer::swapBuffer(void)
 {
-	_pContext->CopyResource(_pResourceTexture[GBUF_NORMAL], _pRenderTexture[GBUF_NORMAL]);
-	_pContext->CopyResource(_pResourceTexture[GBUF_MATERIAL], _pRenderTexture[GBUF_MATERIAL]);
-	_pContext->CopyResource(_pResourceTexture[GBUF_DEPTH_STENCIL], _pRenderTexture[GBUF_DEPTH_STENCIL]);
+	if (_buffer == 0)
+	{
+		_buffer = 1;
+		_pDeferredContext->OMSetRenderTargets(GBUF_NUM_TEX - 1, _pRenderTargetViewB, _pDepthStencilViewB);
+	}
+	else
+	{
+		_buffer = 0;
+		_pDeferredContext->OMSetRenderTargets(GBUF_NUM_TEX - 1, _pRenderTargetViewA, _pDepthStencilViewA);
+	}
 }

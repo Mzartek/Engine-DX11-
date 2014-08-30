@@ -27,7 +27,7 @@ namespace engine
 		void initD3DObjectArray(void);
 		void initD3DObjectMirror(Model *m);
 		void config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
-		void createObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
+		void createD3DObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 				  const UINT &sizeIndexArray, const UINT *indexArray,
 				  const TCHAR *pathTexture,
 				  const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess);

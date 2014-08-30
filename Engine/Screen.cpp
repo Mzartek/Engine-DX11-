@@ -84,6 +84,8 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 		exit(1);
 	}
 
+	gbuf->executeDeferredContext();
+
 	// Shader
 	renderer->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	renderer->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
@@ -92,10 +94,9 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 	renderer->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// Texture
-	gbuf->actualizeResource();
 	ID3D11ShaderResourceView *pshr[] =
 	{
-		gbuf->getShaderResourceView(GBUF_MATERIAL),
+		gbuf->getBindBufferResourceView(GBUF_MATERIAL),
 	};
 	renderer->getContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
 

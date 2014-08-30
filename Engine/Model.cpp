@@ -118,7 +118,7 @@ void engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3
 	}
 }
 
-void engine::Model::createObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
+void engine::Model::createD3DObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 	const UINT &sizeIndexArray, const UINT *indexArray,
 	const TCHAR *pathTexture,
 	const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess)
@@ -227,7 +227,7 @@ void engine::Model::loadFromFile(const TCHAR *szFileName)
 		mat_diffuse.a = opacity;
 		mat_specular.a = opacity;
 
-		createObject(vertices.size() * sizeof(Vertex), (FLOAT *)&vertices[0],
+		createD3DObject(vertices.size() * sizeof(Vertex), (FLOAT *)&vertices[0],
 			indices.size() * sizeof(UINT), &indices[0],
 			fullPath.c_str(),
 			XMFLOAT4(mat_ambient.r, mat_ambient.g, mat_ambient.b, mat_ambient.a), XMFLOAT4(mat_diffuse.r, mat_diffuse.g, mat_diffuse.b, mat_diffuse.a), XMFLOAT4(mat_specular.r, mat_specular.g, mat_specular.b, mat_specular.a),
@@ -320,8 +320,6 @@ void engine::Model::display(GBuffer *g, Camera *cam) const
 	for (i = 0; i<_tD3DObject->size(); i++)
 		if ((*_tD3DObject)[i]->getTransparency() == 1.0f)
 			(*_tD3DObject)[i]->display(g->getContext());
-
-	g->executeDeferredContext();
 }
 
 void engine::Model::displayShadow(Light *l) const

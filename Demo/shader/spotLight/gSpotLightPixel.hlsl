@@ -43,6 +43,7 @@ struct PS_OUTPUT
 {
 	float4 normal : SV_TARGET0;
 	uint4 material : SV_TARGET1;
+	float depth : SV_DEPTH;
 };
 
 struct light
@@ -86,7 +87,7 @@ float lookUp(float4 coord, float2 offSet, int2 texSize)
 
 	if (coord.x > 1.0 || coord.x < 0.0 || coord.y > 1.0 || coord.y < 0.0)
 		return 1.0;
-	return shadowMap.SampleCmp(shadowMapSamplerComparisonState, coord.xy, coord.z);
+	return shadowMap.SampleCmpLevelZero(shadowMapSamplerComparisonState, coord.xy, coord.z);
 }
 
 float calcShadow(float4 coord, float pcf)
@@ -160,6 +161,7 @@ PS_OUTPUT main(PS_INPUT input)
 	output.normal = normal;
 	output.material = pack(finalColor * 255,
 		int4(255, 255, 255, 255), matDiffuse * 255, matSpecular * 255);
+	output.depth = depthTex[input.position.xy];
 
 	return output;
 }

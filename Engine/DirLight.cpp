@@ -169,19 +169,22 @@ void engine::DirLight::display(GBuffer *g, Camera *cam)
 		exit(1);
 	}
 
-	g->enableDepthMask(FALSE);
+	g->swapBuffer();
+	g->clear();
+
+	g->depthFunc(D3D11_COMPARISON_ALWAYS);
+
 	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	g->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
 	g->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
 	g->getContext()->IASetInputLayout(_pInputLayout);
 	g->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	g->actualizeResource();
 	ID3D11ShaderResourceView *gshr[]
 	{
-		g->getShaderResourceView(GBUF_NORMAL),
-		g->getShaderResourceView(GBUF_MATERIAL),
-		g->getShaderResourceView(GBUF_DEPTH_STENCIL),
+		g->getUnbindBufferResourceView(GBUF_NORMAL),
+		g->getUnbindBufferResourceView(GBUF_MATERIAL),
+		g->getUnbindBufferResourceView(GBUF_DEPTH_STENCIL),
 	};
 	g->getContext()->PSSetShaderResources(0, ARRAYSIZE(gshr), gshr);
 
@@ -214,9 +217,7 @@ void engine::DirLight::display(GBuffer *g, Camera *cam)
 	UINT stride = 2 * sizeof(FLOAT), offset = 0;
 	g->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
 
-	g->getContext()->Draw(4, 0); 
-	
-	g->enableDepthMask(TRUE);
+	g->getContext()->Draw(4, 0);
 
-	g->executeDeferredContext();
+	g->depthFunc(D3D11_COMPARISON_LESS);
 }

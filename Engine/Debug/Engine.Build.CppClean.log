@@ -1,10 +1,12 @@
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\vc120.pdb
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\vc120.idb
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\camera.obj
+c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\dirlight.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\framebuffer.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\freecam.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\gbuffer.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\input.obj
+c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\light.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\model.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\movablecamera.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\d3dobject.obj
@@ -14,6 +16,7 @@ c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\screen.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\shaderprogram.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\shadowmap.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\skybox.obj
+c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\spotlight.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\textureloader.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\engine\debug\renderer.obj
 c:\users\mzartek\desktop\programmation\engine-dx11-\debug\engine.lib

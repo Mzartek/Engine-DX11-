@@ -190,9 +190,8 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 
 	// Create the DepthStencilState
 	D3D11_DEPTH_STENCIL_DESC descDepth;
-	descDepth.DepthEnable = TRUE;
+	descDepth.DepthEnable = FALSE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
 	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
 	if (FAILED(hr))
@@ -223,8 +222,8 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	// Create the RasterizerState
 	D3D11_RASTERIZER_DESC descRasterizer;
 	descRasterizer.FillMode = D3D11_FILL_SOLID;
-	descRasterizer.CullMode = D3D11_CULL_NONE;
-	descRasterizer.FrontCounterClockwise = FALSE;
+	descRasterizer.CullMode = D3D11_CULL_BACK;
+	descRasterizer.FrontCounterClockwise = TRUE;
 	descRasterizer.DepthBias = 0;
 	descRasterizer.DepthBiasClamp = 0.0f;
 	descRasterizer.SlopeScaledDepthBias = 0.0f;
@@ -300,25 +299,6 @@ ID3D11DeviceContext *engine::Renderer::getContext(void)
 	return _pContext;
 }
 
-void engine::Renderer::enableDepthMask(const BOOL &mask)
-{
-	D3D11_DEPTH_STENCIL_DESC descDepth;
-	if (_pDepthStencilState == NULL)
-	{
-		MessageBox(NULL, "You need to config the GBuffer before", "Renderer", NULL);
-		return;
-	}
-
-	_pDepthStencilState->GetDesc(&descDepth);
-	_pDepthStencilState->Release();
-	if (mask)
-		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	else
-		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
-	_pContext->OMSetDepthStencilState(_pDepthStencilState, 0);
-}
-
 void engine::Renderer::mainLoop(int nCmdShow)
 {
 	MSG msg = { 0 };
@@ -355,6 +335,38 @@ void engine::Renderer::mainLoop(int nCmdShow)
 void engine::Renderer::stopLoop(void)
 {
 	_stopLoop = TRUE;
+}
+
+void engine::Renderer::depthMask(const D3D11_DEPTH_WRITE_MASK &writeMask)
+{
+	D3D11_DEPTH_STENCIL_DESC descDepth;
+	if (_pDepthStencilState == NULL)
+	{
+		MessageBox(NULL, "You need to configure the Renderer before", "Renderer", NULL);
+		return;
+	}
+
+	_pDepthStencilState->GetDesc(&descDepth);
+	_pDepthStencilState->Release();
+	descDepth.DepthWriteMask = writeMask;
+	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+	_pContext->OMSetDepthStencilState(_pDepthStencilState, 0);
+}
+
+void engine::Renderer::depthFunc(const D3D11_COMPARISON_FUNC &func)
+{
+	D3D11_DEPTH_STENCIL_DESC descDepth;
+	if (_pDepthStencilState == NULL)
+	{
+		MessageBox(NULL, "You need to configure the Renderer before", "Renderer", NULL);
+		return;
+	}
+
+	_pDepthStencilState->GetDesc(&descDepth);
+	_pDepthStencilState->Release();
+	descDepth.DepthFunc = func;
+	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+	_pContext->OMSetDepthStencilState(_pDepthStencilState, 0);
 }
 
 void engine::Renderer::clear(void)
