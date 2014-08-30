@@ -77,13 +77,12 @@ float3 getPosition(float2 pixelCoord)
 
 float lookUp(float4 coord, float2 offSet, int2 texSize)
 {
-	coord.x += offSet.x * (1.0 / texSize.x);
-	coord.y += offSet.y * (1.0 / texSize.y);
-	coord.z -= 0.005;
-
 	coord.x = 0.5f + (coord.x / coord.w * 0.5f);
 	coord.y = 0.5f - (coord.y / coord.w * 0.5f);
-	coord.z /= coord.w;
+	coord.z = (coord.z - 0.005) / coord.w;
+
+	coord.x += offSet.x * (1.0 / texSize.x);
+	coord.y += offSet.y * (1.0 / texSize.y);
 
 	if (coord.x > 1.0 || coord.x < 0.0 || coord.y > 1.0 || coord.y < 0.0)
 		return 1.0;
