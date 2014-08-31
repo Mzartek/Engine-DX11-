@@ -1,5 +1,5 @@
-﻿La génération a démarré 30/08/2014 22:39:36.
-     1>Projet "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Demo\Demo.vcxproj" sur le nœud 2 (Rebuild cible(s)).
+﻿La génération a démarré 31/08/2014 23:17:33.
+     1>Projet "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Demo\Demo.vcxproj" sur le nœud 2 (Build cible(s)).
      1>FxCompile:
          C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T ps_4_0 /Fo "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gDirLightPixel.cso" /Od /Zi shader\dirLight\gDirLightPixel.hlsl 
      1>C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Demo\shader\dirLight\gDirLightPixel.hlsl(98,2-31): warning X3557: loop only executes for 1 iteration(s), forcing loop to unroll
@@ -8,24 +8,10 @@
      1>C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Demo\shader\dirLight\gDirLightPixel.hlsl(87,13): warning X4000: use of potentially uninitialized variable (lookUp)
          
          compilation object save succeeded; see C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gDirLightPixel.cso
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T vs_4_0 /Fo "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gDirLightVertex.cso" /Od /Zi shader\dirLight\gDirLightVertex.hlsl 
-         compilation object save succeeded; see C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gDirLightVertex.cso
          C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T ps_4_0 /Fo "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gObjectPixel.cso" /Od /Zi shader\object\gObjectPixel.hlsl 
          compilation object save succeeded; see C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gObjectPixel.cso
          C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T vs_4_0 /Fo "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gObjectVertex.cso" /Od /Zi shader\object\gObjectVertex.hlsl 
          compilation object save succeeded; see C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gObjectVertex.cso
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T ps_4_0 /Fo "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\screenPixel.cso" /Od /Zi shader\screen\screenPixel.hlsl 
-         compilation object save succeeded; see C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\screenPixel.cso
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T vs_4_0 /Fo "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\screenVertex.cso" /Od /Zi shader\screen\screenVertex.hlsl 
-         compilation object save succeeded; see C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\screenVertex.cso
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T ps_4_0 /Fo "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\shadowPixel.cso" /Od /Zi shader\shadow\shadowPixel.hlsl 
-         compilation object save succeeded; see C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\shadowPixel.cso
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T vs_4_0 /Fo "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\shadowVertex.cso" /Od /Zi shader\shadow\shadowVertex.hlsl 
-         compilation object save succeeded; see C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\shadowVertex.cso
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T ps_4_0 /Fo "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gSkyboxPixel.cso" /Od /Zi shader\skybox\gSkyboxPixel.hlsl 
-         compilation object save succeeded; see C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gSkyboxPixel.cso
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T vs_4_0 /Fo "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gSkyboxVertex.cso" /Od /Zi shader\skybox\gSkyboxVertex.hlsl 
-         compilation object save succeeded; see C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gSkyboxVertex.cso
          C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T ps_4_0 /Fo "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gSpotLightPixel.cso" /Od /Zi shader\spotLight\gSpotLightPixel.hlsl 
      1>C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Demo\shader\spotLight\gSpotLightPixel.hlsl(100,2-31): warning X3557: loop only executes for 1 iteration(s), forcing loop to unroll
      1>C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Demo\shader\spotLight\gSpotLightPixel.hlsl(101,3-32): warning X3557: loop only executes for 1 iteration(s), forcing loop to unroll
@@ -33,8 +19,6 @@
      1>C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Demo\shader\spotLight\gSpotLightPixel.hlsl(89,13): warning X4000: use of potentially uninitialized variable (lookUp)
          
          compilation object save succeeded; see C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gSpotLightPixel.cso
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T vs_4_0 /Fo "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gSpotLightVertex.cso" /Od /Zi shader\spotLight\gSpotLightVertex.hlsl 
-         compilation object save succeeded; see C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\gSpotLightVertex.cso
        ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W4 /WX- /sdl /Od /Oy- /D WIN32 /D DEBUG /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt config.cpp main.cpp
          main.cpp
@@ -44,8 +28,8 @@
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\Demo.exe" /INCREMENTAL /NOLOGO d3d11.lib d3dcompiler.lib Engine.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\Demo.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\Demo.lib" /MACHINE:X86 Debug\config.obj
          Debug\main.obj
          Demo.vcxproj -> C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Debug\Demo.exe
-     1>Génération du projet "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Demo\Demo.vcxproj" terminée (Rebuild cible(s)).
+     1>Génération du projet "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Demo\Demo.vcxproj" terminée (Build cible(s)).
 
 La génération a réussi.
 
-Temps écoulé 00:00:11.92
+Temps écoulé 00:00:10.29

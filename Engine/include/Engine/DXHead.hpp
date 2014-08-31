@@ -32,6 +32,7 @@ namespace engine
 		XMFLOAT3 position;
 		XMFLOAT2 texCoord;
 		XMFLOAT3 normal;
+		XMFLOAT3 tangent;
 	} Vertex;
 
 	extern DLLAPI void loadTextureFromFile(const TCHAR *szFileName, 

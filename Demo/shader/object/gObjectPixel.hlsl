@@ -14,6 +14,7 @@ struct PS_INPUT
 	float4 position : SV_POSITION;
 	float2 texCoord : IN_TEXCOORD;
 	float3 normal : IN_NORMAL;
+	float3 tangent : IN_TANGENT;
 };
 
 struct PS_OUTPUT
@@ -42,7 +43,7 @@ PS_OUTPUT main(PS_INPUT input)
 
 	if (color.a > 0.5)
 	{
-		output.normal = float4(normalize(input.normal), matShininess);
+		output.normal = float4(input.normal, matShininess);
 		output.material = pack(color * 255, matAmbient * 255, matDiffuse * 255, matSpecular * 255);
 		output.depth = input.position.z;
 	}

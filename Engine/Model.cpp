@@ -105,8 +105,9 @@ void engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "IN_TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "IN_NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "IN_TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 3 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "IN_NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 5 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "IN_TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 8 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 	hr = _pd3dDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
 		program->getEntryBufferPointer(), program->getEntryBytecodeLength(),
@@ -162,11 +163,9 @@ void engine::Model::loadFromFile(const TCHAR *szFileName)
 	UINT i, j;
 
 	if (_tD3DObject != NULL && isMirror == FALSE)
-	{
 		_tD3DObject->clear();
-	}
 
-	const aiScene *pScene = Importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
+	const aiScene *pScene = Importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes);
 	if (!pScene)
 	{
 		std::string mes = "Failed to load File: ";
@@ -180,24 +179,26 @@ void engine::Model::loadFromFile(const TCHAR *szFileName)
 	const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
 	for (i = 0; i<pScene->mNumMeshes; i++)
 	{
-		//vertices.resize(pScene->mMeshes[i]->mNumVertices);
+		// Vertex Buffer
 		for (j = 0; j<pScene->mMeshes[i]->mNumVertices; j++)
 		{
 			const aiVector3D *pPos = &(pScene->mMeshes[i]->mVertices[j]);
-			const aiVector3D *pNormal = pScene->mMeshes[i]->HasNormals() ? &(pScene->mMeshes[i]->mNormals[j]) : &Zero3D;
 			const aiVector3D *pTexCoord = pScene->mMeshes[i]->HasTextureCoords(0) ? &(pScene->mMeshes[i]->mTextureCoords[0][j]) : &Zero3D;
+			const aiVector3D *pNormal = pScene->mMeshes[i]->HasNormals() ? &(pScene->mMeshes[i]->mNormals[j]) : &Zero3D;
+			const aiVector3D *pTangent = pScene->mMeshes[i]->HasTangentsAndBitangents() ? &(pScene->mMeshes[i]->mTangents[j]) : &Zero3D;
 
 			Vertex v = 
 			{
-				XMFLOAT3(pPos->x, pPos->y, pPos->z), 
-				XMFLOAT2(pTexCoord->x, pTexCoord->y), 
-				XMFLOAT3(pNormal->x, pNormal->y, pNormal->z)
+				XMFLOAT3(pPos->x, pPos->y, pPos->z),
+				XMFLOAT2(pTexCoord->x, pTexCoord->y),
+				XMFLOAT3(pNormal->x, pNormal->y, pNormal->z),
+				XMFLOAT3(pTangent->x, pTangent->y, pTangent->z),
 			};
 
 			vertices.push_back(v);
 		}
 
-		//vertices.resize(pScene->mMeshes[i]->mNumFaces * 3);
+		// Index Buffer
 		for (j = 0; j < pScene->mMeshes[i]->mNumFaces; j++)
 		{
 			indices.push_back(pScene->mMeshes[i]->mFaces[j].mIndices[0]);

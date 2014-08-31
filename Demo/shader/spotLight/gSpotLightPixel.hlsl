@@ -146,6 +146,7 @@ PS_OUTPUT main(PS_INPUT input)
 	float3 position = getPosition(input.position.xy);
 	float4 normal = normalTex[input.position.xy];
 	uint4 material = materialTex[input.position.xy];
+
 	float4 finalColor = float4(unpack(material, 3)) / 255;
 	float4 matAmbient = float4(unpack(material, 2)) / 255;
 	float4 matDiffuse = float4(unpack(material, 1)) / 255;

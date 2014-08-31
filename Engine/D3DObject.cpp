@@ -117,7 +117,7 @@ void engine::D3DObject::display(ID3D11DeviceContext *pContext) const
 
 	pContext->PSSetConstantBuffers(0, 1, &_pMaterialBuffer);
 
-	UINT stride = 8 * sizeof(FLOAT), offset = 0;
+	UINT stride = 11 * sizeof(FLOAT), offset = 0;
 	pContext->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
 	pContext->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
 	pContext->DrawIndexed(_numElement, 0, 0);
@@ -128,7 +128,7 @@ void engine::D3DObject::displayShadow(ID3D11DeviceContext *pContext) const
 	pContext->PSSetShaderResources(0, 1, &_pShaderResourceView);
 	pContext->PSSetSamplers(0, 1, &_pSamplerState);
 
-	UINT stride = 8 * sizeof(FLOAT), offset = 0;
+	UINT stride = 11 * sizeof(FLOAT), offset = 0;
 	pContext->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
 	pContext->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
 	pContext->DrawIndexed(_numElement, 0, 0);
