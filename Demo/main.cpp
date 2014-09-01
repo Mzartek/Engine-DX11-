@@ -15,7 +15,7 @@ engine::GBuffer *gBuffer;
 engine::ShaderProgram *gObjectProgram;
 engine::ShaderProgram *dirLightProgram;
 engine::ShaderProgram *spotLightProgram;
-engine::ShaderProgram *shadowProgram;
+engine::ShaderProgram *shadowMapProgram;
 engine::ShaderProgram *gSkyboxProgram;
 engine::ShaderProgram *screenProgram;
 
@@ -52,11 +52,11 @@ void display(void)
 	sol->display(gBuffer, cam);
 	heli->display(gBuffer, cam);
 
-	sol->displayShadow(sun);
-	heli->displayShadow(sun);
+	sol->displayShadowMap(sun);
+	heli->displayShadowMap(sun);
 
-	sol->displayShadow(torch);
-	heli->displayShadow(torch);
+	sol->displayShadowMap(torch);
+	heli->displayShadowMap(torch);
 
 	sun->display(gBuffer, cam);
 	torch->display(gBuffer, cam);
@@ -102,7 +102,7 @@ void init(void)
 	gObjectProgram = new engine::ShaderProgram;
 	dirLightProgram = new engine::ShaderProgram;
 	spotLightProgram = new engine::ShaderProgram;
-	shadowProgram = new engine::ShaderProgram;
+	shadowMapProgram = new engine::ShaderProgram;
 	gSkyboxProgram = new engine::ShaderProgram;
 	screenProgram = new engine::ShaderProgram;
 
@@ -121,7 +121,7 @@ void kill()
 {
 	delete screenProgram;
 	delete gSkyboxProgram;
-	delete shadowProgram;
+	delete shadowMapProgram;
 	delete spotLightProgram;
 	delete dirLightProgram;
 	delete gObjectProgram;

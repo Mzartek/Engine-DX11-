@@ -17,7 +17,7 @@ namespace engine
 	public:
 		ShaderProgram(void);
 		~ShaderProgram(void);
-		void loadProgram(WCHAR *vs, WCHAR *hs, WCHAR *ds, WCHAR *gs, WCHAR *ps, ID3D11Device *pDevice);
+		void loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps, ID3D11Device *pDevice);
 		ID3D11VertexShader *getVertexShader(void) const;
 		ID3D11HullShader *getHullShader(void) const;
 		ID3D11DomainShader *getDomainShader(void) const;

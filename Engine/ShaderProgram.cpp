@@ -1,6 +1,6 @@
 #include <Engine/ShaderProgram.hpp>
 
-static void CompileShaderFromFile(WCHAR *szFileName, LPCSTR szEntryPoint, std::string szShaderModel, ID3DBlob **ppBlobOut)
+static void CompileShaderFromFile(LPCWSTR szFileName, LPCSTR szEntryPoint, std::string szShaderModel, ID3DBlob **ppBlobOut)
 {
 	HRESULT hr;
 	DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
@@ -12,10 +12,10 @@ static void CompileShaderFromFile(WCHAR *szFileName, LPCSTR szEntryPoint, std::s
 	{
 		if (pErrorBlob)
 		{
-			OutputDebugStringA((char *)pErrorBlob->GetBufferPointer());
 			MessageBox(NULL, (char *)pErrorBlob->GetBufferPointer(), "ShaderProgram", MB_OK);
 			pErrorBlob->Release();
 		}
+		MessageBoxW(NULL, szFileName, L"ShaderProgram", MB_OK);
 		exit(1);
 	}
 	if (pErrorBlob) 
@@ -48,7 +48,7 @@ engine::ShaderProgram::~ShaderProgram(void)
 		_pBlob->Release();
 }
 
-void engine::ShaderProgram::loadProgram(WCHAR *vs, WCHAR *hs, WCHAR *ds, WCHAR *gs, WCHAR *ps, ID3D11Device *pDevice)
+void engine::ShaderProgram::loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps, ID3D11Device *pDevice)
 {
 	HRESULT hr;
 	ID3DBlob *pTmpBlob;

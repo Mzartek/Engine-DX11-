@@ -35,12 +35,12 @@ engine::Light::~Light(void)
 		delete _shadow;
 }
 
-void engine::Light::configShadowMap(const UINT &width, const UINT &height, ShaderProgram *shadow, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+void engine::Light::configShadowMap(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	if (_shadow != NULL)
 		delete _shadow;
 	_shadow = new ShadowMap;
-	_shadow->config(width, height, shadow, pd3dDevice, pContext);
+	_shadow->config(width, height, pd3dDevice, pContext);
 }
 
 XMMATRIX engine::Light::getVPMatrix(void) const

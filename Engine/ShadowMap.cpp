@@ -12,8 +12,6 @@ engine::ShadowMap::ShadowMap()
 	_pDepthState = NULL;
 	_pRasterizerState = NULL;
 	_pSamplerComparisonState = NULL;
-	// ShaderProgram
-	_program = NULL;
 }
 
 engine::ShadowMap::~ShadowMap()
@@ -39,13 +37,12 @@ engine::ShadowMap::~ShadowMap()
 		_pTexture->Release();
 }
 
-void engine::ShadowMap::config(const UINT &width, const UINT &height, ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
 
 	_width = width;
 	_height = height;
-	_program = program;
 	_pd3dDevice = pd3dDevice;
 	_pContext = pContext;
 
@@ -185,12 +182,6 @@ ID3D11ShaderResourceView *engine::ShadowMap::getShaderResourceView(void) const
 ID3D11SamplerState *engine::ShadowMap::getSamplerComparisonState(void) const
 {
 	return _pSamplerComparisonState;
-}
-
-
-engine::ShaderProgram *engine::ShadowMap::getProgram(void) const
-{
-	return _program;
 }
 
 void engine::ShadowMap::clear(void) const

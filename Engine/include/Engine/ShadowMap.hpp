@@ -18,15 +18,12 @@ namespace engine
 		ID3D11DepthStencilState *_pDepthState;
 		ID3D11RasterizerState *_pRasterizerState;
 		ID3D11SamplerState *_pSamplerComparisonState;
-		// ShaderProgram
-		ShaderProgram *_program;
 	public:
 		ShadowMap();
 		~ShadowMap();
-		void config(const UINT &width, const UINT &height, ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
+		void config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
 		ID3D11ShaderResourceView *getShaderResourceView(void) const;
 		ID3D11SamplerState *getSamplerComparisonState(void) const;
-		ShaderProgram *getProgram(void) const;
 		void clear(void) const;
 	};
 }

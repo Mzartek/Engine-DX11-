@@ -40,12 +40,6 @@
     <FxCompile Include="shader\skybox\gSkyboxVertex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shader\shadow\shadowPixel.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\shadow\shadowVertex.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shader\dirLight\gDirLightPixel.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -56,6 +50,21 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shader\spotLight\gSpotLightPixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\object\gObjectGeom.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\shadowMap\shadowMapPixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\shadowMap\shadowMapVertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\shadowVolumeSpot\shadowVolumeSpotVertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\shadowVolumeSpot\shadowVolumeSpotGeom.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

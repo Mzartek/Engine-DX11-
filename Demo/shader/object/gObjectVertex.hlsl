@@ -30,7 +30,7 @@ VS_OUTPUT main(VS_INPUT input)
 
 	output.position = mul(MVP, float4(input.position, 1.0));
 	output.texCoord = input.texCoord;
-	output.normal = normalize(input.normal); //normalize(mul(normalMatrix, float4(input.normal, 1.0)).xyz)
+	output.normal = normalize(mul(normalMatrix, float4(input.normal, 1.0)).xyz);
 	output.tangent = normalize(mul(normalMatrix, float4(input.tangent, 1.0)).xyz);
 
 	return output;

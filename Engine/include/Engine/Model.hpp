@@ -17,8 +17,10 @@ namespace engine
 		ID3D11Buffer *_pNormalMatrixBuffer;
 		ID3D11InputLayout *_pInputLayout;
 		XMMATRIX *_ModelMatrix;
-		// Do not delete it
-		ShaderProgram *_program;
+		// ShaderProgram
+		ShaderProgram *_gProgram;
+		ShaderProgram *_smProgram;
+		// Device
 		ID3D11Device *_pd3dDevice;
 		ID3D11DeviceContext *_pContext;
 	public:
@@ -26,7 +28,7 @@ namespace engine
 		~Model();
 		void initD3DObjectArray(void);
 		void initD3DObjectMirror(Model *m);
-		void config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
+		void config(ShaderProgram *gProgram, ShaderProgram *smProgram, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
 		void createD3DObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 				  const UINT &sizeIndexArray, const UINT *indexArray,
 				  const TCHAR *pathTexture,
@@ -40,7 +42,7 @@ namespace engine
 		XMFLOAT3 getPosition(void) const;
 		D3DObject *getD3DObject(UINT num) const;
 		void display(GBuffer *g, Camera *cam) const;
-		void displayShadow(Light *l) const;
+		void displayShadowMap(Light *l) const;
 	};
 }
     

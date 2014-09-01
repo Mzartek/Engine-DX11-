@@ -24,7 +24,7 @@ namespace engine
 	public:
 		Light(void);
 		~Light(void);
-		void configShadowMap(const UINT &width, const UINT &height, ShaderProgram *shadow, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
+		void configShadowMap(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
 		XMMATRIX getVPMatrix(void) const;
 		ShadowMap *getShadowMap(void);
 		void clear(void) const;

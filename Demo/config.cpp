@@ -2,11 +2,10 @@
 
 void configShaders(void)
 {
-
-	gObjectProgram->loadProgram(L"shader/object/gObjectVertex.hlsl", NULL, NULL, NULL, L"shader/object/gObjectPixel.hlsl", renderer->getD3DDevice());
+	gObjectProgram->loadProgram(L"shader/object/gObjectVertex.hlsl", NULL, NULL, L"shader/object/gObjectGeom.hlsl", L"shader/object/gObjectPixel.hlsl", renderer->getD3DDevice());
 	dirLightProgram->loadProgram(L"shader/dirLight/gDirLightVertex.hlsl", NULL, NULL, NULL, L"shader/dirLight/gDirLightPixel.hlsl", renderer->getD3DDevice());
 	spotLightProgram->loadProgram(L"shader/spotLight/gSpotLightVertex.hlsl", NULL, NULL, NULL, L"shader/spotLight/gSpotLightPixel.hlsl", renderer->getD3DDevice());
-	shadowProgram->loadProgram(L"shader/shadow/shadowVertex.hlsl", NULL, NULL, NULL, L"shader/shadow/shadowPixel.hlsl", renderer->getD3DDevice());
+	shadowMapProgram->loadProgram(L"shader/shadowMap/shadowMapVertex.hlsl", NULL, NULL, NULL, L"shader/shadowMap/shadowMapPixel.hlsl", renderer->getD3DDevice());
 	gSkyboxProgram->loadProgram(L"shader/skybox/gSkyboxVertex.hlsl", NULL, NULL, NULL, L"shader/skybox/gSkyboxPixel.hlsl", renderer->getD3DDevice());
 	screenProgram->loadProgram(L"shader/screen/screenVertex.hlsl", NULL, NULL, NULL, L"shader/screen/screenPixel.hlsl", renderer->getD3DDevice());
 }
@@ -22,7 +21,7 @@ void configLights(void)
 	sun->setColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
 	sun->setDirection(XMFLOAT3(1.0f, -1.0f, 0.0f));
 	sun->activateShadowMapping(TRUE);
-	sun->configShadowMap(1024, 1024, shadowProgram, renderer->getD3DDevice(), renderer->getContext());
+	sun->configShadowMap(1024, 1024, renderer->getD3DDevice(), renderer->getContext());
 
 	torch->config(spotLightProgram, renderer->getD3DDevice(), renderer->getContext());
 	torch->setColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
@@ -30,7 +29,7 @@ void configLights(void)
 	torch->setDirection(XMFLOAT3(-0.5f, -1.0f, 0.0f));
 	torch->setSpotCutOff(45.0f);
 	torch->activateShadowMapping(TRUE);
-	torch->configShadowMap(1024, 1024, shadowProgram, renderer->getD3DDevice(), renderer->getContext());
+	torch->configShadowMap(1024, 1024, renderer->getD3DDevice(), renderer->getContext());
 }
 
 void configScreen(void)
@@ -53,7 +52,7 @@ void configModels(void)
 	};
 	UINT index[] = { 2, 0, 1, 0, 2, 3 };
 
-	sol->config(gObjectProgram, renderer->getD3DDevice(), renderer->getContext());
+	sol->config(gObjectProgram, shadowMapProgram, renderer->getD3DDevice(), renderer->getContext());
 	sol->initD3DObjectArray();
 	sol->createD3DObject(sizeof(vertexArray), (FLOAT *)vertexArray,
 		sizeof index, index,
@@ -61,7 +60,7 @@ void configModels(void)
 		mat_ambient, mat_diffuse, mat_specular, mat_shininess);
 
 	// Heli
-	heli->config(gObjectProgram, renderer->getD3DDevice(), renderer->getContext());
+	heli->config(gObjectProgram, shadowMapProgram, renderer->getD3DDevice(), renderer->getContext());
 	heli->initD3DObjectArray();
 	heli->loadFromFile("resources/heli/corps.obj");
 	heli->sortD3DObject();

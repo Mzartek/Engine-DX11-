@@ -16,6 +16,7 @@ namespace engine
 	public:
 		FrameBuffer(void);
 		~FrameBuffer(void);
+		virtual void config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext) = 0;
 		UINT getWidth(void) const;
 		UINT getHeight(void) const;
 		ID3D11DeviceContext *getContext(void) const;

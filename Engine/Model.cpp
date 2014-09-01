@@ -10,7 +10,8 @@ engine::Model::Model(void)
 	_pNormalMatrixBuffer = NULL;
 	_pInputLayout = NULL;
 	_ModelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_ModelMatrix, 16);
-	_program = NULL;
+	_gProgram = NULL;
+	_smProgram = NULL;
 	_pd3dDevice = NULL;
 	_pContext = NULL;
 
@@ -63,12 +64,13 @@ void engine::Model::initD3DObjectMirror(Model *m)
 	_tD3DObject = m->_tD3DObject;
 }
 
-void engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+void engine::Model::config(ShaderProgram *gProgram, ShaderProgram *smProgram, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
 	D3D11_BUFFER_DESC bd;
 
-	_program = program;
+	_gProgram = gProgram;
+	_smProgram = smProgram;
 	_pd3dDevice = pd3dDevice;
 	_pContext = pContext;
 
@@ -76,6 +78,8 @@ void engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3
 		_pMVPMatrixBuffer->Release();
 	if (_pNormalMatrixBuffer)
 		_pNormalMatrixBuffer->Release();
+	if (_pInputLayout)
+		_pInputLayout->Release();
 
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -110,7 +114,7 @@ void engine::Model::config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3
 		{ "IN_TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 8 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 	hr = _pd3dDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
-		program->getEntryBufferPointer(), program->getEntryBytecodeLength(),
+		gProgram->getEntryBufferPointer(), gProgram->getEntryBytecodeLength(),
 		&_pInputLayout);
 	if (FAILED(hr))
 	{
@@ -288,7 +292,7 @@ void engine::Model::display(GBuffer *g, Camera *cam) const
 {
 	UINT i;
 
-	if (_program == NULL)
+	if (_gProgram == NULL)
 	{
 		MessageBox(NULL, "Need to config the Model before displaying", "Model", MB_OK);
 		exit(1);
@@ -309,9 +313,9 @@ void engine::Model::display(GBuffer *g, Camera *cam) const
 	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &MVPMatrix, 0, 0);
 	g->getContext()->UpdateSubresource(_pNormalMatrixBuffer, 0, NULL, &NormalMatrix, 0, 0);
 
-	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
-	g->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
-	g->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
+	g->getContext()->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
+	g->getContext()->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
+	g->getContext()->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
 	g->getContext()->IASetInputLayout(_pInputLayout);
 	g->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -323,11 +327,11 @@ void engine::Model::display(GBuffer *g, Camera *cam) const
 			(*_tD3DObject)[i]->display(g->getContext());
 }
 
-void engine::Model::displayShadow(Light *l) const
+void engine::Model::displayShadowMap(Light *l) const
 {
 	UINT i;
 
-	if (_program == NULL)
+	if (_smProgram == NULL)
 	{
 		MessageBox(NULL, "Need to config the Model before displaying Shadow", "Model", MB_OK);
 		exit(1);
@@ -346,9 +350,9 @@ void engine::Model::displayShadow(Light *l) const
 	XMMATRIX MVPMatrix = *_ModelMatrix * l->getVPMatrix();
 	l->getShadowMap()->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &MVPMatrix, 0, 0);
 
-	l->getShadowMap()->getContext()->VSSetShader(l->getShadowMap()->getProgram()->getVertexShader(), NULL, 0);
-	l->getShadowMap()->getContext()->GSSetShader(l->getShadowMap()->getProgram()->getGeometryShader(), NULL, 0);
-	l->getShadowMap()->getContext()->PSSetShader(l->getShadowMap()->getProgram()->getPixelShader(), NULL, 0);
+	l->getShadowMap()->getContext()->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
+	l->getShadowMap()->getContext()->GSSetShader(_smProgram->getGeometryShader(), NULL, 0);
+	l->getShadowMap()->getContext()->PSSetShader(_smProgram->getPixelShader(), NULL, 0);
 	l->getShadowMap()->getContext()->IASetInputLayout(_pInputLayout);
 	l->getShadowMap()->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
