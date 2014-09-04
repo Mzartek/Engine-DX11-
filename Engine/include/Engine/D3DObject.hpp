@@ -10,9 +10,11 @@ namespace engine
 	{
 		friend int comparD3DObject(const void *p1, const void *p2);
 	private:
-		ID3D11Texture2D *_pTex;
-		ID3D11ShaderResourceView *_pShaderResourceView;
-		ID3D11SamplerState *_pSamplerState;
+		ID3D11Texture2D *_pColorTex;
+		ID3D11Texture2D *_pNMTex;
+		ID3D11ShaderResourceView *_pColorTexSHR;
+		ID3D11ShaderResourceView *_pNMTexSHR;
+		ID3D11SamplerState *_pTexSamplerState;
 		ID3D11Buffer *_pVertexBuffer;
 		ID3D11Buffer *_pIndexBuffer;
 		ID3D11Buffer *_pMaterialBuffer;
@@ -27,7 +29,8 @@ namespace engine
 	public:
 		D3DObject(ID3D11Device *pd3dDevice);
 		~D3DObject(void);
-		void setTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState);
+		void setColorTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState);
+		void setNMTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView);
 		void setAmbient(const XMFLOAT4 &ambient, ID3D11DeviceContext *pContext);
 		void setDiffuse(const XMFLOAT4 &diffuse, ID3D11DeviceContext *pContext);
 		void setSpecular(const XMFLOAT4 &specular, ID3D11DeviceContext *pContext);

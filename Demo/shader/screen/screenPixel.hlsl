@@ -1,4 +1,5 @@
 Texture2D<uint4> materialTex : register(t0);
+Texture2D<float4> lightTex : register(t1);
 
 cbuffer screenColorBuffer : register(b0)
 {
@@ -25,8 +26,10 @@ PS_OUTPUT main(PS_INPUT input)
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
 	uint4 material = materialTex[input.position.xy];
+	float4 light = lightTex[input.position.xy];
 
-	output.finalColor = float4(unpack(material, 3)) / 255;
+	output.finalColor = (float4(unpack(material, 3)) / 255);
+	output.finalColor *= (float4(unpack(material, 2)) / 255) + light;
 	output.finalColor *= color;
 
 	return output;

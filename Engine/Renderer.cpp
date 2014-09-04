@@ -353,22 +353,6 @@ void engine::Renderer::depthMask(const D3D11_DEPTH_WRITE_MASK &writeMask)
 	_pContext->OMSetDepthStencilState(_pDepthStencilState, 0);
 }
 
-void engine::Renderer::depthFunc(const D3D11_COMPARISON_FUNC &func)
-{
-	D3D11_DEPTH_STENCIL_DESC descDepth;
-	if (_pDepthStencilState == NULL)
-	{
-		MessageBox(NULL, "You need to configure the Renderer before", "Renderer", NULL);
-		return;
-	}
-
-	_pDepthStencilState->GetDesc(&descDepth);
-	_pDepthStencilState->Release();
-	descDepth.DepthFunc = func;
-	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
-	_pContext->OMSetDepthStencilState(_pDepthStencilState, 0);
-}
-
 void engine::Renderer::clear(void)
 {
 	_pContext->ClearRenderTargetView(_pRenderTargetView, Colors::Transparent);

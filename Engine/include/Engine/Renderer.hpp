@@ -49,7 +49,6 @@ namespace engine
 		void mainLoop(int nCmdShow);
 		void stopLoop(void);
 		void depthMask(const D3D11_DEPTH_WRITE_MASK &writeMask);
-		void depthFunc(const D3D11_COMPARISON_FUNC &func);
 		void clear(void);
 	};
 }

@@ -2,9 +2,11 @@
 
 engine::D3DObject::D3DObject(ID3D11Device *pd3dDevice)
 {
-	_pTex = NULL;
-	_pShaderResourceView = NULL;
-	_pSamplerState = NULL;
+	_pColorTex = NULL;
+	_pNMTex = NULL;
+	_pColorTexSHR = NULL;
+	_pNMTexSHR = NULL;
+	_pTexSamplerState = NULL;
 	_pVertexBuffer = NULL;
 	_pIndexBuffer = NULL;
 
@@ -26,19 +28,33 @@ engine::D3DObject::~D3DObject(void)
 		_pIndexBuffer->Release();
 	if (_pVertexBuffer)
 		_pVertexBuffer->Release();
-	if (_pSamplerState)
-		_pSamplerState->Release();
-	if (_pShaderResourceView)
-		_pShaderResourceView->Release();
-	if (_pTex)
-		_pTex->Release();
+	if (_pTexSamplerState)
+		_pTexSamplerState->Release();
+	if (_pNMTexSHR)
+		_pNMTexSHR->Release();
+	if (_pColorTexSHR)
+		_pColorTexSHR->Release();
+	if (_pNMTex)
+		_pNMTex->Release();
+	if (_pColorTex)
+		_pColorTex->Release();
 }
 
-void engine::D3DObject::setTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState)
+void engine::D3DObject::setColorTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState)
 {
-	_pTex = ptex;
-	_pShaderResourceView = pShaderResourceView;
-	_pSamplerState = pSamplerState;
+	if (_pTexSamplerState)
+		_pTexSamplerState->Release();
+
+
+	_pColorTex = ptex;
+	_pColorTexSHR = pShaderResourceView;
+	_pTexSamplerState = pSamplerState;
+}
+
+void engine::D3DObject::setNMTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView)
+{
+	_pNMTex = ptex;
+	_pNMTexSHR = pShaderResourceView;
 }
 
 void engine::D3DObject::setAmbient(const XMFLOAT4 &ambient, ID3D11DeviceContext *pContext)
@@ -112,8 +128,9 @@ void engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertexArr
 
 void engine::D3DObject::display(ID3D11DeviceContext *pContext) const
 {
-	pContext->PSSetShaderResources(0, 1, &_pShaderResourceView);
-	pContext->PSSetSamplers(0, 1, &_pSamplerState);
+	pContext->PSSetShaderResources(0, 1, &_pColorTexSHR);
+	pContext->PSSetShaderResources(1, 1, &_pNMTexSHR);
+	pContext->PSSetSamplers(0, 1, &_pTexSamplerState);
 
 	pContext->PSSetConstantBuffers(0, 1, &_pMaterialBuffer);
 
@@ -125,8 +142,8 @@ void engine::D3DObject::display(ID3D11DeviceContext *pContext) const
 
 void engine::D3DObject::displayShadow(ID3D11DeviceContext *pContext) const
 {
-	pContext->PSSetShaderResources(0, 1, &_pShaderResourceView);
-	pContext->PSSetSamplers(0, 1, &_pSamplerState);
+	pContext->PSSetShaderResources(0, 1, &_pColorTexSHR);
+	pContext->PSSetSamplers(0, 1, &_pTexSamplerState);
 
 	UINT stride = 11 * sizeof(FLOAT), offset = 0;
 	pContext->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);

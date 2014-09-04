@@ -125,17 +125,19 @@ void engine::Model::config(ShaderProgram *gProgram, ShaderProgram *smProgram, ID
 
 void engine::Model::createD3DObject(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 	const UINT &sizeIndexArray, const UINT *indexArray,
-	const TCHAR *pathTexture,
+	const TCHAR *colorTexture, const TCHAR *NMTexture,
 	const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess)
 {
 	D3DObject *newone = new D3DObject(_pd3dDevice);
-	ID3D11Texture2D *ptex;
-	ID3D11ShaderResourceView *pshr;
+	ID3D11Texture2D *pColorTex, *pNMTex;
+	ID3D11ShaderResourceView *pColorSHR, *pNMSHR;
 	ID3D11SamplerState *psam;
 
-	loadTextureFromFile(pathTexture, &ptex, &pshr, &psam, _pd3dDevice, _pContext);
+	loadTextureFromFile(colorTexture, &pColorTex, &pColorSHR, &psam, _pd3dDevice, _pContext);
+	loadTextureFromFile(NMTexture, &pNMTex, &pNMSHR, NULL, _pd3dDevice, _pContext);
 
-	newone->setTexture(ptex, pshr, psam);
+	newone->setColorTexture(pColorTex, pColorSHR, psam);
+	newone->setNMTexture(pNMTex, pNMSHR);
 	newone->setAmbient(ambient, _pContext);
 	newone->setDiffuse(diffuse, _pContext);
 	newone->setSpecular(specular, _pContext);
@@ -211,11 +213,18 @@ void engine::Model::loadFromFile(const TCHAR *szFileName)
 		}
 
 		aiString path;
-		std::string fullPath;
+		std::string dir, colorPath, NMPath;
+		dir = getDir(szFileName);
 		if (pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
-			fullPath = getDir(szFileName) + path.data;
+		{
+			colorPath += dir + path.C_Str();
+			NMPath += dir + "NM_" + path.C_Str();
+		}
 		else
-			fullPath = "resources/none.png";
+		{
+			colorPath = "resources/none.png";
+			NMPath = "resources/NM_none.png";
+		}
 
 		aiColor4D mat_ambient;
 		aiColor4D mat_diffuse;
@@ -234,7 +243,7 @@ void engine::Model::loadFromFile(const TCHAR *szFileName)
 
 		createD3DObject(vertices.size() * sizeof(Vertex), (FLOAT *)&vertices[0],
 			indices.size() * sizeof(UINT), &indices[0],
-			fullPath.c_str(),
+			colorPath.c_str(), NMPath.c_str(),
 			XMFLOAT4(mat_ambient.r, mat_ambient.g, mat_ambient.b, mat_ambient.a), XMFLOAT4(mat_diffuse.r, mat_diffuse.g, mat_diffuse.b, mat_diffuse.a), XMFLOAT4(mat_specular.r, mat_specular.g, mat_specular.b, mat_specular.a),
 			mat_shininess);
 
@@ -292,22 +301,6 @@ void engine::Model::display(GBuffer *g, Camera *cam) const
 {
 	UINT i;
 
-	if (_gProgram == NULL)
-	{
-		MessageBox(NULL, "Need to config the Model before displaying", "Model", MB_OK);
-		exit(1);
-	}
-	if (g == NULL)
-	{
-		MessageBox(NULL, "Bad GBuffer", "Model", MB_OK);
-		exit(1);
-	}
-	if (cam == NULL)
-	{
-		MessageBox(NULL, "Bad Camera", "Model", MB_OK);
-		exit(1);
-	}
-
 	XMMATRIX MVPMatrix = *_ModelMatrix * cam->getVPMatrix();
 	XMMATRIX NormalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
 	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &MVPMatrix, 0, 0);
@@ -330,22 +323,6 @@ void engine::Model::display(GBuffer *g, Camera *cam) const
 void engine::Model::displayShadowMap(Light *l) const
 {
 	UINT i;
-
-	if (_smProgram == NULL)
-	{
-		MessageBox(NULL, "Need to config the Model before displaying Shadow", "Model", MB_OK);
-		exit(1);
-	}
-	if (l == NULL)
-	{
-		MessageBox(NULL, "Bad Light!", "Model", MB_OK);
-		exit(1);
-	}
-	if (l->getShadowMap() == NULL)
-	{
-		MessageBox(NULL, "Need to config the ShadowMap before displaying", "Model", MB_OK);
-		exit(1);
-	}
 
 	XMMATRIX MVPMatrix = *_ModelMatrix * l->getVPMatrix();
 	l->getShadowMap()->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &MVPMatrix, 0, 0);

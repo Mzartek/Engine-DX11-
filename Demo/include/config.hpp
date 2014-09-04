@@ -25,6 +25,7 @@ extern engine::Model *heli;
 extern engine::SkyBox *skybox;
 extern engine::Screen *screen;
 extern engine::GBuffer *gBuffer;
+extern engine::LBuffer *lBuffer;
 
 extern engine::ShaderProgram *gObjectProgram;
 extern engine::ShaderProgram *dirLightProgram;

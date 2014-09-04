@@ -11,6 +11,7 @@ engine::Model *heli;
 engine::SkyBox *skybox;
 engine::Screen *screen;
 engine::GBuffer *gBuffer;
+engine::LBuffer *lBuffer;
 
 engine::ShaderProgram *gObjectProgram;
 engine::ShaderProgram *dirLightProgram;
@@ -45,6 +46,7 @@ void display(void)
 {
 	renderer->clear();
 	gBuffer->clear();
+	lBuffer->clear();
 	sun->clear();
 	torch->clear();
 
@@ -58,10 +60,10 @@ void display(void)
 	sol->displayShadowMap(torch);
 	heli->displayShadowMap(torch);
 
-	sun->display(gBuffer, cam);
-	torch->display(gBuffer, cam);
+	//sun->display(lBuffer, gBuffer, cam);
+	torch->display(lBuffer, gBuffer, cam);
 
-	screen->display(renderer, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
+	screen->display(renderer, gBuffer, lBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void idle(void)
@@ -98,6 +100,7 @@ void init(void)
 	skybox = new engine::SkyBox;
 	screen = new engine::Screen;
 	gBuffer = new engine::GBuffer;
+	lBuffer = new engine::LBuffer;
 
 	gObjectProgram = new engine::ShaderProgram;
 	dirLightProgram = new engine::ShaderProgram;
@@ -125,7 +128,8 @@ void kill()
 	delete spotLightProgram;
 	delete dirLightProgram;
 	delete gObjectProgram;
-
+	
+	delete lBuffer;
 	delete gBuffer;
 	delete screen;
 	delete skybox;

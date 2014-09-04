@@ -3,6 +3,7 @@
 
 #include "ShaderProgram.hpp"
 #include "GBuffer.hpp"
+#include "LBuffer.hpp"
 
 namespace engine
 {
@@ -19,7 +20,7 @@ namespace engine
 		Screen();
 		~Screen();
 		void config(ShaderProgram *program, ID3D11Device *pd3dDevice);
-		void display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a);
+		void display(Renderer *renderer, GBuffer *gbuf, LBuffer *lbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a);
 	};
 }
 

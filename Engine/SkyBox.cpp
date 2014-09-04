@@ -201,22 +201,6 @@ void engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, 
 
 void engine::SkyBox::display(GBuffer *g, Camera *cam)
 {
-	if (_program == NULL)
-	{
-		MessageBox(NULL, "Need to config the SkyBox before displaying", "SkyBox", MB_OK);
-		exit(1);
-	}
-	if (g == NULL)
-	{
-		MessageBox(NULL, "Bad GBuffer", "SkyBox", MB_OK);
-		exit(1);
-	}
-	if (cam == NULL)
-	{
-		MessageBox(NULL, "Bad Camera", "SkyBox", MB_OK);
-		exit(1);
-	}
-
 	XMMATRIX pos = XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z);
 	pos = *_rotateMatrix * pos;
 	pos *= cam->getVPMatrix();

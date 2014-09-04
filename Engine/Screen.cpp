@@ -76,15 +76,10 @@ void engine::Screen::config(ShaderProgram *program, ID3D11Device *pd3dDevice)
 	}
 }
 
-void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
+void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, LBuffer *lbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
 {
-	if (_program == NULL)
-	{
-		MessageBox(NULL, "You need to configure before!", "Screen", MB_OK);
-		exit(1);
-	}
-
 	gbuf->executeDeferredContext();
+	lbuf->executeDeferredContext();
 
 	// Shader
 	renderer->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
@@ -96,7 +91,8 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 	// Texture
 	ID3D11ShaderResourceView *pshr[] =
 	{
-		gbuf->getBindBufferResourceView(GBUF_MATERIAL),
+		gbuf->getShaderResourceView(GBUF_MATERIAL),
+		lbuf->getShaderResourceView(),
 	};
 	renderer->getContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
 

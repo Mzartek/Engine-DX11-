@@ -2,7 +2,6 @@
 #define DIR_LIGHT
 
 #include "Light.hpp"
-#include "Renderer.hpp"
 
 namespace engine
 {
@@ -25,7 +24,7 @@ namespace engine
 		XMFLOAT3 getDirection(void) const;
 		void activateShadowMapping(const BOOL &shadow);
 		void position(const XMFLOAT3 &position, const FLOAT &dim);
-		void display(GBuffer *g, Camera *cam);
+		void display(LBuffer *lbuf, GBuffer *gbuf, Camera *cam);
 	};
 }
 

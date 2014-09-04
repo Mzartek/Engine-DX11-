@@ -3,8 +3,8 @@
 void configShaders(void)
 {
 	gObjectProgram->loadProgram(L"shader/object/gObjectVertex.hlsl", NULL, NULL, L"shader/object/gObjectGeom.hlsl", L"shader/object/gObjectPixel.hlsl", renderer->getD3DDevice());
-	dirLightProgram->loadProgram(L"shader/dirLight/gDirLightVertex.hlsl", NULL, NULL, NULL, L"shader/dirLight/gDirLightPixel.hlsl", renderer->getD3DDevice());
-	spotLightProgram->loadProgram(L"shader/spotLight/gSpotLightVertex.hlsl", NULL, NULL, NULL, L"shader/spotLight/gSpotLightPixel.hlsl", renderer->getD3DDevice());
+	dirLightProgram->loadProgram(L"shader/dirLight/dirLightVertex.hlsl", NULL, NULL, NULL, L"shader/dirLight/dirLightPixel.hlsl", renderer->getD3DDevice());
+	spotLightProgram->loadProgram(L"shader/spotLight/spotLightVertex.hlsl", NULL, NULL, NULL, L"shader/spotLight/spotLightPixel.hlsl", renderer->getD3DDevice());
 	shadowMapProgram->loadProgram(L"shader/shadowMap/shadowMapVertex.hlsl", NULL, NULL, NULL, L"shader/shadowMap/shadowMapPixel.hlsl", renderer->getD3DDevice());
 	gSkyboxProgram->loadProgram(L"shader/skybox/gSkyboxVertex.hlsl", NULL, NULL, NULL, L"shader/skybox/gSkyboxPixel.hlsl", renderer->getD3DDevice());
 	screenProgram->loadProgram(L"shader/screen/screenVertex.hlsl", NULL, NULL, NULL, L"shader/screen/screenPixel.hlsl", renderer->getD3DDevice());
@@ -13,6 +13,7 @@ void configShaders(void)
 void configBuffers(void)
 {
 	gBuffer->config(renderer->getWidth(), renderer->getHeight(), renderer->getD3DDevice(), renderer->getContext());
+	lBuffer->config(renderer->getWidth(), renderer->getHeight(), renderer->getD3DDevice(), renderer->getContext());
 }
 
 void configLights(void)
@@ -45,10 +46,10 @@ void configModels(void)
 	FLOAT mat_shininess = 20.0f;
 
 	engine::Vertex vertexArray[] = {
-			{ XMFLOAT3(-500, 0, -500), XMFLOAT2(0, 0), XMFLOAT3(0, 1, 0) },
-			{ XMFLOAT3(-500, 0, 500), XMFLOAT2(0, 1), XMFLOAT3(0, 1, 0) },
-			{ XMFLOAT3(500, 0, 500), XMFLOAT2(1, 1), XMFLOAT3(0, 1, 0) },
-			{ XMFLOAT3(500, 0, -500), XMFLOAT2(1, 0), XMFLOAT3(0, 1, 0) }
+			{ XMFLOAT3(-500, 0, -500), XMFLOAT2(0, 0), XMFLOAT3(0, 1, 0), XMFLOAT3(1, 0, 0) },
+			{ XMFLOAT3(-500, 0, 500), XMFLOAT2(0, 1), XMFLOAT3(0, 1, 0), XMFLOAT3(1, 0, 0) },
+			{ XMFLOAT3(500, 0, 500), XMFLOAT2(1, 1), XMFLOAT3(0, 1, 0), XMFLOAT3(1, 0, 0) },
+			{ XMFLOAT3(500, 0, -500), XMFLOAT2(1, 0), XMFLOAT3(0, 1, 0), XMFLOAT3(1, 0, 0) }
 	};
 	UINT index[] = { 2, 0, 1, 0, 2, 3 };
 
@@ -56,7 +57,7 @@ void configModels(void)
 	sol->initD3DObjectArray();
 	sol->createD3DObject(sizeof(vertexArray), (FLOAT *)vertexArray,
 		sizeof index, index,
-		"resources/ornaments.jpg",
+		"resources/ornaments.jpg", "resources/NM_none.png",
 		mat_ambient, mat_diffuse, mat_specular, mat_shininess);
 
 	// Heli

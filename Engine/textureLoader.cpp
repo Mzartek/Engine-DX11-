@@ -56,25 +56,28 @@ void engine::loadTextureFromFile(const TCHAR *szFileName,
 	pContext->UpdateSubresource(*pptex, 0, NULL, FreeImage_GetBits(image), 4 * descTexture.Width, 4 * descTexture.Width * descTexture.Height);
 	pContext->GenerateMips(*ppshr);
 
-	D3D11_SAMPLER_DESC descSampler;
-	descSampler.Filter = D3D11_FILTER_ANISOTROPIC;
-	descSampler.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; 
-	descSampler.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	descSampler.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	descSampler.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	descSampler.MipLODBias = 0.0f;
-	descSampler.MaxAnisotropy = 16;
-	descSampler.BorderColor[0] = 0.0f;
-	descSampler.BorderColor[1] = 0.0f;
-	descSampler.BorderColor[2] = 0.0f;
-	descSampler.BorderColor[3] = 0.0f;
-	descSampler.MinLOD = 0;
-	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	hr = pd3dDevice->CreateSamplerState(&descSampler, ppsam);
-	if (FAILED(hr))
+	if (ppsam != NULL)
 	{
-		MessageBox(NULL, "Error while creating the SamplerState", "Texture", MB_OK);
-		exit(1);
+		D3D11_SAMPLER_DESC descSampler;
+		descSampler.Filter = D3D11_FILTER_ANISOTROPIC;
+		descSampler.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		descSampler.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		descSampler.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		descSampler.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		descSampler.MipLODBias = 0.0f;
+		descSampler.MaxAnisotropy = 16;
+		descSampler.BorderColor[0] = 0.0f;
+		descSampler.BorderColor[1] = 0.0f;
+		descSampler.BorderColor[2] = 0.0f;
+		descSampler.BorderColor[3] = 0.0f;
+		descSampler.MinLOD = 0;
+		descSampler.MaxLOD = D3D11_FLOAT32_MAX;
+		hr = pd3dDevice->CreateSamplerState(&descSampler, ppsam);
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "Error while creating the SamplerState", "Texture", MB_OK);
+			exit(1);
+		}
 	}
 
 	FreeImage_Unload(image);

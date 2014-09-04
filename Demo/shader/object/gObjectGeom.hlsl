@@ -4,6 +4,7 @@ struct GS_INPUT
 	float2 texCoord : IN_TEXCOORD;
 	float3 normal : IN_NORMAL;
 	float3 tangent : IN_TANGENT;
+	float3 bitangent : IN_BITANGENT;
 }; 
 
 struct GS_OUTPUT
@@ -12,6 +13,7 @@ struct GS_OUTPUT
 	float2 texCoord : IN_TEXCOORD;
 	float3 normal : IN_NORMAL;
 	float3 tangent : IN_TANGENT;
+	float3 bitangent : IN_BITANGENT;
 };
 
 [maxvertexcount(3)]
@@ -25,6 +27,7 @@ void main(triangle GS_INPUT input[3], inout TriangleStream<GS_OUTPUT> outputStre
 		output.texCoord = input[i].texCoord;
 		output.normal = input[i].normal;
 		output.tangent = input[i].tangent;
+		output.bitangent = input[i].bitangent;
 		
 		outputStream.Append(output);
 	}
