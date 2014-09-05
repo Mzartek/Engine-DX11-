@@ -83,7 +83,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	_height = height;
 
 	WNDCLASS wcex;
-	wcex.style = CS_GLOBALCLASS;
+	wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wcex.lpfnWndProc = WndProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
@@ -97,7 +97,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	RegisterClass(&wcex);
 
 	_hInst = hInstance;
-	_hWnd = CreateWindow(szTitle, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, NULL, NULL, hInstance, NULL);
+	_hWnd = CreateWindow(szTitle, szTitle, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, NULL, NULL, hInstance, NULL);
 
 	if (!_hWnd)
 	{

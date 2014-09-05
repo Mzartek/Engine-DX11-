@@ -60,7 +60,7 @@ void display(void)
 	sol->displayShadowMap(torch);
 	heli->displayShadowMap(torch);
 
-	//sun->display(lBuffer, gBuffer, cam);
+	sun->display(lBuffer, gBuffer, cam);
 	torch->display(lBuffer, gBuffer, cam);
 
 	screen->display(renderer, gBuffer, lBuffer, 1.0f, 1.0f, 1.0f, 1.0f);

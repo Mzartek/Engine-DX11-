@@ -183,15 +183,19 @@ void engine::Model::loadFromFile(const TCHAR *szFileName)
 	std::vector<Vertex> vertices;
 	std::vector<UINT> indices;
 	const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
+	const aiVector3D *pPos;
+	const aiVector3D *pTexCoord;
+	const aiVector3D *pNormal;
+	const aiVector3D *pTangent;
 	for (i = 0; i<pScene->mNumMeshes; i++)
 	{
 		// Vertex Buffer
 		for (j = 0; j<pScene->mMeshes[i]->mNumVertices; j++)
 		{
-			const aiVector3D *pPos = &(pScene->mMeshes[i]->mVertices[j]);
-			const aiVector3D *pTexCoord = pScene->mMeshes[i]->HasTextureCoords(0) ? &(pScene->mMeshes[i]->mTextureCoords[0][j]) : &Zero3D;
-			const aiVector3D *pNormal = pScene->mMeshes[i]->HasNormals() ? &(pScene->mMeshes[i]->mNormals[j]) : &Zero3D;
-			const aiVector3D *pTangent = pScene->mMeshes[i]->HasTangentsAndBitangents() ? &(pScene->mMeshes[i]->mTangents[j]) : &Zero3D;
+			pPos = &(pScene->mMeshes[i]->mVertices[j]);
+			pTexCoord = pScene->mMeshes[i]->HasTextureCoords(0) ? &(pScene->mMeshes[i]->mTextureCoords[0][j]) : &Zero3D;
+			pNormal = pScene->mMeshes[i]->HasNormals() ? &(pScene->mMeshes[i]->mNormals[j]) : &Zero3D;
+			pTangent = pScene->mMeshes[i]->HasTangentsAndBitangents() ? &(pScene->mMeshes[i]->mTangents[j]) : &Zero3D;
 
 			Vertex v = 
 			{

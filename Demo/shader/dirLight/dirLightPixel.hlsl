@@ -103,26 +103,21 @@ float calcShadow(float4 coord, float pcf)
 
 light calcDirLight(float3 N, float3 eyeVec, float shininess, float shadow) // N need to be normalize
 {
-	float3 L, E, R;
-	float cosTheta, specular;
+	float3 L, V, R;
 	light res;
 
 	res.diff = float3(0.0, 0.0, 0.0);
 	res.spec = float3(0.0, 0.0, 0.0);
 
-	L = normalize(lightDirection);
+	if (length(N) == 0)
+		return res;
 
-	cosTheta = dot(-L,N);
-	if(cosTheta > 0.0 && shadow > 0.0)
-	{
-		E = normalize(eyeVec);
-		R = reflect(L, N);
+	L = normalize(-lightDirection);
+	V = normalize(eyeVec);
+	R = reflect(-L, N);
 
-		specular = pow(max(dot(R, E), 0.0), shininess);
-
-		res.diff += lightColor * cosTheta * shadow;
-		res.spec += lightColor * specular * shadow;
-	}
+	res.diff = max(dot(N, L), 0.0) * lightColor * shadow;
+	res.spec = pow(max(dot(R, V), 0.0), shininess) * lightColor * shadow;
 
 	return res;
 }
