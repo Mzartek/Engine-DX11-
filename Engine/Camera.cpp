@@ -30,12 +30,12 @@ engine::Camera::~Camera(void)
 
 void engine::Camera::setPositionCamera(const XMFLOAT3 &pos)
 {
-	*_pcamera = XMVectorSet(pos.x, pos.y, pos.z, 0.0f);
+	*_pcamera = XMLoadFloat3(&pos);
 }
 
 void engine::Camera::setPositionTarget(const XMFLOAT3 &pos)
 {
-	*_ptarget = XMVectorSet(pos.x, pos.y, pos.z, 0.0f);
+	*_ptarget = XMLoadFloat3(&pos);
 }
 
 void engine::Camera::setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f)

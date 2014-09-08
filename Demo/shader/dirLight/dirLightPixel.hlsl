@@ -76,7 +76,7 @@ float lookUp(float4 coord, float2 offSet, int2 texSize)
 {
 	coord.x = 0.5f + (coord.x / coord.w * 0.5f);
 	coord.y = 0.5f - (coord.y / coord.w * 0.5f);
-	coord.z = (coord.z - 0.005) / coord.w;
+	coord.z = (coord.z - 0.0025) / coord.w;
 
 	coord.x += offSet.x * (1.0 / texSize.x);
 	coord.y += offSet.y * (1.0 / texSize.y);

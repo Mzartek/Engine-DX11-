@@ -5,7 +5,7 @@ cbuffer MVPMatrixBuffer : register(b0)
 
 cbuffer NormalMatrixBuffer : register(b1)
 {
-	float3x3 normalMatrix;
+	matrix normalMatrix;
 }
 
 struct VS_INPUT
