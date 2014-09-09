@@ -23,8 +23,7 @@ PS_OUTPUT main(PS_INPUT input)
 	uint4 material = materialTex[input.position.xy];
 	float4 light = lightTex[input.position.xy];
 
-	output.finalColor = float4(unpack(material, 3)) / 255;
-	output.finalColor *= (float4(unpack(material, 2)) / 255) + light;
+	output.finalColor = (float4(unpack(material, 3)) / 255) * ((float4(unpack(material, 2)) / 255) + light);
 	output.finalColor = clamp(output.finalColor, 0.0, 1.0);
 
 	return output;

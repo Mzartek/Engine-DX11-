@@ -108,13 +108,6 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	_pd3dDevice = pd3dDevice;
 	_pContext = pContext;
 
-	hr = _pd3dDevice->CreateDeferredContext(0, &_pDeferredContext);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Deferred Context", "GBuffer", NULL);
-		exit(1);
-	}
-
 	D3D11_TEXTURE2D_DESC descTexture;
 	descTexture.Width = _width;
 	descTexture.Height = _height;
@@ -385,11 +378,8 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 		}
 
 		// Geometry Blending
-		for (int i = 0; i < 2; i++)
-		{
-			descBlend.RenderTarget[i].BlendEnable = FALSE;
-			descBlend.RenderTarget[i].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-		}
+		descBlend.RenderTarget[0].BlendEnable = FALSE;
+		descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 		hr = _pd3dDevice->CreateBlendState(&descBlend, &_pGeometryBlendState);
 		if (FAILED(hr))
 		{
@@ -403,7 +393,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 		descBlend.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
 		descBlend.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 		descBlend.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-		descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+		descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
 		descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 		descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 		hr = _pd3dDevice->CreateBlendState(&descBlend, &_pLightBlendState);
@@ -432,7 +422,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 
 	D3D11_RASTERIZER_DESC descRasterizer;
 	descRasterizer.FillMode = D3D11_FILL_SOLID;
-	descRasterizer.CullMode = D3D11_CULL_BACK;
+	descRasterizer.CullMode = D3D11_CULL_NONE;
 	descRasterizer.FrontCounterClockwise = TRUE;
 	descRasterizer.DepthBias = 0;
 	descRasterizer.DepthBiasClamp = 0.0f;
@@ -449,16 +439,12 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	}
 
 	// Create the Viewport
-	D3D11_VIEWPORT vp;
-	vp.TopLeftX = 0.0f;
-	vp.TopLeftY = 0.0f;
-	vp.Width = (FLOAT)_width;
-	vp.Height = (FLOAT)_height;
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
-
-	_pDeferredContext->RSSetState(_pRasterizerState);
-	_pDeferredContext->RSSetViewports(1, &vp);
+	_pVP->TopLeftX = 0.0f;
+	_pVP->TopLeftY = 0.0f;
+	_pVP->Width = (FLOAT)_width;
+	_pVP->Height = (FLOAT)_height;
+	_pVP->MinDepth = 0.0f;
+	_pVP->MaxDepth = 1.0f;
 }
 
 ID3D11ShaderResourceView *engine::GBuffer::getShaderResourceView(const UINT &num) const
@@ -466,56 +452,69 @@ ID3D11ShaderResourceView *engine::GBuffer::getShaderResourceView(const UINT &num
 	return _pShaderResourceView[num];
 }
 
-void engine::GBuffer::setSkyboxConfig(void)
+void engine::GBuffer::setSkyboxConfig(void) const
 {
 	ID3D11RenderTargetView *render[]
 	{
 		_pRenderTargetView[GBUF_BACKGROUND],
 	};
-	_pDeferredContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_pDeferredContext->OMSetDepthStencilState(_pSkyboxDepthStencilState, 1);
-	_pDeferredContext->OMSetBlendState(_pSkyboxBlendState, NULL, 0xFFFFFFFF);
+	_pContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
+	_pContext->OMSetDepthStencilState(_pSkyboxDepthStencilState, 1);
+	_pContext->OMSetBlendState(_pSkyboxBlendState, NULL, 0xFFFFFFFF);
+	_pContext->RSSetState(_pRasterizerState);
+	_pContext->RSSetViewports(1, _pVP);
 }
 
-void engine::GBuffer::setGeometryConfig(void)
+void engine::GBuffer::setGeometryConfig(void) const
 {
 	ID3D11RenderTargetView *render[]
 	{
 		_pRenderTargetView[GBUF_NORMAL],
 		_pRenderTargetView[GBUF_MATERIAL],
 	};
-	_pDeferredContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_pDeferredContext->OMSetDepthStencilState(_pGeometryDepthStencilState, 1);
-	_pDeferredContext->OMSetBlendState(_pGeometryBlendState, NULL, 0xFFFFFFFF);
+	_pContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
+	_pContext->OMSetDepthStencilState(_pGeometryDepthStencilState, 1);
+	_pContext->OMSetBlendState(_pGeometryBlendState, NULL, 0xFFFFFFFF);
+	_pContext->RSSetState(_pRasterizerState);
+	_pContext->RSSetViewports(1, _pVP);
 }
 
-void engine::GBuffer::setLightConfig(void)
+void engine::GBuffer::setLightConfig(void) const
 {
 	ID3D11RenderTargetView *render[]
 	{
 		_pRenderTargetView[GBUF_LIGHT],
 	};
-	_pDeferredContext->OMSetRenderTargets(ARRAYSIZE(render), render, NULL);
-	_pDeferredContext->OMSetDepthStencilState(_pLightDepthStencilState, 1);
-	_pDeferredContext->OMSetBlendState(_pLightBlendState, NULL, 0xFFFFFFFF);
+	_pContext->OMSetRenderTargets(ARRAYSIZE(render), render, NULL);
+	_pContext->OMSetDepthStencilState(_pLightDepthStencilState, 1);
+	_pContext->OMSetBlendState(_pLightBlendState, NULL, 0xFFFFFFFF);
+	_pContext->RSSetState(_pRasterizerState);
+	_pContext->RSSetViewports(1, _pVP);
 }
 
-void engine::GBuffer::setBackgroundConfig(void)
+void engine::GBuffer::setBackgroundConfig(void) const
 {
 	ID3D11RenderTargetView *render[]
 	{
 		_pRenderTargetView[GBUF_BACKGROUND],
 	};
-	_pDeferredContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_pDeferredContext->OMSetDepthStencilState(_pBackgroundDepthStencilState, 1);
-	_pDeferredContext->OMSetBlendState(_pBackgroundBlendState, NULL, 0xFFFFFFFF);
+	_pContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
+	_pContext->OMSetDepthStencilState(_pBackgroundDepthStencilState, 1);
+	_pContext->OMSetBlendState(_pBackgroundBlendState, NULL, 0xFFFFFFFF);
+	_pContext->RSSetState(_pRasterizerState);
+	_pContext->RSSetViewports(1, _pVP);
 }
 
 void engine::GBuffer::clear(void) const
 {
-	_pDeferredContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], Colors::Transparent);
-	_pDeferredContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], Colors::Transparent);
-	_pDeferredContext->ClearRenderTargetView(_pRenderTargetView[GBUF_LIGHT], Colors::Transparent);
-	_pDeferredContext->ClearRenderTargetView(_pRenderTargetView[GBUF_BACKGROUND], Colors::Transparent);
-	_pDeferredContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], Colors::Transparent);
+	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], Colors::Transparent);
+	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_LIGHT], Colors::Transparent);
+	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_BACKGROUND], Colors::Transparent);
+	_pContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
+void engine::GBuffer::clearLight(void) const
+{
+	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_LIGHT], Colors::Transparent);
 }

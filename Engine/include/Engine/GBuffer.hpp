@@ -41,11 +41,12 @@ namespace engine
 		~GBuffer(void);
 		void config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
 		ID3D11ShaderResourceView *getShaderResourceView(const UINT &num) const;
-		void setSkyboxConfig(void);
-		void setGeometryConfig(void);
-		void setLightConfig(void);
-		void setBackgroundConfig(void);
+		void setSkyboxConfig(void) const;
+		void setGeometryConfig(void) const;
+		void setLightConfig(void) const;
+		void setBackgroundConfig(void) const;
 		void clear(void) const;
+		void clearLight(void) const;
 	};
 }
 

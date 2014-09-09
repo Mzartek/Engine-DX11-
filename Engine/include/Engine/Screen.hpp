@@ -3,7 +3,6 @@
 
 #include "ShaderProgram.hpp"
 #include "GBuffer.hpp"
-#include "LBuffer.hpp"
 
 namespace engine
 {
@@ -13,7 +12,6 @@ namespace engine
 		ID3D11Buffer *_pScreenColorBuffer;
 		ID3D11InputLayout *_pInputLayout;
 		ID3D11Buffer *_pVertexBuffer;
-		XMFLOAT4 *_color;
 		// Do not delete it
 		ShaderProgram *_backgroundProgram;
 		ShaderProgram *_directProgram;

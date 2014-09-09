@@ -19,8 +19,7 @@ PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
-	output.finalColor = backgroundTex[input.position.xy];
-	output.finalColor *= color;
+	output.finalColor = backgroundTex[input.position.xy] * color;
 
 	return output;
 }

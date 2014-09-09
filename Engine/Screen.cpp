@@ -5,13 +5,12 @@ engine::Screen::Screen()
 	_pScreenColorBuffer = NULL;
 	_pInputLayout = NULL;
 	_pVertexBuffer = NULL;
-	_color = new XMFLOAT4;
+	_backgroundProgram = NULL;
 	_directProgram = NULL;
 }
 
 engine::Screen::~Screen()
 {
-	delete _color;
 	if (_pVertexBuffer)
 		_pVertexBuffer->Release();
 	if (_pInputLayout)
@@ -30,7 +29,7 @@ void engine::Screen::config(ShaderProgram *backgroundProgram, ShaderProgram *dir
 	// Create Screen Color Buffer
 	D3D11_BUFFER_DESC bd;
 	D3D11_SUBRESOURCE_DATA data;
-	bd.ByteWidth = sizeof *_color;
+	bd.ByteWidth = sizeof XMFLOAT4;
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
@@ -102,11 +101,13 @@ void engine::Screen::background(GBuffer *gbuf)
 
 	// Draw
 	gbuf->getContext()->Draw(4, 0);
+
+	gbuf->clearLight();
 }
 
 void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
 {
-	gbuf->executeDeferredContext();
+	renderer->setConfig();
 
 	// Shader
 	renderer->getContext()->VSSetShader(_directProgram->getVertexShader(), NULL, 0);
@@ -123,11 +124,8 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 	renderer->getContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
 
 	// Constant Buffer
-	_color->x = r;
-	_color->y = g;
-	_color->z = b;
-	_color->w = a;
-	renderer->getContext()->UpdateSubresource(_pScreenColorBuffer, 0, NULL, _color, 0, 0);
+	XMFLOAT4 color(r, g, b, a);
+	renderer->getContext()->UpdateSubresource(_pScreenColorBuffer, 0, NULL, &color, 0, 0);
 	renderer->getContext()->PSSetConstantBuffers(0, 1, &_pScreenColorBuffer);
 
 	// Vertex Buffer

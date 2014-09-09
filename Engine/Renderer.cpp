@@ -41,6 +41,8 @@ engine::Renderer::Renderer(void)
 	_display = NULL;
 	_idle = NULL;
 	_reshape = NULL;
+	// Viewport
+	_pVP = new D3D11_VIEWPORT;
 }
 
 engine::Renderer::~Renderer(void)
@@ -73,6 +75,8 @@ engine::Renderer::~Renderer(void)
 		_pContext->Release();
 	if (_pd3dDevice) 
 		_pd3dDevice->Release();
+
+	delete _pVP;
 }
 
 void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), 
@@ -191,7 +195,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	// Create the DepthStencilState
 	D3D11_DEPTH_STENCIL_DESC descDepth;
 	descDepth.DepthEnable = FALSE;
-	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	descDepth.StencilEnable = FALSE;
 	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
 	if (FAILED(hr))
@@ -239,19 +243,12 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	}
 
 	// Create the Viewport
-	D3D11_VIEWPORT vp;
-	vp.TopLeftX = 0.0f;
-	vp.TopLeftY = 0.0f;
-	vp.Width = (FLOAT)_width;
-	vp.Height = (FLOAT)_height;
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
-
-	_pContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
-	_pContext->OMSetDepthStencilState(_pDepthStencilState, 0);
-	_pContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
-	_pContext->RSSetState(_pRasterizerState);
-	_pContext->RSSetViewports(1, &vp);
+	_pVP->TopLeftX = 0.0f;
+	_pVP->TopLeftY = 0.0f;
+	_pVP->Width = (FLOAT)_width;
+	_pVP->Height = (FLOAT)_height;
+	_pVP->MinDepth = 0.0f;
+	_pVP->MaxDepth = 1.0f;
 }
 
 void engine::Renderer::setDisplayFunc(void (*f) (void))
@@ -337,24 +334,17 @@ void engine::Renderer::stopLoop(void)
 	_stopLoop = TRUE;
 }
 
-void engine::Renderer::depthMask(const D3D11_DEPTH_WRITE_MASK &writeMask)
+void engine::Renderer::setConfig(void) const
 {
-	D3D11_DEPTH_STENCIL_DESC descDepth;
-	if (_pDepthStencilState == NULL)
-	{
-		MessageBox(NULL, "You need to configure the Renderer before", "Renderer", NULL);
-		return;
-	}
-
-	_pDepthStencilState->GetDesc(&descDepth);
-	_pDepthStencilState->Release();
-	descDepth.DepthWriteMask = writeMask;
-	_pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+	_pContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
 	_pContext->OMSetDepthStencilState(_pDepthStencilState, 0);
+	_pContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
+	_pContext->RSSetState(_pRasterizerState);
+	_pContext->RSSetViewports(1, _pVP);
 }
 
 void engine::Renderer::clear(void)
 {
 	_pContext->ClearRenderTargetView(_pRenderTargetView, Colors::Transparent);
-	_pContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	_pContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }

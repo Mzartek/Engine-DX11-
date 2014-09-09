@@ -49,20 +49,29 @@ void display(void)
 	sun->clear();
 	torch->clear();
 
+	// Skybox
 	skybox->display(gBuffer, cam);
-	sol->display(gBuffer, cam);
-	heli->display(gBuffer, cam);
 
+	// Shadow Map
 	sol->displayShadowMap(sun);
 	heli->displayShadowMap(sun);
-
 	sol->displayShadowMap(torch);
 	heli->displayShadowMap(torch);
 
+	// Opaque Object
+	sol->display(gBuffer, cam);
+	heli->display(gBuffer, cam);
 	sun->display(gBuffer, cam);
 	torch->display(gBuffer, cam);
-
 	screen->background(gBuffer);
+
+	// Transparent Object
+	sol->displayTransparent(gBuffer, cam);
+	heli->displayTransparent(gBuffer, cam);
+	sun->display(gBuffer, cam);
+	torch->display(gBuffer, cam);
+	screen->background(gBuffer);
+
 	screen->display(renderer, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 

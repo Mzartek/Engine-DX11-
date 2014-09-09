@@ -28,6 +28,8 @@ namespace engine
 		ID3D11DepthStencilState *_pDepthStencilState;
 		ID3D11BlendState *_pBlendState;
 		ID3D11RasterizerState *_pRasterizerState;
+		// ViewPort
+		D3D11_VIEWPORT *_pVP;
 		// Function Pointer
 		void(*_display) (void);
 		void(*_idle) (void);
@@ -48,7 +50,7 @@ namespace engine
 		ID3D11DeviceContext *getContext(void);
 		void mainLoop(int nCmdShow);
 		void stopLoop(void);
-		void depthMask(const D3D11_DEPTH_WRITE_MASK &writeMask);
+		void setConfig(void) const;
 		void clear(void);
 	};
 }

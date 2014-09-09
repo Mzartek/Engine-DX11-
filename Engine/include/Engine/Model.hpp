@@ -42,6 +42,7 @@ namespace engine
 		XMFLOAT3 getPosition(void) const;
 		D3DObject *getD3DObject(UINT num) const;
 		void display(GBuffer *g, Camera *cam) const;
+		void displayTransparent(GBuffer *g, Camera *cam) const;
 		void displayShadowMap(Light *l) const;
 	};
 }

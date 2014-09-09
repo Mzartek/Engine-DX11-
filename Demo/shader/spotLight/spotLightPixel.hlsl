@@ -45,12 +45,6 @@ struct PS_OUTPUT
 	float4 light : SV_TARGET;
 };
 
-struct light
-{
-	float3 diff;
-	float3 spec;
-};
-
 uint4 pack(int4 a, int4 b, int4 c, int4 d)
 {
 	uint4 res =
@@ -104,18 +98,15 @@ float calcShadow(float4 coord, float pcf)
 	return shadow;
 }
 
-light calcSpotLight(float3 N, float3 eyeVec, float3 position, float shininess, float shadow) // N need to be normalize
+float4 calcSpotLight(float4 diffColor, float4 specColor, float3 N, float3 eyeVec, float3 position, float shininess, float shadow) // N need to be normalize
 {
 	float3 L, V, R, D;
 	float cos_cur_angle, cos_inner_cone_angle, cos_outer_cone_angle, cos_inner_minus_outer_angle;
 	float cosTheta, spot, specular;
-	light res;
+	float4 diff, spec;
 
-	res.diff = float3(0.0, 0.0, 0.0);
-	res.spec = float3(0.0, 0.0, 0.0);
-
-	if (length(N) == 0)
-		return res;
+	diff = float4(0.0, 0.0, 0.0, 0.0);
+	spec = float4(0.0, 0.0, 0.0, 0.0);
 
 	L = normalize(lightPosition - position);
 	V = normalize(eyeVec);
@@ -128,10 +119,10 @@ light calcSpotLight(float3 N, float3 eyeVec, float3 position, float shininess, f
 	cos_inner_minus_outer_angle = cos_inner_cone_angle - cos_outer_cone_angle;
 	spot = clamp((cos_cur_angle - cos_outer_cone_angle) / cos_inner_minus_outer_angle, 0.0, 1.0);
 
-	res.diff = max(dot(N, L), 0.0) * lightColor * spot * shadow;
-	res.spec = pow(max(dot(R, V), 0.0), shininess) * lightColor * spot * shadow;
+	diff = max(dot(N, L), 0.0) * diffColor * spot * shadow;
+	spec = pow(max(dot(R, V), 0.0), shininess) * specColor * spot * shadow;
 
-	return res;
+	return diff + spec;
 }
 
 PS_OUTPUT main(PS_INPUT input)
@@ -145,15 +136,13 @@ PS_OUTPUT main(PS_INPUT input)
 	float4 normal = normalTex[input.position.xy];
 	uint4 material = materialTex[input.position.xy];
 
-	float4 matDiffuse = float4(unpack(material, 1)) / 255;
-	float4 matSpecular = float4(unpack(material, 0)) / 255;
+	float4 diffColor = (float4(unpack(material, 1)) / 255) * float4(lightColor, 1.0);
+	float4 specColor = (float4(unpack(material, 0)) / 255) * float4(lightColor, 1.0);
 
 	float s = 1.0;
 	if (withShadowMapping)
 		s = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 1.0);
-	light l = calcSpotLight(normal.xyz, camPosition - position, position, normal.w, s);
-
-	output.light = (matDiffuse * float4(l.diff, 1.0)) + (matSpecular * float4(l.spec, 1.0));
+	output.light = calcSpotLight(diffColor, specColor, normal.xyz, camPosition - position, position, normal.w, s);
 
 	return output;
 }

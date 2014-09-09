@@ -43,12 +43,6 @@ struct PS_OUTPUT
 	float4 light : SV_TARGET;
 };
 
-struct light
-{
-    float3 diff;
-	float3 spec;
-};
-
 uint4 pack(int4 a, int4 b, int4 c, int4 d)
 {
 	uint4 res =
@@ -102,25 +96,22 @@ float calcShadow(float4 coord, float pcf)
 	return shadow;
 }
 
-light calcDirLight(float3 N, float3 eyeVec, float shininess, float shadow) // N need to be normalize
+float4 calcDirLight(float4 diffColor, float4 specColor, float3 N, float3 eyeVec, float shininess, float shadow) // N need to be normalize
 {
 	float3 L, V, R;
-	light res;
+	float4 diff, spec;
 
-	res.diff = float3(0.0, 0.0, 0.0);
-	res.spec = float3(0.0, 0.0, 0.0);
-
-	if (length(N) == 0)
-		return res;
+	diff = float4(0.0, 0.0, 0.0, 0.0);
+	spec = float4(0.0, 0.0, 0.0, 0.0);
 
 	L = normalize(-lightDirection);
 	V = normalize(eyeVec);
 	R = reflect(-L, N);
 
-	res.diff = max(dot(N, L), 0.0) * lightColor * shadow;
-	res.spec = pow(max(dot(R, V), 0.0), shininess) * lightColor * shadow;
+	diff = max(dot(N, L), 0.0) * diffColor * shadow;
+	spec = pow(max(dot(R, V), 0.0), shininess) * specColor * shadow;
 
-	return res;
+	return diff + spec;
 }
 
 PS_OUTPUT main(PS_INPUT input)
@@ -134,15 +125,13 @@ PS_OUTPUT main(PS_INPUT input)
 	float4 normal = normalTex[input.position.xy];
 	uint4 material = materialTex[input.position.xy];
 
-	float4 matDiffuse = float4(unpack(material, 1)) / 255;
-	float4 matSpecular = float4(unpack(material, 0)) / 255;
+	float4 diffColor = (float4(unpack(material, 1)) / 255) * float4(lightColor, 1.0);
+	float4 specColor = (float4(unpack(material, 0)) / 255) * float4(lightColor, 1.0);
 	
 	float s = 1.0;
 	if (withShadowMapping)
 		s = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 1.0);
-	light l = calcDirLight(normal.xyz, camPosition - position, normal.w, s);
-
-	output.light = (matDiffuse * float4(l.diff, 1.0)) + (matSpecular * float4(l.spec, 1.0));
+	output.light = calcDirLight(diffColor, specColor, normal.xyz, camPosition - position, normal.w, s);
 
 	return output;
 }

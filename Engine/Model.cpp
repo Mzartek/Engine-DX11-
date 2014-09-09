@@ -326,11 +326,38 @@ void engine::Model::display(GBuffer *g, Camera *cam) const
 			(*_tD3DObject)[i]->display(g->getContext());
 }
 
+void engine::Model::displayTransparent(GBuffer *g, Camera *cam) const
+{
+	UINT i;
+	XMMATRIX MVPMatrix = *_ModelMatrix * cam->getVPMatrix();
+	XMMATRIX NormalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
+
+	g->setGeometryConfig();
+
+	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &MVPMatrix, 0, 0);
+	g->getContext()->UpdateSubresource(_pNormalMatrixBuffer, 0, NULL, &NormalMatrix, 0, 0);
+
+	g->getContext()->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
+	g->getContext()->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
+	g->getContext()->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
+	g->getContext()->IASetInputLayout(_pInputLayout);
+	g->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	g->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
+	g->getContext()->VSSetConstantBuffers(1, 1, &_pNormalMatrixBuffer);
+
+	for (i = 0; i<_tD3DObject->size(); i++)
+		if ((*_tD3DObject)[i]->getTransparency() != 1.0f)
+			(*_tD3DObject)[i]->display(g->getContext());
+}
+
 void engine::Model::displayShadowMap(Light *l) const
 {
 	UINT i;
-
 	XMMATRIX MVPMatrix = *_ModelMatrix * l->getVPMatrix();
+
+	l->getShadowMap()->setConfig();
+
 	l->getShadowMap()->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &MVPMatrix, 0, 0);
 
 	l->getShadowMap()->getContext()->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
@@ -344,6 +371,4 @@ void engine::Model::displayShadowMap(Light *l) const
 	for (i = 0; i<_tD3DObject->size(); i++)
 		if ((*_tD3DObject)[i]->getTransparency() == 1.0f)
 			(*_tD3DObject)[i]->displayShadow(l->getShadowMap()->getContext());
-
-	l->getShadowMap()->executeDeferredContext();
 }

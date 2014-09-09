@@ -46,13 +46,6 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Devi
 	_pd3dDevice = pd3dDevice;
 	_pContext = pContext;
 
-	hr = _pd3dDevice->CreateDeferredContext(0, &_pDeferredContext);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Deferred Context", "GBuffer", NULL);
-		exit(1);
-	}
-
 	D3D11_TEXTURE2D_DESC descTexture;
 	descTexture.Width = _width;
 	descTexture.Height = _height;
@@ -160,18 +153,12 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Devi
 	}
 
 	// Create the Viewport
-	D3D11_VIEWPORT vp;
-	vp.TopLeftX = 0.0f;
-	vp.TopLeftY = 0.0f;
-	vp.Width = (FLOAT)_width;
-	vp.Height = (FLOAT)_height;
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
-
-	_pDeferredContext->OMSetRenderTargets(0, NULL, _pDepthView);
-	_pDeferredContext->OMSetDepthStencilState(_pDepthState, 0);
-	_pDeferredContext->RSSetState(_pRasterizerState);
-	_pDeferredContext->RSSetViewports(1, &vp);
+	_pVP->TopLeftX = 0.0f;
+	_pVP->TopLeftY = 0.0f;
+	_pVP->Width = (FLOAT)_width;
+	_pVP->Height = (FLOAT)_height;
+	_pVP->MinDepth = 0.0f;
+	_pVP->MaxDepth = 1.0f;
 }
 
 ID3D11ShaderResourceView *engine::ShadowMap::getShaderResourceView(void) const
@@ -184,7 +171,16 @@ ID3D11SamplerState *engine::ShadowMap::getSamplerComparisonState(void) const
 	return _pSamplerComparisonState;
 }
 
+void engine::ShadowMap::setConfig(void) const
+{
+	_pContext->OMSetRenderTargets(0, NULL, _pDepthView);
+	_pContext->OMSetDepthStencilState(_pDepthState, 0);
+	_pContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
+	_pContext->RSSetState(_pRasterizerState);
+	_pContext->RSSetViewports(1, _pVP);
+}
+
 void engine::ShadowMap::clear(void) const
 {
-	_pDeferredContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	_pContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

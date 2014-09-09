@@ -10,9 +10,9 @@ namespace engine
 	protected:
 		UINT _width;
 		UINT _height;
+		D3D11_VIEWPORT *_pVP;
 		ID3D11Device *_pd3dDevice;
 		ID3D11DeviceContext *_pContext;
-		ID3D11DeviceContext *_pDeferredContext;
 	public:
 		FrameBuffer(void);
 		~FrameBuffer(void);
@@ -20,7 +20,6 @@ namespace engine
 		UINT getWidth(void) const;
 		UINT getHeight(void) const;
 		ID3D11DeviceContext *getContext(void) const;
-		void executeDeferredContext(void) const;
 		virtual void clear(void) const = 0;
 	};
 }
