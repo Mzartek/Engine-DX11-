@@ -39,11 +39,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Program Files\Assimp\include;C:\perso\include;C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Engine\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files\Assimp\include;C:\perso\include;$(SolutionDir)Engine\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\Assimp\lib\x86;C:\perso\x86\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Program Files\Assimp\include;C:\perso\include;C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Engine\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files\Assimp\include;C:\perso\include;$(SolutionDir)Engine\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\Assimp\lib\x86;C:\perso\x86\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

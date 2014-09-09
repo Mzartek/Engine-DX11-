@@ -166,52 +166,55 @@ void engine::SpotLight::position(void)
 		XMMatrixPerspectiveFovRH(_lightInfo.spotCutOff * 2 * ((FLOAT)XM_PI / 180), (FLOAT)_shadow->getWidth() / _shadow->getHeight(), 0.1f, 1000.0f);
 }
 
-void engine::SpotLight::display(LBuffer *lbuf, GBuffer *gbuf, Camera *cam)
+void engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
 {
 	XMMATRIX tmp;
 
-	lbuf->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
-	lbuf->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
-	lbuf->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
-	lbuf->getContext()->IASetInputLayout(_pInputLayout);
-	lbuf->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	gbuf->setLightConfig();
+
+	gbuf->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
+	gbuf->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
+	gbuf->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
+	gbuf->getContext()->IASetInputLayout(_pInputLayout);
+	gbuf->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	ID3D11ShaderResourceView *gshr[]
 	{
 		gbuf->getShaderResourceView(GBUF_NORMAL),
 		gbuf->getShaderResourceView(GBUF_MATERIAL),
-		gbuf->getShaderResourceView(GBUF_DEPTH_STENCIL),
+		gbuf->getShaderResourceView(GBUF_DEPTH),
+		gbuf->getShaderResourceView(GBUF_STENCIL),
 	};
-	lbuf->getContext()->PSSetShaderResources(0, ARRAYSIZE(gshr), gshr);
+	gbuf->getContext()->PSSetShaderResources(0, ARRAYSIZE(gshr), gshr);
 
 	// ShadowMap
 	if (_lightInfo.withShadowMapping == TRUE)
 	{
 		ID3D11ShaderResourceView *shadowResourceView = _shadow->getShaderResourceView();
 		ID3D11SamplerState *shadowSampler = _shadow->getSamplerComparisonState();
-		lbuf->getContext()->PSSetShaderResources(3, 1, &shadowResourceView);
-		lbuf->getContext()->PSSetSamplers(0, 1, &shadowSampler);
+		gbuf->getContext()->PSSetShaderResources(ARRAYSIZE(gshr), 1, &shadowResourceView);
+		gbuf->getContext()->PSSetSamplers(0, 1, &shadowSampler);
 
-		lbuf->getContext()->UpdateSubresource(_pShadowMatrixBuffer, 0, NULL, _VPMatrix, 0, 0);
-		lbuf->getContext()->PSSetConstantBuffers(0, 1, &_pShadowMatrixBuffer);
+		gbuf->getContext()->UpdateSubresource(_pShadowMatrixBuffer, 0, NULL, _VPMatrix, 0, 0);
+		gbuf->getContext()->PSSetConstantBuffers(0, 1, &_pShadowMatrixBuffer);
 	}
 
 	tmp = XMMatrixInverse(NULL, cam->getVPMatrix());
-	lbuf->getContext()->UpdateSubresource(_pIVPMatrixBuffer, 0, NULL, &tmp, 0, 0);
-	lbuf->getContext()->PSSetConstantBuffers(1, 1, &_pIVPMatrixBuffer);
+	gbuf->getContext()->UpdateSubresource(_pIVPMatrixBuffer, 0, NULL, &tmp, 0, 0);
+	gbuf->getContext()->PSSetConstantBuffers(1, 1, &_pIVPMatrixBuffer);
 
 	XMUINT2 screen(gbuf->getWidth(), gbuf->getHeight());
-	lbuf->getContext()->UpdateSubresource(_pScreenBuffer, 0, NULL, &screen, 0, 0);
-	lbuf->getContext()->PSSetConstantBuffers(2, 1, &_pScreenBuffer);
+	gbuf->getContext()->UpdateSubresource(_pScreenBuffer, 0, NULL, &screen, 0, 0);
+	gbuf->getContext()->PSSetConstantBuffers(2, 1, &_pScreenBuffer);
 
 	XMFLOAT3 pos = cam->getPositionCamera();
-	lbuf->getContext()->UpdateSubresource(_pCameraBuffer, 0, NULL, &pos, 0, 0);
-	lbuf->getContext()->PSSetConstantBuffers(3, 1, &_pCameraBuffer);
+	gbuf->getContext()->UpdateSubresource(_pCameraBuffer, 0, NULL, &pos, 0, 0);
+	gbuf->getContext()->PSSetConstantBuffers(3, 1, &_pCameraBuffer);
 
-	lbuf->getContext()->PSSetConstantBuffers(4, 1, &_pLightInfoBuffer);
+	gbuf->getContext()->PSSetConstantBuffers(4, 1, &_pLightInfoBuffer);
 
 	UINT stride = 2 * sizeof(FLOAT), offset = 0;
-	lbuf->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
+	gbuf->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
 
-	lbuf->getContext()->Draw(4, 0);
+	gbuf->getContext()->Draw(4, 0);
 }

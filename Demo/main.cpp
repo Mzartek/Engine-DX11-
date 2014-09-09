@@ -11,13 +11,13 @@ engine::Model *heli;
 engine::SkyBox *skybox;
 engine::Screen *screen;
 engine::GBuffer *gBuffer;
-engine::LBuffer *lBuffer;
 
-engine::ShaderProgram *gObjectProgram;
+engine::ShaderProgram *objectProgram;
 engine::ShaderProgram *dirLightProgram;
 engine::ShaderProgram *spotLightProgram;
 engine::ShaderProgram *shadowMapProgram;
-engine::ShaderProgram *gSkyboxProgram;
+engine::ShaderProgram *skyboxProgram;
+engine::ShaderProgram *backgroundProgram;
 engine::ShaderProgram *screenProgram;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -46,7 +46,6 @@ void display(void)
 {
 	renderer->clear();
 	gBuffer->clear();
-	lBuffer->clear();
 	sun->clear();
 	torch->clear();
 
@@ -60,10 +59,11 @@ void display(void)
 	sol->displayShadowMap(torch);
 	heli->displayShadowMap(torch);
 
-	sun->display(lBuffer, gBuffer, cam);
-	torch->display(lBuffer, gBuffer, cam);
+	sun->display(gBuffer, cam);
+	torch->display(gBuffer, cam);
 
-	screen->display(renderer, gBuffer, lBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
+	screen->background(gBuffer);
+	screen->display(renderer, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void idle(void)
@@ -100,13 +100,13 @@ void init(void)
 	skybox = new engine::SkyBox;
 	screen = new engine::Screen;
 	gBuffer = new engine::GBuffer;
-	lBuffer = new engine::LBuffer;
 
-	gObjectProgram = new engine::ShaderProgram;
+	objectProgram = new engine::ShaderProgram;
 	dirLightProgram = new engine::ShaderProgram;
 	spotLightProgram = new engine::ShaderProgram;
 	shadowMapProgram = new engine::ShaderProgram;
-	gSkyboxProgram = new engine::ShaderProgram;
+	skyboxProgram = new engine::ShaderProgram;
+	backgroundProgram = new engine::ShaderProgram;
 	screenProgram = new engine::ShaderProgram;
 
 	configShaders();
@@ -123,13 +123,13 @@ void init(void)
 void kill()
 {
 	delete screenProgram;
-	delete gSkyboxProgram;
+	delete backgroundProgram;
+	delete skyboxProgram;
 	delete shadowMapProgram;
 	delete spotLightProgram;
 	delete dirLightProgram;
-	delete gObjectProgram;
+	delete objectProgram;
 	
-	delete lBuffer;
 	delete gBuffer;
 	delete screen;
 	delete skybox;

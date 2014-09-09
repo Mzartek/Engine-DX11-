@@ -176,7 +176,7 @@ void engine::Model::loadFromFile(const TCHAR *szFileName)
 	{
 		std::string mes = "Failed to load File: ";
 		mes.append(szFileName);
-		MessageBox(NULL, mes.c_str(), "D3DObject", MB_OK);
+		MessageBox(NULL, mes.c_str(), "Model", MB_OK);
 		exit(1);
 	}
 
@@ -304,9 +304,11 @@ engine::D3DObject *engine::Model::getD3DObject(UINT num) const
 void engine::Model::display(GBuffer *g, Camera *cam) const
 {
 	UINT i;
-
 	XMMATRIX MVPMatrix = *_ModelMatrix * cam->getVPMatrix();
 	XMMATRIX NormalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
+
+	g->setGeometryConfig();
+
 	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &MVPMatrix, 0, 0);
 	g->getContext()->UpdateSubresource(_pNormalMatrixBuffer, 0, NULL, &NormalMatrix, 0, 0);
 

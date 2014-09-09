@@ -2,18 +2,18 @@
 
 void configShaders(void)
 {
-	gObjectProgram->loadProgram(L"shader/object/gObjectVertex.hlsl", NULL, NULL, L"shader/object/gObjectGeom.hlsl", L"shader/object/gObjectPixel.hlsl", renderer->getD3DDevice());
+	objectProgram->loadProgram(L"shader/object/objectVertex.hlsl", NULL, NULL, L"shader/object/objectGeom.hlsl", L"shader/object/objectPixel.hlsl", renderer->getD3DDevice());
 	dirLightProgram->loadProgram(L"shader/dirLight/dirLightVertex.hlsl", NULL, NULL, NULL, L"shader/dirLight/dirLightPixel.hlsl", renderer->getD3DDevice());
 	spotLightProgram->loadProgram(L"shader/spotLight/spotLightVertex.hlsl", NULL, NULL, NULL, L"shader/spotLight/spotLightPixel.hlsl", renderer->getD3DDevice());
 	shadowMapProgram->loadProgram(L"shader/shadowMap/shadowMapVertex.hlsl", NULL, NULL, NULL, L"shader/shadowMap/shadowMapPixel.hlsl", renderer->getD3DDevice());
-	gSkyboxProgram->loadProgram(L"shader/skybox/gSkyboxVertex.hlsl", NULL, NULL, NULL, L"shader/skybox/gSkyboxPixel.hlsl", renderer->getD3DDevice());
+	skyboxProgram->loadProgram(L"shader/skybox/skyboxVertex.hlsl", NULL, NULL, NULL, L"shader/skybox/skyboxPixel.hlsl", renderer->getD3DDevice());
+	backgroundProgram->loadProgram(L"shader/background/backgroundVertex.hlsl", NULL, NULL, NULL, L"shader/background/backgroundPixel.hlsl", renderer->getD3DDevice());
 	screenProgram->loadProgram(L"shader/screen/screenVertex.hlsl", NULL, NULL, NULL, L"shader/screen/screenPixel.hlsl", renderer->getD3DDevice());
 }
 
 void configBuffers(void)
 {
 	gBuffer->config(renderer->getWidth(), renderer->getHeight(), renderer->getD3DDevice(), renderer->getContext());
-	lBuffer->config(renderer->getWidth(), renderer->getHeight(), renderer->getD3DDevice(), renderer->getContext());
 }
 
 void configLights(void)
@@ -35,7 +35,7 @@ void configLights(void)
 
 void configScreen(void)
 {
-	screen->config(screenProgram, renderer->getD3DDevice());
+	screen->config(backgroundProgram, screenProgram, renderer->getD3DDevice());
 }
 
 void configModels(void)
@@ -53,7 +53,7 @@ void configModels(void)
 	};
 	UINT index[] = { 2, 0, 1, 0, 2, 3 };
 
-	sol->config(gObjectProgram, shadowMapProgram, renderer->getD3DDevice(), renderer->getContext());
+	sol->config(objectProgram, shadowMapProgram, renderer->getD3DDevice(), renderer->getContext());
 	sol->initD3DObjectArray();
 	sol->createD3DObject(sizeof(vertexArray), (FLOAT *)vertexArray,
 		sizeof index, index,
@@ -61,9 +61,9 @@ void configModels(void)
 		mat_ambient, mat_diffuse, mat_specular, mat_shininess);
 
 	// Heli
-	heli->config(gObjectProgram, shadowMapProgram, renderer->getD3DDevice(), renderer->getContext());
+	heli->config(objectProgram, shadowMapProgram, renderer->getD3DDevice(), renderer->getContext());
 	heli->initD3DObjectArray();
-	heli->loadFromFile("resources/heli/corps.obj");
+	heli->loadFromFile("resources/heli/corps.mobj");
 	heli->sortD3DObject();
 	heli->matTranslate(0.0f, 6.0f, 0.0f);
 	heli->matScale(2, 2, 2);
@@ -74,6 +74,6 @@ void configSkybox(void)
 	skybox->load("resources/Skybox/rightred2.jpg", "resources/Skybox/leftred2.jpg",
 		"resources/Skybox/topred2.jpg", "resources/Skybox/botred2.jpg",
 		"resources/Skybox/frontred2.jpg", "resources/Skybox/backred2.jpg",
-		10, gSkyboxProgram, renderer->getD3DDevice());
+		10, skyboxProgram, renderer->getD3DDevice());
 	skybox->rotate(180, 1, 0, 0);
 }

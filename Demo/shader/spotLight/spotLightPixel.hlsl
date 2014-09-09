@@ -1,8 +1,9 @@
 Texture2D<float4> normalTex : register(t0);
 Texture2D<uint4> materialTex : register(t1);
 Texture2D<float> depthTex : register(t2);
+Texture2D<uint4> stencilTex : register(t3);
 
-Texture2D shadowMap : register(t3);
+Texture2D shadowMap : register(t4);
 SamplerComparisonState shadowMapSamplerComparisonState : register(s0);
 
 cbuffer ShadowMatrixBuffer : register (b0)
@@ -41,7 +42,7 @@ struct PS_INPUT
 
 struct PS_OUTPUT
 {
-	float4 light : SV_TARGET0;
+	float4 light : SV_TARGET;
 };
 
 struct light
@@ -136,6 +137,9 @@ light calcSpotLight(float3 N, float3 eyeVec, float3 position, float shininess, f
 PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
+
+	if (stencilTex[input.position.xy].y != 1)
+		return output;
 
 	float3 position = getPosition(input.position.xy);
 	float4 normal = normalTex[input.position.xy];

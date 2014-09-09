@@ -25,13 +25,13 @@ extern engine::Model *heli;
 extern engine::SkyBox *skybox;
 extern engine::Screen *screen;
 extern engine::GBuffer *gBuffer;
-extern engine::LBuffer *lBuffer;
 
-extern engine::ShaderProgram *gObjectProgram;
+extern engine::ShaderProgram *objectProgram;
 extern engine::ShaderProgram *dirLightProgram;
 extern engine::ShaderProgram *spotLightProgram;
 extern engine::ShaderProgram *shadowMapProgram;
-extern engine::ShaderProgram *gSkyboxProgram;
+extern engine::ShaderProgram *skyboxProgram;
+extern engine::ShaderProgram *backgroundProgram;
 extern engine::ShaderProgram *screenProgram;
 
 extern void configShaders(void);

@@ -5,7 +5,6 @@
 #include "Camera.hpp"
 #include "Renderer.hpp"
 #include "GBuffer.hpp"
-#include "LBuffer.hpp"
 
 namespace engine
 {
@@ -30,7 +29,7 @@ namespace engine
 		XMMATRIX getVPMatrix(void) const;
 		ShadowMap *getShadowMap(void);
 		void clear(void) const;
-		virtual void display(LBuffer *lbuf, GBuffer *gbuf, Camera *cam) = 0;
+		virtual void display(GBuffer *gbuf, Camera *cam) = 0;
 	};
 }
 

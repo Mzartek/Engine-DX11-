@@ -15,12 +15,14 @@ namespace engine
 		ID3D11Buffer *_pVertexBuffer;
 		XMFLOAT4 *_color;
 		// Do not delete it
-		ShaderProgram *_program;
+		ShaderProgram *_backgroundProgram;
+		ShaderProgram *_directProgram;
 	public:
 		Screen();
 		~Screen();
-		void config(ShaderProgram *program, ID3D11Device *pd3dDevice);
-		void display(Renderer *renderer, GBuffer *gbuf, LBuffer *lbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a);
+		void config(ShaderProgram *backgroundProgram, ShaderProgram *directProgram, ID3D11Device *pd3dDevice);
+		void background(GBuffer *gbuf);
+		void display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a);
 	};
 }
 

@@ -24,7 +24,7 @@ namespace engine
 		XMFLOAT3 getDirection(void) const;
 		void activateShadowMapping(const BOOL &shadow);
 		void position(const XMFLOAT3 &position, const FLOAT &dim);
-		void display(LBuffer *lbuf, GBuffer *gbuf, Camera *cam);
+		void display(GBuffer *gbuf, Camera *cam);
 	};
 }
 
