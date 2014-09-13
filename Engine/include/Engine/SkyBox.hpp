@@ -28,7 +28,7 @@ namespace engine
 			const TCHAR *posz, const TCHAR *negz,
 			FLOAT dim, ShaderProgram *program, ID3D11Device *pd3dDevice);
 		void rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z);
-		void display(GBuffer *g, Camera *cam);
+		void display(GBuffer *gbuf, Camera *cam);
 	};
 }
 

@@ -137,7 +137,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	// Normal
 	{
 		// Create Texture
-		descTexture.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		descTexture.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_NORMAL]);
 		if (FAILED(hr))
 		{
@@ -197,7 +197,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	// Light
 	{
 		// Create Resource
-		descTexture.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		descTexture.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_LIGHT]);
 		if (FAILED(hr))
 		{
@@ -227,7 +227,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	// Background
 	{
 		// Create Resource
-		descTexture.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		descTexture.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_BACKGROUND]);
 		if (FAILED(hr))
 		{

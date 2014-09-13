@@ -115,7 +115,7 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Devi
 
 	D3D11_RASTERIZER_DESC descRasterizer;
 	descRasterizer.FillMode = D3D11_FILL_SOLID;
-	descRasterizer.CullMode = D3D11_CULL_BACK;
+	descRasterizer.CullMode = D3D11_CULL_NONE;
 	descRasterizer.FrontCounterClockwise = TRUE;
 	descRasterizer.DepthBias = 0;
 	descRasterizer.DepthBiasClamp = 0.0f;

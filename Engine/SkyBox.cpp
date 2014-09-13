@@ -199,29 +199,29 @@ void engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, 
 	*_rotateMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)XM_PI / 180)) * *_rotateMatrix;
 }
 
-void engine::SkyBox::display(GBuffer *g, Camera *cam)
+void engine::SkyBox::display(GBuffer *gbuf, Camera *cam)
 {
 	XMMATRIX pos = XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z);
 	pos = *_rotateMatrix * pos;
 	pos *= cam->getVPMatrix();
 
-	g->setSkyboxConfig();
+	gbuf->setSkyboxConfig();
 
-	g->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
-	g->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
-	g->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
-	g->getContext()->IASetInputLayout(_pInputLayout);
-	g->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	gbuf->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
+	gbuf->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
+	gbuf->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
 
-	g->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &pos, 0, 0);
-	g->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
+	gbuf->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &pos, 0, 0);
+	gbuf->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
 
-	g->getContext()->PSSetShaderResources(0, 1, &_pShaderResourceView);
-	g->getContext()->PSSetSamplers(0, 1, &_pSamplerState);
+	gbuf->getContext()->PSSetShaderResources(0, 1, &_pShaderResourceView);
+	gbuf->getContext()->PSSetSamplers(0, 1, &_pSamplerState);
 
 	// Vertex And Index Buffer
 	UINT stride = 3 * sizeof(FLOAT), offset = 0;
-	g->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
-	g->getContext()->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
-	g->getContext()->DrawIndexed(_numElement, 0, 0);
+	gbuf->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
+	gbuf->getContext()->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
+	gbuf->getContext()->IASetInputLayout(_pInputLayout);
+	gbuf->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	gbuf->getContext()->DrawIndexed(_numElement, 0, 0);
 }

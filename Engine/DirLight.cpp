@@ -153,8 +153,6 @@ void engine::DirLight::display(GBuffer *gbuf, Camera *cam)
 	gbuf->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	gbuf->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
 	gbuf->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
-	gbuf->getContext()->IASetInputLayout(_pInputLayout);
-	gbuf->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	ID3D11ShaderResourceView *gshr[]
 	{
@@ -193,6 +191,7 @@ void engine::DirLight::display(GBuffer *gbuf, Camera *cam)
 
 	UINT stride = 2 * sizeof(FLOAT), offset = 0;
 	gbuf->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
-
+	gbuf->getContext()->IASetInputLayout(_pInputLayout);
+	gbuf->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	gbuf->getContext()->Draw(4, 0);
 }

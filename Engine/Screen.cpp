@@ -84,8 +84,6 @@ void engine::Screen::background(GBuffer *gbuf)
 	gbuf->getContext()->VSSetShader(_backgroundProgram->getVertexShader(), NULL, 0);
 	gbuf->getContext()->GSSetShader(_backgroundProgram->getGeometryShader(), NULL, 0);
 	gbuf->getContext()->PSSetShader(_backgroundProgram->getPixelShader(), NULL, 0);
-	gbuf->getContext()->IASetInputLayout(_pInputLayout);
-	gbuf->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// Texture
 	ID3D11ShaderResourceView *pshr[] =
@@ -98,8 +96,8 @@ void engine::Screen::background(GBuffer *gbuf)
 	// Vertex Buffer
 	UINT stride = 2 * sizeof(FLOAT), offset = 0;
 	gbuf->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
-
-	// Draw
+	gbuf->getContext()->IASetInputLayout(_pInputLayout);
+	gbuf->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	gbuf->getContext()->Draw(4, 0);
 
 	gbuf->clearLight();
@@ -113,8 +111,6 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 	renderer->getContext()->VSSetShader(_directProgram->getVertexShader(), NULL, 0);
 	renderer->getContext()->GSSetShader(_directProgram->getGeometryShader(), NULL, 0);
 	renderer->getContext()->PSSetShader(_directProgram->getPixelShader(), NULL, 0);
-	renderer->getContext()->IASetInputLayout(_pInputLayout);
-	renderer->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// Texture
 	ID3D11ShaderResourceView *pshr[] =
@@ -131,7 +127,7 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 	// Vertex Buffer
 	UINT stride = 2 * sizeof(FLOAT), offset = 0;
 	renderer->getContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
-
-	// Draw
+	renderer->getContext()->IASetInputLayout(_pInputLayout);
+	renderer->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	renderer->getContext()->Draw(4, 0);
 }

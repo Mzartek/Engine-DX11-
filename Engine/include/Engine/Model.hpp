@@ -41,9 +41,9 @@ namespace engine
 		void matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		XMFLOAT3 getPosition(void) const;
 		D3DObject *getD3DObject(UINT num) const;
-		void display(GBuffer *g, Camera *cam) const;
-		void displayTransparent(GBuffer *g, Camera *cam) const;
-		void displayShadowMap(Light *l) const;
+		void display(GBuffer *gbuf, Camera *cam) const;
+		void displayTransparent(GBuffer *gbuf, Camera *cam) const;
+		void displayShadowMap(Light *light) const;
 	};
 }
     

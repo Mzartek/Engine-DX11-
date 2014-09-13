@@ -45,7 +45,6 @@ void engine::D3DObject::setColorTexture(ID3D11Texture2D *ptex, ID3D11ShaderResou
 	if (_pTexSamplerState)
 		_pTexSamplerState->Release();
 
-
 	_pColorTex = ptex;
 	_pColorTexSHR = pShaderResourceView;
 	_pTexSamplerState = pSamplerState;
@@ -93,6 +92,11 @@ void engine::D3DObject::load(const UINT &sizeVertexArray, const FLOAT *vertexArr
 	HRESULT hr;
 	D3D11_BUFFER_DESC bd;
 	D3D11_SUBRESOURCE_DATA data;
+
+	if (_pIndexBuffer)
+		_pIndexBuffer->Release();
+	if (_pVertexBuffer)
+		_pVertexBuffer->Release();
 
 	_numElement = sizeIndexArray / (UINT)sizeof(UINT);
 
