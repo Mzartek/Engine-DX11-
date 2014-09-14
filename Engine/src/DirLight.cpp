@@ -1,4 +1,8 @@
 #include <Engine/DirLight.hpp>
+#include <Engine/ShadowMap.hpp>
+#include <Engine/ShaderProgram.hpp>
+#include <Engine/GBuffer.hpp>
+#include <Engine/Camera.hpp>
 
 engine::DirLight::DirLight(void)
 {

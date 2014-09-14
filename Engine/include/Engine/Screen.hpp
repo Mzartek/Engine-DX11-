@@ -1,11 +1,14 @@
 #ifndef SCREEN
 #define SCREEN
 
-#include "ShaderProgram.hpp"
-#include "GBuffer.hpp"
+#include "Object.hpp"
 
 namespace engine
 {
+	class ShaderProgram;
+	class GBuffer;
+	class Renderer;
+
 	class DLLAPI Screen : public Object
 	{
 	private:

@@ -3,9 +3,6 @@
 
 #include <Engine/Renderer.hpp>
 #include <Engine/Input.hpp>
-#include <Engine/Object.hpp>
-#include <Engine/ShaderProgram.hpp>
-#include <Engine/ShadowMap.hpp>
 #include <Engine/FreeCam.hpp>
 #include <Engine/DirLight.hpp>
 #include <Engine/SpotLight.hpp>
@@ -13,6 +10,7 @@
 #include <Engine/SkyBox.hpp>
 #include <Engine/Screen.hpp>
 #include <Engine/GBuffer.hpp>
+#include <Engine/ShaderProgram.hpp>
 
 // Globales variables
 extern engine::Renderer *renderer;

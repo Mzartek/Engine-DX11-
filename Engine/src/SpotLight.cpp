@@ -1,4 +1,8 @@
 #include <Engine/SpotLight.hpp>
+#include <Engine/ShaderProgram.hpp>
+#include <Engine/ShadowMap.hpp>
+#include <Engine/GBuffer.hpp>
+#include <Engine/Camera.hpp>
 
 engine::SpotLight::SpotLight(void)
 {

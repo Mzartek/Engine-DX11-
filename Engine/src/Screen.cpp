@@ -1,4 +1,7 @@
 #include <Engine/Screen.hpp>
+#include <Engine/ShaderProgram.hpp>
+#include <Engine/GBuffer.hpp>
+#include <Engine/Renderer.hpp>
 
 engine::Screen::Screen()
 {

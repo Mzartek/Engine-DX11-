@@ -1,5 +1,5 @@
-#ifndef DX_HEAD
-#define DX_HEAD
+#ifndef ENGINE_HEAD
+#define ENGINE_HEAD
 
 #pragma warning(disable:4324)
 
@@ -15,9 +15,8 @@
 #include <fstream>
 #include <vector>
 #include <string>
+
 #include <Windows.h>
-#include <malloc.h>
-#include <tchar.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <directxcolors.h>

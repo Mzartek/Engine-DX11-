@@ -1,7 +1,7 @@
 #ifndef RENDERER
 #define RENDERER
 
-#include "GBuffer.hpp"
+#include "Object.hpp"
 
 namespace engine
 {

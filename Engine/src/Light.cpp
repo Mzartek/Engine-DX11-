@@ -1,4 +1,5 @@
 #include <Engine/Light.hpp>
+#include <Engine/ShadowMap.hpp>
 
 engine::Light::Light(void)
 {

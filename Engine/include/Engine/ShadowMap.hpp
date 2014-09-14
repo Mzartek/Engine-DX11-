@@ -2,7 +2,6 @@
 #define SHADOW_MAP
 
 #include "FrameBuffer.hpp"
-#include "ShaderProgram.hpp"
 
 namespace engine
 {

@@ -1,8 +1,7 @@
 #ifndef MESH
 #define MESH
 
-#include "ShaderProgram.hpp"
-#include "GBuffer.hpp"
+#include "Object.hpp"
 
 namespace engine
 {

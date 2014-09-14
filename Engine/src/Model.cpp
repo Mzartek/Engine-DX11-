@@ -1,4 +1,11 @@
 #include <Engine/Model.hpp>
+#include <Engine/Mesh.hpp>
+#include <Engine/ShaderProgram.hpp>
+#include <Engine/GBuffer.hpp>
+#include <Engine/Camera.hpp>
+#include <Engine/Light.hpp>
+#include <Engine/ShadowMap.hpp>
+
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

@@ -1,13 +1,16 @@
 #ifndef MODEL
 #define MODEL
 
-#include "Mesh.hpp"
-#include "ShaderProgram.hpp"
-#include "Camera.hpp"
-#include "Light.hpp"
+#include "Object.hpp"
 
 namespace engine
 {
+	class Mesh;
+	class ShaderProgram;
+	class GBuffer;
+	class Camera;
+	class Light;
+
 	class DLLAPI Model : public Object
 	{
 	private:

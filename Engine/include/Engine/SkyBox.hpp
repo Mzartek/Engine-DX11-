@@ -1,12 +1,14 @@
 #ifndef SKYBOX
 #define SKYBOX
 
-#include "ShaderProgram.hpp"
-#include "GBuffer.hpp"
-#include "Camera.hpp"
+#include "Object.hpp"
 
 namespace engine
 {
+	class ShaderProgram;
+	class GBuffer;
+	class Camera;
+
 	class DLLAPI SkyBox : public Object
 	{
 	private:

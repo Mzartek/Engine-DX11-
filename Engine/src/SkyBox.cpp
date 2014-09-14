@@ -1,4 +1,8 @@
 #include <Engine/SkyBox.hpp>
+#include <Engine/ShaderProgram.hpp>
+#include <Engine/GBuffer.hpp>
+#include <Engine/Camera.hpp>
+
 #include <FreeImage.h>
 
 engine::SkyBox::SkyBox()
