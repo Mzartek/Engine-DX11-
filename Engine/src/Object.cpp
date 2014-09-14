@@ -1,9 +1,9 @@
 #include <Engine/Object.hpp>
 
 INT engine::Object::_memState = 0;
-std::vector<void *> _tmemNew;
-std::vector<void *> _tmemDelete;
-std::vector<void *> _tmem;
+static std::vector<void *> _tmemNew;
+static std::vector<void *> _tmemDelete;
+static std::vector<void *> _tmem;
 
 engine::Object::Object(void)
 {
