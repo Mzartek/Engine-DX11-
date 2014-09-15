@@ -1,28 +1,25 @@
 #include <Engine/Input.hpp>
 
 engine::Input::Input(void)
+	: _pDirectInputObject(NULL), _pKeyBoard(NULL), _pMouse(NULL)
 {
-	_pDirectInputObject = NULL;
-	_pKeyBoard = NULL;
-	_pMouse = NULL;
 	ZeroMemory(_keyState, sizeof(_keyState));
 	ZeroMemory(&_mouseState, sizeof(_mouseState));
 }
 
 engine::Input::~Input(void)
 {
-	if (_pMouse)
-	{
-		_pMouse->Unacquire();
-		_pMouse->Release();
-	}
+	if (_pDirectInputObject) _pDirectInputObject->Release();
 	if (_pKeyBoard)
 	{
 		_pKeyBoard->Unacquire();
 		_pKeyBoard->Release();
 	}
-	if (_pDirectInputObject)
-		_pDirectInputObject->Release();
+	if (_pMouse)
+	{
+		_pMouse->Unacquire();
+		_pMouse->Release();
+	}
 }
 
 void engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
@@ -81,19 +78,6 @@ void engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
 	_pMouse->Acquire();
 }
 
-void engine::Input::refresh(void)
-{
-	HRESULT hr;
-
-	hr = _pKeyBoard->GetDeviceState(sizeof(_keyState), (LPVOID)&_keyState);
-	if (hr == DIERR_INPUTLOST || hr == DIERR_NOTACQUIRED)
-		_pKeyBoard->Acquire();
-
-	hr = _pMouse->GetDeviceState(sizeof(_mouseState), (LPVOID)&_mouseState);
-	if (hr == DIERR_INPUTLOST || hr == DIERR_NOTACQUIRED)
-		_pMouse->Acquire();
-}
-
 BOOL engine::Input::getKeyBoardState(const BYTE &button)
 {
 	if (_keyState[button] & 0x80)
@@ -116,4 +100,17 @@ LONG engine::Input::getMouseRelX(void)
 LONG engine::Input::getMouseRelY(void)
 {
 	return _mouseState.y;
+}
+
+void engine::Input::refresh(void)
+{
+	HRESULT hr;
+
+	hr = _pKeyBoard->GetDeviceState(sizeof(_keyState), (LPVOID)&_keyState);
+	if (hr == DIERR_INPUTLOST || hr == DIERR_NOTACQUIRED)
+		_pKeyBoard->Acquire();
+
+	hr = _pMouse->GetDeviceState(sizeof(_mouseState), (LPVOID)&_mouseState);
+	if (hr == DIERR_INPUTLOST || hr == DIERR_NOTACQUIRED)
+		_pMouse->Acquire();
 }

@@ -14,7 +14,6 @@ namespace engine
 		XMMATRIX *_VPMatrix;
 	public:
 		Camera(void);
-		Camera(const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		~Camera(void);
 		void setPositionCamera(const XMFLOAT3 &pos);
 		void setPositionTarget(const XMFLOAT3 &pos);

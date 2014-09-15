@@ -23,29 +23,19 @@ static void CompileShaderFromFile(const LPCWSTR szFileName, const std::string sz
 }
 
 engine::ShaderProgram::ShaderProgram(void)
+	: _pVertexShader(NULL), _pHullShader(NULL), _pDomainShader(NULL), _pGeometryShader(NULL), _pPixelShader(NULL),
+	_pBlob(NULL)
 {
-	_pVertexShader = NULL;
-	_pHullShader = NULL;
-	_pDomainShader = NULL;
-	_pGeometryShader = NULL;
-	_pPixelShader = NULL;
-	_pBlob = NULL;
 }
 
 engine::ShaderProgram::~ShaderProgram(void)
 {
-	if (_pVertexShader) 
-		_pVertexShader->Release();
-	if (_pHullShader)
-		_pHullShader->Release();
-	if (_pDomainShader)
-		_pDomainShader->Release();
-	if (_pGeometryShader)
-		_pGeometryShader->Release();
-	if (_pPixelShader) 
-		_pPixelShader->Release();
-	if (_pBlob)
-		_pBlob->Release();
+	if (_pVertexShader) _pVertexShader->Release();
+	if (_pHullShader) _pHullShader->Release();
+	if (_pDomainShader) _pDomainShader->Release();
+	if (_pGeometryShader) _pGeometryShader->Release();
+	if (_pPixelShader) _pPixelShader->Release();
+	if (_pBlob) _pBlob->Release();
 }
 
 void engine::ShaderProgram::loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps, ID3D11Device *pDevice)

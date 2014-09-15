@@ -41,42 +41,25 @@ engine::Renderer::Renderer(void)
 	_display = NULL;
 	_idle = NULL;
 	_reshape = NULL;
-	// Viewport
-	_pVP = new D3D11_VIEWPORT;
 }
 
 engine::Renderer::~Renderer(void)
 {
-	if (_pContext)
-		_pContext->ClearState();
+	if (_pContext) _pContext->ClearState();
 
-	// State
-	if (_pRasterizerState)
-		_pRasterizerState->Release();
-	if (_pBlendState)
-		_pBlendState->Release();
-	if (_pDepthStencilState)
-		_pDepthStencilState->Release();
-
-	// View
-	if (_pDepthStencilView)
-		_pDepthStencilView->Release();
-	if (_pRenderTargetView)
-		_pRenderTargetView->Release();
-
+	//Device
+	if (_pd3dDevice)_pd3dDevice->Release();
+	if (_pContext) _pContext->Release();
 	// Texture
-	if (_pDepthStencilTexture)
-		_pDepthStencilTexture->Release();
-	if (_pSwapChain)
-		_pSwapChain->Release();
-
-	// Device
-	if (_pContext)
-		_pContext->Release();
-	if (_pd3dDevice) 
-		_pd3dDevice->Release();
-
-	delete _pVP;
+	if (_pSwapChain) _pSwapChain->Release();
+	if (_pDepthStencilTexture) _pDepthStencilTexture->Release();
+	// View
+	if (_pRenderTargetView) _pRenderTargetView->Release();
+	if (_pDepthStencilView) _pDepthStencilView->Release();
+	// State
+	if (_pDepthStencilState) _pDepthStencilState->Release();
+	if (_pBlendState) _pBlendState->Release();
+	if (_pRasterizerState) _pRasterizerState->Release();
 }
 
 void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), 
@@ -243,12 +226,12 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	}
 
 	// Create the Viewport
-	_pVP->TopLeftX = 0.0f;
-	_pVP->TopLeftY = 0.0f;
-	_pVP->Width = (FLOAT)_width;
-	_pVP->Height = (FLOAT)_height;
-	_pVP->MinDepth = 0.0f;
-	_pVP->MaxDepth = 1.0f;
+	_VP.TopLeftX = 0.0f;
+	_VP.TopLeftY = 0.0f;
+	_VP.Width = (FLOAT)_width;
+	_VP.Height = (FLOAT)_height;
+	_VP.MinDepth = 0.0f;
+	_VP.MaxDepth = 1.0f;
 }
 
 void engine::Renderer::setDisplayFunc(void (*f) (void))
@@ -334,13 +317,13 @@ void engine::Renderer::stopLoop(void)
 	_stopLoop = TRUE;
 }
 
-void engine::Renderer::setConfig(void) const
+void engine::Renderer::setState(void) const
 {
 	_pContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
 	_pContext->OMSetDepthStencilState(_pDepthStencilState, 0);
 	_pContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
 	_pContext->RSSetState(_pRasterizerState);
-	_pContext->RSSetViewports(1, _pVP);
+	_pContext->RSSetViewports(1, &_VP);
 }
 
 void engine::Renderer::clear(void)

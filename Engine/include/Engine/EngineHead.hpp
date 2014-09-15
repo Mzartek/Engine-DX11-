@@ -18,9 +18,10 @@
 
 #include <Windows.h>
 #include <d3d11.h>
+#include <dinput.h>
 #include <d3dcompiler.h>
 #include <directxcolors.h>
-#include <dinput.h>
+#include <DirectXMath.h>
 
 using namespace DirectX;
 

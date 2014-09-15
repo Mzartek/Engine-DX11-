@@ -4,7 +4,7 @@ engine::ShadowMap::ShadowMap()
 {
 	// Texture
 	_pTexture = NULL;
-	// Shader Resouce View
+	// Shader Resource View
 	_pShaderResourceView = NULL;
 	// View
 	_pDepthView = NULL;
@@ -16,30 +16,32 @@ engine::ShadowMap::ShadowMap()
 
 engine::ShadowMap::~ShadowMap()
 {
-	// State
-	if (_pSamplerComparisonState)
-		_pSamplerComparisonState->Release();
-	if (_pRasterizerState)
-		_pRasterizerState->Release();
-	if (_pDepthState)
-		_pDepthState->Release();
-
-	// View
-	if (_pDepthView)
-		_pDepthView->Release();
-
-	// Shader Resource View
-	if (_pShaderResourceView)
-		_pShaderResourceView->Release();
-
 	// Texture
-	if (_pTexture)
-		_pTexture->Release();
+	if (_pTexture) _pTexture->Release();
+	// Shader Resource View
+	if (_pShaderResourceView) _pShaderResourceView->Release();
+	// View
+	if (_pDepthView) _pDepthView->Release();
+	// State
+	if (_pDepthState) _pDepthState->Release();
+	if (_pRasterizerState) _pRasterizerState->Release();
+	if (_pSamplerComparisonState) _pSamplerComparisonState->Release();
 }
 
 void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
 	HRESULT hr;
+
+	// Texture
+	if (_pTexture) _pTexture->Release();
+	// Shader Resource View
+	if (_pShaderResourceView) _pShaderResourceView->Release();
+	// View
+	if (_pDepthView) _pDepthView->Release();
+	// State
+	if (_pDepthState) _pDepthState->Release();
+	if (_pRasterizerState) _pRasterizerState->Release();
+	if (_pSamplerComparisonState) _pSamplerComparisonState->Release();
 
 	_width = width;
 	_height = height;
@@ -67,39 +69,29 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Devi
 	descDepthView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDepthView.Flags = 0;
 	descDepthView.Texture2D.MipSlice = 0;
-
-	// Depth
+	
+	descTexture.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	descShaderResourceView.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	descDepthView.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture);
+	if (FAILED(hr))
 	{
-		// Format
-		descTexture.Format = DXGI_FORMAT_R24G8_TYPELESS;
-		descShaderResourceView.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		descDepthView.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-
-		// Create Texture
-		hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture);
-		if (FAILED(hr))
-		{
-			MessageBox(NULL, "Failed to create Depth Texture", "GBuffer", NULL);
-			exit(1);
-		}
-
-		// Create Resource
-		hr = _pd3dDevice->CreateShaderResourceView(_pTexture, &descShaderResourceView, &_pShaderResourceView);
-		if (FAILED(hr))
-		{
-			MessageBox(NULL, "Failed to create Depth Resource View", "GBuffer", NULL);
-			exit(1);
-		}
-
-		// Create Render
-		hr = _pd3dDevice->CreateDepthStencilView(_pTexture, &descDepthView, &_pDepthView);
-		if (FAILED(hr))
-		{
-			MessageBox(NULL, "Failed to create Depth Render View", "GBuffer", NULL);
-			exit(1);
-		}
+		MessageBox(NULL, "Failed to create Depth Texture", "GBuffer", NULL);
+		exit(1);
 	}
-
+	hr = _pd3dDevice->CreateShaderResourceView(_pTexture, &descShaderResourceView, &_pShaderResourceView);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Depth Resource View", "GBuffer", NULL);
+		exit(1);
+	}
+	hr = _pd3dDevice->CreateDepthStencilView(_pTexture, &descDepthView, &_pDepthView);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Depth Render View", "GBuffer", NULL);
+		exit(1);
+	}
+	
 	// State
 	D3D11_DEPTH_STENCIL_DESC descDepth;
 	descDepth.DepthEnable = TRUE;
@@ -153,12 +145,12 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Devi
 	}
 
 	// Create the Viewport
-	_pVP->TopLeftX = 0.0f;
-	_pVP->TopLeftY = 0.0f;
-	_pVP->Width = (FLOAT)_width;
-	_pVP->Height = (FLOAT)_height;
-	_pVP->MinDepth = 0.0f;
-	_pVP->MaxDepth = 1.0f;
+	_VP.TopLeftX = 0.0f;
+	_VP.TopLeftY = 0.0f;
+	_VP.Width = (FLOAT)_width;
+	_VP.Height = (FLOAT)_height;
+	_VP.MinDepth = 0.0f;
+	_VP.MaxDepth = 1.0f;
 }
 
 ID3D11ShaderResourceView *engine::ShadowMap::getShaderResourceView(void) const
@@ -171,13 +163,13 @@ ID3D11SamplerState *engine::ShadowMap::getSamplerComparisonState(void) const
 	return _pSamplerComparisonState;
 }
 
-void engine::ShadowMap::setConfig(void) const
+void engine::ShadowMap::setState(void) const
 {
 	_pContext->OMSetRenderTargets(0, NULL, _pDepthView);
 	_pContext->OMSetDepthStencilState(_pDepthState, 0);
 	_pContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
 	_pContext->RSSetState(_pRasterizerState);
-	_pContext->RSSetViewports(1, _pVP);
+	_pContext->RSSetViewports(1, &_VP);
 }
 
 void engine::ShadowMap::clear(void) const

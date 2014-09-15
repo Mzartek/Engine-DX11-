@@ -1,11 +1,10 @@
 #include <Engine/MovableCamera.hpp>
 
 engine::MovableCamera::MovableCamera(void)
+	: _speed(1), _atheta(0), _aphi(0)
 {
-	_atheta = _aphi = 0;
 	_vforward = (XMVECTOR *)_aligned_malloc(sizeof *_vforward, 16);
 	_vleft = (XMVECTOR *)_aligned_malloc(sizeof *_vleft, 16);
-	_speed = 1;
 }
 
 engine::MovableCamera::~MovableCamera(void)
@@ -13,8 +12,6 @@ engine::MovableCamera::~MovableCamera(void)
 	_aligned_free(_vforward);
 	_aligned_free(_vleft);
 }
-
-#include <DirectXMath.h>
 
 void engine::MovableCamera::setInitialAngle(const FLOAT &t, const FLOAT &p)
 {
@@ -38,7 +35,6 @@ void engine::MovableCamera::setInitialAngle(const FLOAT &t, const FLOAT &p)
 	*_vleft = XMVectorSetX(*_vleft, 1 * XMVectorGetZ(*_vforward));
 	*_vleft = XMVectorSetY(*_vleft, 0);
 	*_vleft = XMVectorSetZ(*_vleft, -(1 * XMVectorGetX(*_vforward)));
-
 	*_vleft = XMVector3Normalize(*_vleft);
 
 	*_ptarget = *_pcamera + *_vforward;
@@ -49,14 +45,30 @@ void engine::MovableCamera::setSpeed(const FLOAT &v)
 	_speed = v;
 }
 
+XMFLOAT3 engine::MovableCamera::getForward(void) const
+{
+	XMFLOAT3 forward;
+	XMStoreFloat3(&forward, *_vforward);
+
+	return forward;
+}
+
+XMFLOAT3 engine::MovableCamera::getLeft(void) const
+{
+	XMFLOAT3 left;
+	XMStoreFloat3(&left, *_vleft);
+
+	return left;
+}
+
 void engine::MovableCamera::mouseMove(const INT &xrel, const INT &yrel)
 {
 	_atheta -= (FLOAT)xrel;
 	_aphi -= (FLOAT)yrel;
 
-	if(_atheta > 360)
+	if (_atheta > 360)
 		_atheta -= 360;
-	else if(_atheta < -360)
+	else if (_atheta < -360)
 		_atheta += 360;
 	if (_aphi > 89)
 		_aphi = 89;
@@ -71,18 +83,7 @@ void engine::MovableCamera::mouseMove(const INT &xrel, const INT &yrel)
 	*_vleft = XMVectorSetX(*_vleft, 1 * XMVectorGetZ(*_vforward));
 	*_vleft = XMVectorSetY(*_vleft, 0);
 	*_vleft = XMVectorSetZ(*_vleft, -(1 * XMVectorGetX(*_vforward)));
-
 	*_vleft = XMVector3Normalize(*_vleft);
 
 	*_ptarget = *_pcamera + *_vforward;
-}
-
-XMFLOAT3 engine::MovableCamera::getForward(void) const
-{
-	return XMFLOAT3(XMVectorGetX(*_vforward), XMVectorGetY(*_vforward), XMVectorGetZ(*_vforward));
-}
-
-XMFLOAT3 engine::MovableCamera::getLeft(void) const
-{
-	return XMFLOAT3(XMVectorGetX(*_vleft), XMVectorGetY(*_vleft), XMVectorGetZ(*_vleft));
 }

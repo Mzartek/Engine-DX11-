@@ -4,46 +4,29 @@
 #include <Engine/Renderer.hpp>
 
 engine::Screen::Screen()
+	: _pInputLayout(NULL), _pVertexBuffer(NULL), _pScreenColorBuffer(NULL)
 {
-	_pScreenColorBuffer = NULL;
-	_pInputLayout = NULL;
-	_pVertexBuffer = NULL;
-	_backgroundProgram = NULL;
-	_directProgram = NULL;
 }
 
 engine::Screen::~Screen()
 {
-	if (_pVertexBuffer)
-		_pVertexBuffer->Release();
-	if (_pInputLayout)
-		_pInputLayout->Release();
-	if (_pScreenColorBuffer)
-		_pScreenColorBuffer->Release();
+	if (_pInputLayout) _pInputLayout->Release();
+	if (_pVertexBuffer) _pVertexBuffer->Release();
+	if (_pScreenColorBuffer) _pScreenColorBuffer->Release();
 }
 
 void engine::Screen::config(ShaderProgram *backgroundProgram, ShaderProgram *directProgram, ID3D11Device *pd3dDevice)
 {
 	HRESULT hr;
+	D3D11_BUFFER_DESC bd;
+	D3D11_SUBRESOURCE_DATA data;
+
+	if (_pInputLayout) _pInputLayout->Release();
+	if (_pVertexBuffer) _pVertexBuffer->Release();
+	if (_pScreenColorBuffer) _pScreenColorBuffer->Release();
 	
 	_backgroundProgram = backgroundProgram;
 	_directProgram = directProgram;
-
-	// Create Screen Color Buffer
-	D3D11_BUFFER_DESC bd;
-	D3D11_SUBRESOURCE_DATA data;
-	bd.ByteWidth = sizeof XMFLOAT4;
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bd.CPUAccessFlags = 0;
-	bd.MiscFlags = 0;
-	bd.StructureByteStride = 0;
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pScreenColorBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Screen Buffer", "Screen", MB_OK);
-		exit(1);
-	}
 
 	// Create Input Layout
 	D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -68,8 +51,11 @@ void engine::Screen::config(ShaderProgram *backgroundProgram, ShaderProgram *dir
 	};
 
 	bd.ByteWidth = sizeof vertex;
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage = D3D11_USAGE_IMMUTABLE;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
 	data.pSysMem = vertex;
 	hr = pd3dDevice->CreateBuffer(&bd, &data, &_pVertexBuffer);
 	if (FAILED(hr))
@@ -77,11 +63,23 @@ void engine::Screen::config(ShaderProgram *backgroundProgram, ShaderProgram *dir
 		MessageBox(NULL, "Failed to create Vertex Buffer", "Screen", MB_OK);
 		exit(1);
 	}
+
+	// Create Screen Color Buffer
+	bd.ByteWidth = sizeof XMFLOAT4;
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pScreenColorBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Screen Buffer", "Screen", MB_OK);
+		exit(1);
+	}
 }
 
 void engine::Screen::background(GBuffer *gbuf)
 {
-	gbuf->setBackgroundConfig();
+	gbuf->setBackgroundState();
 
 	// Shader
 	gbuf->getContext()->VSSetShader(_backgroundProgram->getVertexShader(), NULL, 0);
@@ -108,7 +106,12 @@ void engine::Screen::background(GBuffer *gbuf)
 
 void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
 {
-	renderer->setConfig();
+	renderer->setState();
+
+	// Constant Buffer
+	XMFLOAT4 color(r, g, b, a);
+	renderer->getContext()->UpdateSubresource(_pScreenColorBuffer, 0, NULL, &color, 0, 0);
+	renderer->getContext()->PSSetConstantBuffers(0, 1, &_pScreenColorBuffer);
 
 	// Shader
 	renderer->getContext()->VSSetShader(_directProgram->getVertexShader(), NULL, 0);
@@ -121,11 +124,6 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 		gbuf->getShaderResourceView(GBUF_BACKGROUND),
 	};
 	renderer->getContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
-
-	// Constant Buffer
-	XMFLOAT4 color(r, g, b, a);
-	renderer->getContext()->UpdateSubresource(_pScreenColorBuffer, 0, NULL, &color, 0, 0);
-	renderer->getContext()->PSSetConstantBuffers(0, 1, &_pScreenColorBuffer);
 
 	// Vertex Buffer
 	UINT stride = 2 * sizeof(FLOAT), offset = 0;

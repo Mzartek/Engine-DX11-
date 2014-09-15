@@ -2,45 +2,27 @@
 #include <Engine/ShadowMap.hpp>
 
 engine::Light::Light(void)
+	: _pInputLayout(NULL), _pVertexBuffer(NULL), _pShadowMatrixBuffer(NULL), _pIVPMatrixBuffer(NULL), _pScreenBuffer(NULL), _pCameraBuffer(NULL), _pLightInfoBuffer(NULL)
 {
-	_pShadowMatrixBuffer = NULL;
-	_pIVPMatrixBuffer = NULL;
-	_pScreenBuffer = NULL;
-	_pCameraBuffer = NULL;
-	_pLightInfoBuffer = NULL;
-	_pInputLayout = NULL;
-	_pVertexBuffer = NULL;
 	_VPMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_VPMatrix, 16);
-	_shadow = NULL;
+	_shadow = new ShadowMap;
 }
 
 engine::Light::~Light(void)
 {
-	if (_pVertexBuffer)
-		_pVertexBuffer->Release();
-	if (_pInputLayout)
-		_pInputLayout->Release();
-	if (_pLightInfoBuffer)
-		_pLightInfoBuffer->Release();
-	if (_pCameraBuffer)
-		_pCameraBuffer->Release();
-	if (_pScreenBuffer)
-		_pScreenBuffer->Release();
-	if (_pIVPMatrixBuffer)
-		_pIVPMatrixBuffer->Release();
-	if (_pShadowMatrixBuffer)
-		_pShadowMatrixBuffer->Release();
-
+	if (_pInputLayout) _pInputLayout->Release();
+	if (_pVertexBuffer) _pVertexBuffer->Release();
+	if (_pShadowMatrixBuffer) _pShadowMatrixBuffer->Release();
+	if (_pIVPMatrixBuffer) _pIVPMatrixBuffer->Release();
+	if (_pScreenBuffer) _pScreenBuffer->Release();
+	if (_pCameraBuffer) _pCameraBuffer->Release();
+	if (_pLightInfoBuffer) _pLightInfoBuffer->Release();
 	_aligned_free(_VPMatrix);
-	if (_shadow != NULL)
-		delete _shadow;
+	delete _shadow;
 }
 
 void engine::Light::configShadowMap(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
-	if (_shadow != NULL)
-		delete _shadow;
-	_shadow = new ShadowMap;
 	_shadow->config(width, height, pd3dDevice, pContext);
 }
 

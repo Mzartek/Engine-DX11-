@@ -12,16 +12,16 @@ namespace engine
 	class DLLAPI SkyBox : public Object
 	{
 	private:
-		UINT _numElement;
 		ID3D11Texture2D *_pTexture;
 		ID3D11ShaderResourceView *_pShaderResourceView;
 		ID3D11SamplerState *_pSamplerState;
+		ID3D11InputLayout *_pInputLayout;
 		ID3D11Buffer *_pVertexBuffer;
 		ID3D11Buffer *_pIndexBuffer;
-		ID3D11InputLayout *_pInputLayout;
 		ID3D11Buffer *_pMVPMatrixBuffer;
 		XMMATRIX *_rotateMatrix;
 		ShaderProgram *_program;
+		UINT _numElement;
 	public:
 		SkyBox(void);
 		~SkyBox(void);

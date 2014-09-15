@@ -13,17 +13,17 @@ namespace engine
 	class DLLAPI Light : public Object
 	{
 	protected:
+		ID3D11InputLayout *_pInputLayout;
+		ID3D11Buffer *_pVertexBuffer;
 		ID3D11Buffer *_pShadowMatrixBuffer;
 		ID3D11Buffer *_pIVPMatrixBuffer;
 		ID3D11Buffer *_pScreenBuffer;
 		ID3D11Buffer *_pCameraBuffer;
 		ID3D11Buffer *_pLightInfoBuffer;
-		ID3D11InputLayout *_pInputLayout;
-		ID3D11Buffer *_pVertexBuffer;
-		XMMATRIX *_VPMatrix;
-		ShadowMap *_shadow;
 		ShaderProgram *_program;
 		ID3D11DeviceContext *_pContext;
+		XMMATRIX *_VPMatrix;
+		ShadowMap *_shadow;
 	public:
 		Light(void);
 		~Light(void);

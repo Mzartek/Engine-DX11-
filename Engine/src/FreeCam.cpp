@@ -18,6 +18,5 @@ void engine::FreeCam::keyboardMove(const BOOL &f, const BOOL &b, const BOOL &l, 
 		*_pcamera += *_vleft * _speed;
 	if (r)
 		*_pcamera -= *_vleft * _speed;
-
 	*_ptarget = *_pcamera + *_vforward;
 }

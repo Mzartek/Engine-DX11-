@@ -18,62 +18,16 @@ void engine::DirLight::config(ShaderProgram *program, ID3D11Device *pd3dDevice, 
 	D3D11_BUFFER_DESC bd;
 	D3D11_SUBRESOURCE_DATA data;
 
+	if (_pInputLayout) _pInputLayout->Release();
+	if (_pVertexBuffer) _pVertexBuffer->Release();
+	if (_pShadowMatrixBuffer) _pShadowMatrixBuffer->Release();
+	if (_pIVPMatrixBuffer) _pIVPMatrixBuffer->Release();
+	if (_pScreenBuffer) _pScreenBuffer->Release();
+	if (_pCameraBuffer) _pCameraBuffer->Release();
+	if (_pLightInfoBuffer) _pLightInfoBuffer->Release();
+
+	_program = program;
 	_pContext = pContext;
-
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.CPUAccessFlags = 0;
-	bd.MiscFlags = 0;
-	bd.StructureByteStride = 0;
-
-	// ShadowMatrix Buffer
-	bd.ByteWidth = sizeof XMMATRIX;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pShadowMatrixBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create ShadowMatrix Buffer", "DirLight", MB_OK);
-		exit(1);
-	}
-
-	// IVPMatrix Buffer
-	bd.ByteWidth = sizeof XMMATRIX;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pIVPMatrixBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create IVPMatrix Buffer", "DirLight", MB_OK);
-		exit(1);
-	}
-
-	// Screen Buffer
-	bd.ByteWidth = 16;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pScreenBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Screen Buffer", "DirLight", MB_OK);
-		exit(1);
-	}
-
-	// Camera Buffer
-	bd.ByteWidth = 16;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pCameraBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Camera Buffer", "DirLight", MB_OK);
-		exit(1);
-	}
-
-	// LightInfo Buffer
-	bd.ByteWidth = sizeof _lightInfo;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pLightInfoBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create LightInfo Buffer", "DirLight", MB_OK);
-		exit(1);
-	}
 
 	// Create and set the input layout
 	D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -97,7 +51,11 @@ void engine::DirLight::config(ShaderProgram *program, ID3D11Device *pd3dDevice, 
 		1, 1,
 	};
 	bd.ByteWidth = sizeof vertex;
+	bd.Usage = D3D11_USAGE_IMMUTABLE;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
 	data.pSysMem = vertex;
 	data.SysMemPitch = 0;
 	data.SysMemSlicePitch = 0;
@@ -108,7 +66,52 @@ void engine::DirLight::config(ShaderProgram *program, ID3D11Device *pd3dDevice, 
 		exit(1);
 	}
 
-	_program = program;
+	// ShadowMatrix Buffer
+	bd.ByteWidth = sizeof XMMATRIX;
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pShadowMatrixBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create ShadowMatrix Buffer", "DirLight", MB_OK);
+		exit(1);
+	}
+
+	// IVPMatrix Buffer
+	bd.ByteWidth = sizeof XMMATRIX;
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pIVPMatrixBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create IVPMatrix Buffer", "DirLight", MB_OK);
+		exit(1);
+	}
+
+	// Screen Buffer
+	bd.ByteWidth = 16;
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pScreenBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Screen Buffer", "DirLight", MB_OK);
+		exit(1);
+	}
+
+	// Camera Buffer
+	bd.ByteWidth = 16;
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pCameraBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create Camera Buffer", "DirLight", MB_OK);
+		exit(1);
+	}
+
+	// LightInfo Buffer
+	bd.ByteWidth = sizeof _lightInfo;
+	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pLightInfoBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(NULL, "Failed to create LightInfo Buffer", "DirLight", MB_OK);
+		exit(1);
+	}
 }
 
 void engine::DirLight::setColor(const XMFLOAT3 &color)
@@ -152,7 +155,7 @@ void engine::DirLight::display(GBuffer *gbuf, Camera *cam)
 {
 	XMMATRIX tmp;
 
-	gbuf->setLightConfig();
+	gbuf->setLightState();
 
 	gbuf->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	gbuf->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);

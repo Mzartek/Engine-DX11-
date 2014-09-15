@@ -12,9 +12,9 @@ namespace engine
 	class DLLAPI Screen : public Object
 	{
 	private:
-		ID3D11Buffer *_pScreenColorBuffer;
 		ID3D11InputLayout *_pInputLayout;
 		ID3D11Buffer *_pVertexBuffer;
+		ID3D11Buffer *_pScreenColorBuffer;
 		// Do not delete it
 		ShaderProgram *_backgroundProgram;
 		ShaderProgram *_directProgram;

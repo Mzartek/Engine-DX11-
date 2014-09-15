@@ -23,11 +23,11 @@ namespace engine
 		Input(void);
 		~Input(void);
 		void initInput(const HINSTANCE &hInstance, const HWND &hWnd);
-		void refresh(void);
 		BOOL getKeyBoardState(const BYTE &button);
 		BOOL getMouseState(const BYTE &button);
 		LONG getMouseRelX(void);
 		LONG getMouseRelY(void);
+		void refresh(void);
 	};
 }
 

@@ -26,7 +26,7 @@ namespace engine
 		} _material;
 		UINT _numElement;
 	public:
-		Mesh(ID3D11Device *pd3dDevice);
+		explicit Mesh(ID3D11Device *pd3dDevice);
 		~Mesh(void);
 		void setColorTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState);
 		void setNMTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView);

@@ -10,7 +10,7 @@ namespace engine
 	protected:
 		UINT _width;
 		UINT _height;
-		D3D11_VIEWPORT *_pVP;
+		D3D11_VIEWPORT _VP;
 		ID3D11Device *_pd3dDevice;
 		ID3D11DeviceContext *_pContext;
 	public:

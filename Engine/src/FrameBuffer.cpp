@@ -2,14 +2,10 @@
 
 engine::FrameBuffer::FrameBuffer(void)
 {
-	_pVP = new D3D11_VIEWPORT;
-	_pd3dDevice = NULL;
-	_pContext = NULL;
 }
 
 engine::FrameBuffer::~FrameBuffer(void)
 {
-	delete _pVP;
 }
 
 UINT engine::FrameBuffer::getWidth(void) const

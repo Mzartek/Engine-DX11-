@@ -6,38 +6,24 @@
 #include <FreeImage.h>
 
 engine::SkyBox::SkyBox()
+	: _pTexture(NULL), _pShaderResourceView(NULL), _pSamplerState(NULL), 
+	_pInputLayout(NULL), _pVertexBuffer(NULL), _pIndexBuffer(NULL),
+	_pMVPMatrixBuffer(NULL)
 {
-	_pTexture = NULL;
-	_pShaderResourceView = NULL;
-	_pSamplerState = NULL;
-	_pVertexBuffer = NULL;
-	_pIndexBuffer = NULL;
-	_pInputLayout = NULL;
-	_pMVPMatrixBuffer = NULL;
 	_rotateMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_rotateMatrix, 16);
-	_program = NULL;
-
 	*_rotateMatrix = XMMatrixIdentity();
 }
 
 engine::SkyBox::~SkyBox()
 {
+	if (_pTexture) _pTexture->Release();
+	if (_pShaderResourceView) _pShaderResourceView->Release();
+	if (_pSamplerState) _pSamplerState->Release();
+	if (_pInputLayout) _pInputLayout->Release();
+	if (_pVertexBuffer) _pVertexBuffer->Release();
+	if (_pIndexBuffer) _pIndexBuffer->Release();
+	if (_pMVPMatrixBuffer) _pMVPMatrixBuffer->Release();
 	_aligned_free(_rotateMatrix);
-
-	if (_pMVPMatrixBuffer)
-		_pMVPMatrixBuffer->Release();
-	if (_pInputLayout)
-		_pInputLayout->Release();
-	if (_pIndexBuffer)
-		_pIndexBuffer->Release();
-	if (_pVertexBuffer)
-		_pVertexBuffer->Release();
-	if (_pSamplerState)
-		_pSamplerState->Release();
-	if (_pShaderResourceView)
-		_pShaderResourceView->Release();
-	if (_pTexture)
-		_pTexture->Release();
 }
 
 void engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
@@ -49,6 +35,14 @@ void engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	UINT i;
 	FIBITMAP *image[6];
 	FIBITMAP *tmp = NULL;
+
+	if (_pTexture) _pTexture->Release();
+	if (_pShaderResourceView) _pShaderResourceView->Release();
+	if (_pSamplerState) _pSamplerState->Release();
+	if (_pInputLayout) _pInputLayout->Release();
+	if (_pVertexBuffer) _pVertexBuffer->Release();
+	if (_pIndexBuffer) _pIndexBuffer->Release();
+	if (_pMVPMatrixBuffer) _pMVPMatrixBuffer->Release();
 
 	_program = program;
 
@@ -128,6 +122,15 @@ void engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 		exit(1);
 	}
 
+	// Create Input Layout
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	hr = pd3dDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
+		_program->getEntryBufferPointer(), _program->getEntryBytecodeLength(),
+		&_pInputLayout);
+
 	// Create the Cube
 	FLOAT vertexArray[] = {
 		+dim, -dim, -dim,
@@ -152,7 +155,7 @@ void engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	D3D11_BUFFER_DESC bd;
 	// Create vertex buffer
 	bd.ByteWidth = sizeof vertexArray;
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage = D3D11_USAGE_IMMUTABLE;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;
@@ -178,18 +181,11 @@ void engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 		exit(1);
 	}
 
-	// Create Input Layout
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	hr = pd3dDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
-		_program->getEntryBufferPointer(), _program->getEntryBytecodeLength(),
-		&_pInputLayout);
-
 	// Create the matrix buffer
 	bd.ByteWidth = sizeof XMMATRIX;
+	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pMVPMatrixBuffer);
 	if (FAILED(hr))
 	{
@@ -205,15 +201,21 @@ void engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, 
 
 void engine::SkyBox::display(GBuffer *gbuf, Camera *cam)
 {
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	XMMATRIX pos = XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z);
 	pos = *_rotateMatrix * pos;
 	pos *= cam->getVPMatrix();
 
-	gbuf->setSkyboxConfig();
+	gbuf->setSkyboxState();
 
 	gbuf->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
 	gbuf->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
 	gbuf->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
+
+	ZeroMemory(&mappedResource, sizeof mappedResource);
+	gbuf->getContext()->Map(_pMVPMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	memcpy(mappedResource.pData, &pos, sizeof pos);
+	gbuf->getContext()->Unmap(_pMVPMatrixBuffer, 0);
 
 	gbuf->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &pos, 0, 0);
 	gbuf->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);

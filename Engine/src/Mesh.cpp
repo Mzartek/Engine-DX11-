@@ -1,15 +1,11 @@
 #include <Engine/Mesh.hpp>
 
 engine::Mesh::Mesh(ID3D11Device *pd3dDevice)
+	: _pColorTex(NULL), _pNMTex(NULL), 
+	_pColorTexSHR(NULL), _pNMTexSHR(NULL),
+	_pTexSamplerState(NULL),
+	_pVertexBuffer(NULL), _pIndexBuffer(NULL)
 {
-	_pColorTex = NULL;
-	_pNMTex = NULL;
-	_pColorTexSHR = NULL;
-	_pNMTexSHR = NULL;
-	_pTexSamplerState = NULL;
-	_pVertexBuffer = NULL;
-	_pIndexBuffer = NULL;
-
 	D3D11_BUFFER_DESC bd;
 	bd.ByteWidth = sizeof _material;
 	bd.Usage = D3D11_USAGE_DEFAULT;
@@ -22,29 +18,22 @@ engine::Mesh::Mesh(ID3D11Device *pd3dDevice)
 
 engine::Mesh::~Mesh(void)
 {
+	if (_pColorTex) _pColorTex->Release();
+	if (_pNMTex) _pNMTex->Release();
+	if (_pColorTexSHR) _pColorTexSHR->Release();
+	if (_pNMTexSHR) _pNMTexSHR->Release();
+	if (_pTexSamplerState) _pTexSamplerState->Release();
+	if (_pVertexBuffer) _pVertexBuffer->Release();
+	if (_pIndexBuffer) _pIndexBuffer->Release();
 	_pMaterialBuffer->Release();
-
-	if (_pIndexBuffer)
-		_pIndexBuffer->Release();
-	if (_pVertexBuffer)
-		_pVertexBuffer->Release();
-	if (_pTexSamplerState)
-		_pTexSamplerState->Release();
-	if (_pNMTexSHR)
-		_pNMTexSHR->Release();
-	if (_pColorTexSHR)
-		_pColorTexSHR->Release();
-	if (_pNMTex)
-		_pNMTex->Release();
-	if (_pColorTex)
-		_pColorTex->Release();
 }
 
 void engine::Mesh::setColorTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState)
 {
-	if (_pTexSamplerState)
-		_pTexSamplerState->Release();
-
+	if (_pColorTex) _pColorTex->Release();
+	if (_pColorTexSHR) _pColorTexSHR->Release();
+	if (_pTexSamplerState) _pTexSamplerState->Release();
+	
 	_pColorTex = ptex;
 	_pColorTexSHR = pShaderResourceView;
 	_pTexSamplerState = pSamplerState;
@@ -52,6 +41,9 @@ void engine::Mesh::setColorTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceVi
 
 void engine::Mesh::setNMTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView)
 {
+	if (_pNMTex) _pNMTex->Release();
+	if (_pNMTexSHR) _pNMTexSHR->Release();
+
 	_pNMTex = ptex;
 	_pNMTexSHR = pShaderResourceView;
 }
@@ -93,24 +85,21 @@ void engine::Mesh::load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 	D3D11_BUFFER_DESC bd;
 	D3D11_SUBRESOURCE_DATA data;
 
-	if (_pIndexBuffer)
-		_pIndexBuffer->Release();
-	if (_pVertexBuffer)
-		_pVertexBuffer->Release();
+	if (_pVertexBuffer) _pVertexBuffer->Release();
+	if (_pIndexBuffer) _pIndexBuffer->Release();
 
 	_numElement = sizeIndexArray / (UINT)sizeof(UINT);
 
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.CPUAccessFlags = 0;
-	bd.MiscFlags = 0;
-	bd.StructureByteStride = 0;
-	data.SysMemPitch = 0;
-	data.SysMemSlicePitch = 0;
-
 	// Create vertex buffer
 	bd.ByteWidth = sizeVertexArray;
+	bd.Usage = D3D11_USAGE_IMMUTABLE;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
+	bd.CPUAccessFlags = 0;
 	data.pSysMem = vertexArray;
+	data.SysMemPitch = 0;
+	data.SysMemSlicePitch = 0;
 	hr = pd3dDevice->CreateBuffer(&bd, &data, &_pVertexBuffer);
 	if (FAILED(hr))
 	{
