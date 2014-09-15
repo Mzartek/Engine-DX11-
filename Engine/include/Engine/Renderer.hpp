@@ -7,6 +7,7 @@ namespace engine
 {
 	extern D3D_FEATURE_LEVEL EngineGraphicsFeatureLevel;
 	extern std::string EngineShaderLevel;
+
 	class DLLAPI Renderer : public Object
 	{
 	private:

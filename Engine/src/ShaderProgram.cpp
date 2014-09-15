@@ -1,12 +1,12 @@
 #include <Engine/ShaderProgram.hpp>
 
-static void CompileShaderFromFile(LPCWSTR szFileName, LPCSTR szEntryPoint, std::string szShaderModel, ID3DBlob **ppBlobOut)
+static void CompileShaderFromFile(const LPCWSTR szFileName, const std::string szEntryPoint, const std::string szShaderModel, ID3DBlob **ppBlobOut)
 {
 	HRESULT hr;
 	DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 	ID3DBlob *pErrorBlob = NULL;
 
-	hr = D3DCompileFromFile(szFileName, NULL, NULL, szEntryPoint, szShaderModel.c_str(),
+	hr = D3DCompileFromFile(szFileName, NULL, NULL, szEntryPoint.c_str(), szShaderModel.c_str(),
 		dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
 	if (FAILED(hr))
 	{
