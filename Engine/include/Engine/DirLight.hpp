@@ -20,9 +20,9 @@ namespace engine
 		void config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
 		void setColor(const XMFLOAT3 &color);
 		void setDirection(const XMFLOAT3 &dir);
+		void setShadowMapping(const BOOL &shadow);
 		XMFLOAT3 getColor(void) const;
 		XMFLOAT3 getDirection(void) const;
-		void activateShadowMapping(const BOOL &shadow);
 		void position(const XMFLOAT3 &position, const FLOAT &dim);
 		void display(GBuffer *gbuf, Camera *cam);
 	};

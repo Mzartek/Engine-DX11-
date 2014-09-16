@@ -24,11 +24,11 @@ namespace engine
 		void setPosition(const XMFLOAT3 &position);
 		void setDirection(const XMFLOAT3 &dir);
 		void setSpotCutOff(const FLOAT &spot);
+		void setShadowMapping(const BOOL &shadow);
 		XMFLOAT3 getColor(void) const;
 		XMFLOAT3 getPosition(void) const;
 		XMFLOAT3 getDirection(void) const;
 		FLOAT getSpotCutOff(void) const;
-		void activateShadowMapping(const BOOL &shadow);
 		void position(void);
 		void display(GBuffer *gbuf, Camera *cam);
 	};

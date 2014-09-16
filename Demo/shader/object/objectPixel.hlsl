@@ -14,9 +14,7 @@ struct PS_INPUT
 {
 	float4 position : SV_POSITION;
 	float2 texCoord : IN_TEXCOORD;
-	float3 normal : IN_NORMAL;
-	float3 tangent : IN_TANGENT;
-	float3 bitangent : IN_BITAGENT;
+	float3x3 TBN : IN_TBN;
 };
 
 struct PS_OUTPUT
@@ -37,14 +35,9 @@ uint4 pack(int4 a, int4 b, int4 c, int4 d)
 	return res;
 }
 
-float3 CalcBumpedNormal(float3 normal, float3 tangent, float3 bitangent, float3 bumpMapNormal)
+float3 CalcBumpedNormal(float3x3 TBN, float3 bumpMapNormal)
 {
-	normal = normalize(normal);
-	tangent = normalize(tangent);
-	bitangent = normalize(bitangent);
-	bumpMapNormal.xy = bumpMapNormal.xy * 2.0 - 1.0;
-
-	return normalize(mul(bumpMapNormal, float3x3(tangent, bitangent, normal)));
+	return normalize(mul(bumpMapNormal* 2.0 - 1.0, TBN));
 }
 
 PS_OUTPUT main(PS_INPUT input)
@@ -52,7 +45,7 @@ PS_OUTPUT main(PS_INPUT input)
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
 	float4 color = colorTex.Sample(colorSampleType, input.texCoord);
-	float3 normal = CalcBumpedNormal(input.normal, input.tangent, input.bitangent, NMTex.Sample(colorSampleType, input.texCoord).xyz);
+	float3 normal = CalcBumpedNormal(input.TBN, NMTex.Sample(colorSampleType, input.texCoord).xyz);
 
 	if (color.a > 0.5)
 	{

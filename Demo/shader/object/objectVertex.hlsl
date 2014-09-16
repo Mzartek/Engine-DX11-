@@ -20,20 +20,20 @@ struct VS_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float2 texCoord : IN_TEXCOORD;
-	float3 normal : IN_NORMAL;
-	float3 tangent : IN_TANGENT;
-	float3 bitangent : IN_BITANGENT;
+	float3x3 TBN : IN_TBN;
 };
 
 VS_OUTPUT main(VS_INPUT input)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 
+	float3 N = mul(normalMatrix, input.normal);
+	float3 T = mul(normalMatrix, input.tangent);
+	float3 B = cross(N, T);
+
 	output.position = mul(MVP, float4(input.position, 1.0));
 	output.texCoord = input.texCoord;
-	output.normal = normalize(mul(normalMatrix, input.normal));
-	output.tangent = normalize(mul(normalMatrix, input.tangent));
-	output.bitangent = cross(output.normal, output.tangent);
+	output.TBN = float3x3(T, B, N);
 
 	return output;
 }

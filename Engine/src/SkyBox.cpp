@@ -61,7 +61,7 @@ void engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	descTexture.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	descTexture.SampleDesc.Count = 1;
 	descTexture.SampleDesc.Quality = 0;
-	descTexture.Usage = D3D11_USAGE_DEFAULT;
+	descTexture.Usage = D3D11_USAGE_IMMUTABLE;
 	descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	descTexture.CPUAccessFlags = 0;
 	descTexture.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
@@ -201,7 +201,6 @@ void engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, 
 
 void engine::SkyBox::display(GBuffer *gbuf, Camera *cam)
 {
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	XMMATRIX pos = XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z);
 	pos = *_rotateMatrix * pos;
 	pos *= cam->getVPMatrix();
@@ -212,12 +211,7 @@ void engine::SkyBox::display(GBuffer *gbuf, Camera *cam)
 	gbuf->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
 	gbuf->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
 
-	ZeroMemory(&mappedResource, sizeof mappedResource);
-	gbuf->getContext()->Map(_pMVPMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	memcpy(mappedResource.pData, &pos, sizeof pos);
-	gbuf->getContext()->Unmap(_pMVPMatrixBuffer, 0);
-
-	gbuf->getContext()->UpdateSubresource(_pMVPMatrixBuffer, 0, NULL, &pos, 0, 0);
+	updateDynamicBuffer(_pMVPMatrixBuffer, &pos, sizeof pos, gbuf->getContext());
 	gbuf->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
 
 	gbuf->getContext()->PSSetShaderResources(0, 1, &_pShaderResourceView);

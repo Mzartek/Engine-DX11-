@@ -128,10 +128,10 @@ void engine::Model::createMesh(const UINT &sizeVertexArray, const FLOAT *vertexA
 
 	newone->setColorTexture(pColorTex, pColorSHR, psam);
 	newone->setNMTexture(pNMTex, pNMSHR);
-	newone->setAmbient(ambient, _pContext);
-	newone->setDiffuse(diffuse, _pContext);
-	newone->setSpecular(specular, _pContext);
-	newone->setShininess(shininess, _pContext);
+	newone->setAmbient(ambient);
+	newone->setDiffuse(diffuse);
+	newone->setSpecular(specular);
+	newone->setShininess(shininess);
 	newone->load(sizeVertexArray, vertexArray,
 		sizeIndexArray, indexArray,
 		_pd3dDevice);
@@ -294,27 +294,19 @@ engine::Mesh *engine::Model::getMesh(UINT num) const
 void engine::Model::display(GBuffer *gbuf, Camera *cam) const
 {
 	UINT i;
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	XMMATRIX MVPMatrix = *_ModelMatrix * cam->getVPMatrix();
 	XMMATRIX NormalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
 
 	gbuf->setGeometryState();
-	
-	ZeroMemory(&mappedResource, sizeof mappedResource);
-	gbuf->getContext()->Map(_pMVPMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	memcpy(mappedResource.pData, &MVPMatrix, sizeof MVPMatrix);
-	gbuf->getContext()->Unmap(_pMVPMatrixBuffer, 0);
-
-	ZeroMemory(&mappedResource, sizeof mappedResource);
-	gbuf->getContext()->Map(_pNormalMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	memcpy(mappedResource.pData, &NormalMatrix, sizeof NormalMatrix);
-	gbuf->getContext()->Unmap(_pNormalMatrixBuffer, 0);
 
 	gbuf->getContext()->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
 	gbuf->getContext()->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
 	gbuf->getContext()->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
 
+	updateDynamicBuffer(_pMVPMatrixBuffer, &MVPMatrix, sizeof MVPMatrix, gbuf->getContext());
 	gbuf->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
+
+	updateDynamicBuffer(_pNormalMatrixBuffer, &NormalMatrix, sizeof NormalMatrix, gbuf->getContext());
 	gbuf->getContext()->VSSetConstantBuffers(1, 1, &_pNormalMatrixBuffer);
 
 	gbuf->getContext()->IASetInputLayout(_pInputLayout);
@@ -327,27 +319,19 @@ void engine::Model::display(GBuffer *gbuf, Camera *cam) const
 void engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
 {
 	UINT i;
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	XMMATRIX MVPMatrix = *_ModelMatrix * cam->getVPMatrix();
 	XMMATRIX NormalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
 
 	gbuf->setGeometryState();
 
-	ZeroMemory(&mappedResource, sizeof mappedResource);
-	gbuf->getContext()->Map(_pMVPMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	memcpy(mappedResource.pData, &MVPMatrix, sizeof MVPMatrix);
-	gbuf->getContext()->Unmap(_pMVPMatrixBuffer, 0);
-
-	ZeroMemory(&mappedResource, sizeof mappedResource);
-	gbuf->getContext()->Map(_pNormalMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	memcpy(mappedResource.pData, &NormalMatrix, sizeof NormalMatrix);
-	gbuf->getContext()->Unmap(_pNormalMatrixBuffer, 0);
-
 	gbuf->getContext()->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
 	gbuf->getContext()->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
 	gbuf->getContext()->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
 
+	updateDynamicBuffer(_pMVPMatrixBuffer, &MVPMatrix, sizeof MVPMatrix, gbuf->getContext());
 	gbuf->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
+
+	updateDynamicBuffer(_pNormalMatrixBuffer, &NormalMatrix, sizeof NormalMatrix, gbuf->getContext());
 	gbuf->getContext()->VSSetConstantBuffers(1, 1, &_pNormalMatrixBuffer);
 
 	gbuf->getContext()->IASetInputLayout(_pInputLayout);
@@ -360,20 +344,15 @@ void engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
 void engine::Model::displayShadowMap(Light *light) const
 {
 	UINT i;
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	XMMATRIX MVPMatrix = *_ModelMatrix * light->getVPMatrix();
 
 	light->getShadowMap()->setState();
-
-	ZeroMemory(&mappedResource, sizeof mappedResource);
-	light->getShadowMap()->getContext()->Map(_pMVPMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	memcpy(mappedResource.pData, &MVPMatrix, sizeof MVPMatrix);
-	light->getShadowMap()->getContext()->Unmap(_pMVPMatrixBuffer, 0);
 
 	light->getShadowMap()->getContext()->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
 	light->getShadowMap()->getContext()->GSSetShader(_smProgram->getGeometryShader(), NULL, 0);
 	light->getShadowMap()->getContext()->PSSetShader(_smProgram->getPixelShader(), NULL, 0);
 
+	updateDynamicBuffer(_pMVPMatrixBuffer, &MVPMatrix, sizeof MVPMatrix, light->getShadowMap()->getContext());
 	light->getShadowMap()->getContext()->VSSetConstantBuffers(0, 1, &_pMVPMatrixBuffer);
 
 	light->getShadowMap()->getContext()->IASetInputLayout(_pInputLayout);

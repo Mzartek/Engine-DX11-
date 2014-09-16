@@ -8,9 +8,9 @@ engine::Mesh::Mesh(ID3D11Device *pd3dDevice)
 {
 	D3D11_BUFFER_DESC bd;
 	bd.ByteWidth = sizeof _material;
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bd.CPUAccessFlags = 0;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	bd.MiscFlags = 0;
 	bd.StructureByteStride = 0;
 	pd3dDevice->CreateBuffer(&bd, NULL, &_pMaterialBuffer);
@@ -48,28 +48,24 @@ void engine::Mesh::setNMTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView 
 	_pNMTexSHR = pShaderResourceView;
 }
 
-void engine::Mesh::setAmbient(const XMFLOAT4 &ambient, ID3D11DeviceContext *pContext)
+void engine::Mesh::setAmbient(const XMFLOAT4 &ambient)
 {
 	_material.ambient = ambient;
-	pContext->UpdateSubresource(_pMaterialBuffer, 0, NULL, &_material, 0, 0);
 }
 
-void engine::Mesh::setDiffuse(const XMFLOAT4 &diffuse, ID3D11DeviceContext *pContext)
+void engine::Mesh::setDiffuse(const XMFLOAT4 &diffuse)
 {
 	_material.diffuse = diffuse;
-	pContext->UpdateSubresource(_pMaterialBuffer, 0, NULL, &_material, 0, 0);
 }
 
-void engine::Mesh::setSpecular(const XMFLOAT4 &specular, ID3D11DeviceContext *pContext)
+void engine::Mesh::setSpecular(const XMFLOAT4 &specular)
 {
 	_material.specular = specular;
-	pContext->UpdateSubresource(_pMaterialBuffer, 0, NULL, &_material, 0, 0);
 }
 
-void engine::Mesh::setShininess(const FLOAT &shininess, ID3D11DeviceContext *pContext)
+void engine::Mesh::setShininess(const FLOAT &shininess)
 {
 	_material.shininess = shininess;
-	pContext->UpdateSubresource(_pMaterialBuffer, 0, NULL, &_material, 0, 0);
 }
 
 FLOAT engine::Mesh::getTransparency(void)
@@ -125,6 +121,7 @@ void engine::Mesh::display(ID3D11DeviceContext *pContext) const
 	pContext->PSSetShaderResources(1, 1, &_pNMTexSHR);
 	pContext->PSSetSamplers(0, 1, &_pTexSamplerState);
 
+	updateDynamicBuffer(_pMaterialBuffer, &_material, sizeof _material, pContext);
 	pContext->PSSetConstantBuffers(0, 1, &_pMaterialBuffer);
 
 	UINT stride = 11 * sizeof(FLOAT), offset = 0;

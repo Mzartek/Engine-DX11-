@@ -82,3 +82,13 @@ void engine::loadTextureFromFile(const TCHAR *szFileName,
 
 	FreeImage_Unload(image);
 }
+
+void engine::updateDynamicBuffer(ID3D11Resource *buffer, const void *data, const size_t &size, ID3D11DeviceContext *context)
+{
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+
+	ZeroMemory(&mappedResource, sizeof mappedResource);
+	context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	memcpy(mappedResource.pData, data, size);
+	context->Unmap(buffer, 0);
+}

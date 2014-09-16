@@ -68,8 +68,9 @@ void engine::SpotLight::config(ShaderProgram *program, ID3D11Device *pd3dDevice,
 
 	// ShadowMatrix Buffer
 	bd.ByteWidth = sizeof XMMATRIX;
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pShadowMatrixBuffer);
 	if (FAILED(hr))
 	{
@@ -117,25 +118,26 @@ void engine::SpotLight::config(ShaderProgram *program, ID3D11Device *pd3dDevice,
 void engine::SpotLight::setColor(const XMFLOAT3 &color)
 {
 	_lightInfo.color = color;
-	_pContext->UpdateSubresource(_pLightInfoBuffer, 0, NULL, &_lightInfo, 0, 0);
 }
 
 void engine::SpotLight::setPosition(const XMFLOAT3 &position)
 {
 	_lightInfo.position = position;
-	_pContext->UpdateSubresource(_pLightInfoBuffer, 0, NULL, &_lightInfo, 0, 0);
 }
 
 void engine::SpotLight::setDirection(const XMFLOAT3 &dir)
 {
 	_lightInfo.direction = dir;
-	_pContext->UpdateSubresource(_pLightInfoBuffer, 0, NULL, &_lightInfo, 0, 0);
 }
 
 void engine::SpotLight::setSpotCutOff(const FLOAT &spot)
 {
 	_lightInfo.spotCutOff = spot;
-	_pContext->UpdateSubresource(_pLightInfoBuffer, 0, NULL, &_lightInfo, 0, 0);
+}
+
+void engine::SpotLight::setShadowMapping(const BOOL &shadow)
+{
+	_lightInfo.withShadowMapping = shadow;
 }
 
 XMFLOAT3 engine::SpotLight::getColor(void) const
@@ -158,12 +160,6 @@ FLOAT engine::SpotLight::getSpotCutOff(void) const
 	return _lightInfo.spotCutOff;
 }
 
-void engine::SpotLight::activateShadowMapping(const BOOL &shadow)
-{
-	_lightInfo.withShadowMapping = shadow;
-	_pContext->UpdateSubresource(_pLightInfoBuffer, 0, NULL, &_lightInfo, 0, 0);
-}
-
 void engine::SpotLight::position(void)
 {
 	XMVECTOR pos = XMVectorSet(_lightInfo.position.x, _lightInfo.position.y, _lightInfo.position.z, 0.0f);
@@ -175,8 +171,6 @@ void engine::SpotLight::position(void)
 
 void engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
 {
-	XMMATRIX tmp;
-
 	gbuf->setLightState();
 
 	gbuf->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
@@ -200,22 +194,23 @@ void engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
 		gbuf->getContext()->PSSetShaderResources(ARRAYSIZE(gshr), 1, &shadowResourceView);
 		gbuf->getContext()->PSSetSamplers(0, 1, &shadowSampler);
 
-		gbuf->getContext()->UpdateSubresource(_pShadowMatrixBuffer, 0, NULL, _VPMatrix, 0, 0);
+		updateDynamicBuffer(_pShadowMatrixBuffer, _VPMatrix, sizeof *_VPMatrix, gbuf->getContext());
 		gbuf->getContext()->PSSetConstantBuffers(0, 1, &_pShadowMatrixBuffer);
 	}
 
-	tmp = XMMatrixInverse(NULL, cam->getVPMatrix());
-	gbuf->getContext()->UpdateSubresource(_pIVPMatrixBuffer, 0, NULL, &tmp, 0, 0);
+	XMMATRIX matrix = XMMatrixInverse(NULL, cam->getVPMatrix());
+	updateDynamicBuffer(_pIVPMatrixBuffer, &matrix, sizeof matrix, gbuf->getContext());
 	gbuf->getContext()->PSSetConstantBuffers(1, 1, &_pIVPMatrixBuffer);
 
 	XMUINT2 screen(gbuf->getWidth(), gbuf->getHeight());
-	gbuf->getContext()->UpdateSubresource(_pScreenBuffer, 0, NULL, &screen, 0, 0);
+	updateDynamicBuffer(_pScreenBuffer, &screen, sizeof screen, gbuf->getContext());
 	gbuf->getContext()->PSSetConstantBuffers(2, 1, &_pScreenBuffer);
 
 	XMFLOAT3 pos = cam->getPositionCamera();
-	gbuf->getContext()->UpdateSubresource(_pCameraBuffer, 0, NULL, &pos, 0, 0);
+	updateDynamicBuffer(_pCameraBuffer, &pos, sizeof pos, gbuf->getContext());
 	gbuf->getContext()->PSSetConstantBuffers(3, 1, &_pCameraBuffer);
 
+	updateDynamicBuffer(_pLightInfoBuffer, &_lightInfo, sizeof _lightInfo, _pContext);
 	gbuf->getContext()->PSSetConstantBuffers(4, 1, &_pLightInfoBuffer);
 
 	UINT stride = 2 * sizeof(FLOAT), offset = 0;

@@ -38,6 +38,8 @@ namespace engine
 	extern DLLAPI void loadTextureFromFile(const TCHAR *szFileName, 
 		ID3D11Texture2D **pptex, ID3D11ShaderResourceView **ppshr, ID3D11SamplerState **ppsam,
 		ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
+
+	extern DLLAPI void updateDynamicBuffer(ID3D11Resource *buffer, const void *data, const size_t &size, ID3D11DeviceContext *context);
 }
 
 #endif

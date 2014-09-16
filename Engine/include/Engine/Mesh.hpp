@@ -30,10 +30,10 @@ namespace engine
 		~Mesh(void);
 		void setColorTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState);
 		void setNMTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView);
-		void setAmbient(const XMFLOAT4 &ambient, ID3D11DeviceContext *pContext);
-		void setDiffuse(const XMFLOAT4 &diffuse, ID3D11DeviceContext *pContext);
-		void setSpecular(const XMFLOAT4 &specular, ID3D11DeviceContext *pContext);
-		void setShininess(const FLOAT &shininess, ID3D11DeviceContext *pContext);
+		void setAmbient(const XMFLOAT4 &ambient);
+		void setDiffuse(const XMFLOAT4 &diffuse);
+		void setSpecular(const XMFLOAT4 &specular);
+		void setShininess(const FLOAT &shininess);
 		FLOAT getTransparency(void);
 		void load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 			const UINT &sizeIndexArray, const UINT *indexArray,

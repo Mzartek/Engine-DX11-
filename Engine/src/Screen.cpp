@@ -66,9 +66,9 @@ void engine::Screen::config(ShaderProgram *backgroundProgram, ShaderProgram *dir
 
 	// Create Screen Color Buffer
 	bd.ByteWidth = sizeof XMFLOAT4;
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bd.CPUAccessFlags = 0;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	hr = pd3dDevice->CreateBuffer(&bd, NULL, &_pScreenColorBuffer);
 	if (FAILED(hr))
 	{
@@ -108,11 +108,6 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 {
 	renderer->setState();
 
-	// Constant Buffer
-	XMFLOAT4 color(r, g, b, a);
-	renderer->getContext()->UpdateSubresource(_pScreenColorBuffer, 0, NULL, &color, 0, 0);
-	renderer->getContext()->PSSetConstantBuffers(0, 1, &_pScreenColorBuffer);
-
 	// Shader
 	renderer->getContext()->VSSetShader(_directProgram->getVertexShader(), NULL, 0);
 	renderer->getContext()->GSSetShader(_directProgram->getGeometryShader(), NULL, 0);
@@ -124,6 +119,10 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 		gbuf->getShaderResourceView(GBUF_BACKGROUND),
 	};
 	renderer->getContext()->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+
+	XMFLOAT4 color(r, g, b, a);
+	updateDynamicBuffer(_pScreenColorBuffer, &color, sizeof color, renderer->getContext());
+	renderer->getContext()->PSSetConstantBuffers(0, 1, &_pScreenColorBuffer);
 
 	// Vertex Buffer
 	UINT stride = 2 * sizeof(FLOAT), offset = 0;

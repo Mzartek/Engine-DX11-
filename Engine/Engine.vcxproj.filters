@@ -121,10 +121,10 @@
     <ClCompile Include="src\SpotLight.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\textureLoader.cpp">
+    <ClCompile Include="src\Mesh.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\Mesh.cpp">
+    <ClCompile Include="src\EngineFunctions.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
