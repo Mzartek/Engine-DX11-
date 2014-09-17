@@ -83,6 +83,8 @@ void engine::Screen::background(GBuffer *gbuf)
 
 	// Shader
 	gbuf->getContext()->VSSetShader(_backgroundProgram->getVertexShader(), NULL, 0);
+	gbuf->getContext()->HSSetShader(_backgroundProgram->getHullShader(), NULL, 0);
+	gbuf->getContext()->DSSetShader(_backgroundProgram->getDomainShader(), NULL, 0);
 	gbuf->getContext()->GSSetShader(_backgroundProgram->getGeometryShader(), NULL, 0);
 	gbuf->getContext()->PSSetShader(_backgroundProgram->getPixelShader(), NULL, 0);
 
@@ -110,6 +112,8 @@ void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 
 	// Shader
 	renderer->getContext()->VSSetShader(_directProgram->getVertexShader(), NULL, 0);
+	renderer->getContext()->HSSetShader(_directProgram->getHullShader(), NULL, 0);
+	renderer->getContext()->DSSetShader(_directProgram->getDomainShader(), NULL, 0);
 	renderer->getContext()->GSSetShader(_directProgram->getGeometryShader(), NULL, 0);
 	renderer->getContext()->PSSetShader(_directProgram->getPixelShader(), NULL, 0);
 

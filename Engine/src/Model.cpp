@@ -300,6 +300,8 @@ void engine::Model::display(GBuffer *gbuf, Camera *cam) const
 	gbuf->setGeometryState();
 
 	gbuf->getContext()->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
+	gbuf->getContext()->HSSetShader(_gProgram->getHullShader(), NULL, 0);
+	gbuf->getContext()->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
 	gbuf->getContext()->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
 	gbuf->getContext()->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
 
@@ -325,6 +327,8 @@ void engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
 	gbuf->setGeometryState();
 
 	gbuf->getContext()->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
+	gbuf->getContext()->HSSetShader(_gProgram->getHullShader(), NULL, 0);
+	gbuf->getContext()->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
 	gbuf->getContext()->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
 	gbuf->getContext()->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
 
@@ -349,6 +353,8 @@ void engine::Model::displayShadowMap(Light *light) const
 	light->getShadowMap()->setState();
 
 	light->getShadowMap()->getContext()->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
+	light->getShadowMap()->getContext()->HSSetShader(_gProgram->getHullShader(), NULL, 0);
+	light->getShadowMap()->getContext()->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
 	light->getShadowMap()->getContext()->GSSetShader(_smProgram->getGeometryShader(), NULL, 0);
 	light->getShadowMap()->getContext()->PSSetShader(_smProgram->getPixelShader(), NULL, 0);
 

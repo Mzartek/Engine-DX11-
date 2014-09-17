@@ -174,6 +174,8 @@ void engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
 	gbuf->setLightState();
 
 	gbuf->getContext()->VSSetShader(_program->getVertexShader(), NULL, 0);
+	gbuf->getContext()->HSSetShader(_program->getHullShader(), NULL, 0);
+	gbuf->getContext()->DSSetShader(_program->getDomainShader(), NULL, 0);
 	gbuf->getContext()->GSSetShader(_program->getGeometryShader(), NULL, 0);
 	gbuf->getContext()->PSSetShader(_program->getPixelShader(), NULL, 0);
 
