@@ -5,6 +5,7 @@
 
 namespace engine
 {
+	class Buffer;
 	class ShadowMap;
 	class ShaderProgram;
 	class GBuffer;
@@ -14,20 +15,19 @@ namespace engine
 	{
 	protected:
 		ID3D11InputLayout *_pInputLayout;
-		ID3D11Buffer *_pVertexBuffer;
-		ID3D11Buffer *_pShadowMatrixBuffer;
-		ID3D11Buffer *_pIVPMatrixBuffer;
-		ID3D11Buffer *_pScreenBuffer;
-		ID3D11Buffer *_pCameraBuffer;
-		ID3D11Buffer *_pLightInfoBuffer;
+		Buffer *_vertexBuffer;
+		Buffer *_shadowMatrixBuffer;
+		Buffer *_IVPMatrixBuffer;
+		Buffer *_screenBuffer;
+		Buffer *_cameraBuffer;
+		Buffer *_lightInfoBuffer;
 		ShaderProgram *_program;
-		ID3D11DeviceContext *_pContext;
 		XMMATRIX *_VPMatrix;
 		ShadowMap *_shadow;
 	public:
 		Light(void);
 		~Light(void);
-		void configShadowMap(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
+		void configShadowMap(const UINT &width, const UINT &height);
 		XMMATRIX getVPMatrix(void) const;
 		ShadowMap *getShadowMap(void);
 		void clear(void) const;

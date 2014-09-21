@@ -6,6 +6,7 @@
 namespace engine
 {
 	class Mesh;
+	class Buffer;
 	class ShaderProgram;
 	class GBuffer;
 	class Camera;
@@ -16,23 +17,20 @@ namespace engine
 	private:
 		BOOL isMirror;
 		std::vector<Mesh *> *_tMesh;
-		ID3D11Buffer *_pMVPMatrixBuffer;
-		ID3D11Buffer *_pNormalMatrixBuffer;
 		ID3D11InputLayout *_pInputLayout;
+		Buffer *_MVPMatrixBuffer;
+		Buffer *_normalMatrixBuffer;
 		XMMATRIX *_ModelMatrix;
 		// ShaderProgram
 		ShaderProgram *_gProgram;
 		ShaderProgram *_smProgram;
-		// Device
-		ID3D11Device *_pd3dDevice;
-		ID3D11DeviceContext *_pContext;
 	public:
 		Model();
 		~Model();
 		void initMeshArray(void);
 		void initMeshMirror(Model *m);
-		void config(ShaderProgram *gProgram, ShaderProgram *smProgram, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
-		void createMesh(const UINT &sizeVertexArray, const FLOAT *vertexArray,
+		void config(ShaderProgram *gProgram, ShaderProgram *smProgram);
+		void addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 				  const UINT &sizeIndexArray, const UINT *indexArray,
 				  const TCHAR *colorTexture, const TCHAR *NMTexture,
 				  const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess);

@@ -21,7 +21,7 @@ namespace engine
 	public:
 		ShadowMap();
 		~ShadowMap();
-		void config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
+		void config(const UINT &width, const UINT &height);
 		ID3D11ShaderResourceView *getShaderResourceView(void) const;
 		ID3D11SamplerState *getSamplerComparisonState(void) const;
 		void setState(void) const;

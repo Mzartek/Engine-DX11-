@@ -5,6 +5,8 @@
 
 namespace engine
 {
+	class Texture;
+	class Buffer;
 	class ShaderProgram;
 	class GBuffer;
 	class Camera;
@@ -12,13 +14,11 @@ namespace engine
 	class DLLAPI SkyBox : public Object
 	{
 	private:
-		ID3D11Texture2D *_pTexture;
-		ID3D11ShaderResourceView *_pShaderResourceView;
-		ID3D11SamplerState *_pSamplerState;
+		Texture *_cubeTexture;
 		ID3D11InputLayout *_pInputLayout;
-		ID3D11Buffer *_pVertexBuffer;
-		ID3D11Buffer *_pIndexBuffer;
-		ID3D11Buffer *_pMVPMatrixBuffer;
+		Buffer *_vertexBuffer;
+		Buffer *_indexBuffer;
+		Buffer *_MVPMatrixBuffer;
 		XMMATRIX *_rotateMatrix;
 		ShaderProgram *_program;
 		UINT _numElement;
@@ -28,7 +28,7 @@ namespace engine
 		void load(const TCHAR *posx, const TCHAR *negx,
 			const TCHAR *posy, const TCHAR *negy,
 			const TCHAR *posz, const TCHAR *negz,
-			FLOAT dim, ShaderProgram *program, ID3D11Device *pd3dDevice);
+			FLOAT dim, ShaderProgram *program);
 		void rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void display(GBuffer *gbuf, Camera *cam);
 	};

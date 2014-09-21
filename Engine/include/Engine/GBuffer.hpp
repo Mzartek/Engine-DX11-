@@ -39,7 +39,7 @@ namespace engine
 	public:
 		GBuffer(void);
 		~GBuffer(void);
-		void config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
+		void config(const UINT &width, const UINT &height);
 		ID3D11ShaderResourceView *getShaderResourceView(const UINT &num) const;
 		void setSkyboxState(void) const;
 		void setGeometryState(void) const;

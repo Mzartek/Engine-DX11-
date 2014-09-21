@@ -5,9 +5,6 @@
 
 namespace engine
 {
-	extern D3D_FEATURE_LEVEL EngineGraphicsFeatureLevel;
-	extern std::string EngineShaderLevel;
-
 	class DLLAPI Renderer : public Object
 	{
 	private:
@@ -16,9 +13,6 @@ namespace engine
 		UINT _height;
 		HINSTANCE _hInst;
 		HWND _hWnd;
-		// Device
-		ID3D11Device *_pd3dDevice;
-		ID3D11DeviceContext *_pContext;
 		// Texture
 		IDXGISwapChain *_pSwapChain;
 		ID3D11Texture2D *_pDepthStencilTexture;
@@ -47,8 +41,6 @@ namespace engine
 		UINT getHeight(void);
 		HINSTANCE getHINSTANCE(void);
 		HWND getHWND(void);
-		ID3D11Device *getD3DDevice(void);
-		ID3D11DeviceContext *getContext(void);
 		void mainLoop(int nCmdShow);
 		void stopLoop(void);
 		void setState(void) const;

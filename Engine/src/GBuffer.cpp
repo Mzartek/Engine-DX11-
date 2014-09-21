@@ -1,5 +1,8 @@
 #include <Engine/GBuffer.hpp>
 
+extern ID3D11Device *Device;
+extern ID3D11DeviceContext *DeviceContext;
+
 engine::GBuffer::GBuffer(void)
 {
 	// Texture
@@ -71,9 +74,12 @@ engine::GBuffer::~GBuffer(void)
 
 }
 
-void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+void engine::GBuffer::config(const UINT &width, const UINT &height)
 {
 	HRESULT hr;
+
+	_width = width;
+	_height = height;
 
 	// Texture
 	if (_pTexture[GBUF_NORMAL]) _pTexture[GBUF_NORMAL]->Release();
@@ -106,11 +112,6 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	// Rasterizer State
 	if (_pRasterizerState) _pRasterizerState->Release();
 
-	_width = width;
-	_height = height;
-	_pd3dDevice = pd3dDevice;
-	_pContext = pContext;
-
 	D3D11_TEXTURE2D_DESC descTexture;
 	descTexture.Width = _width;
 	descTexture.Height = _height;
@@ -139,21 +140,21 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 
 	// Normal
 	descTexture.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_NORMAL]);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_NORMAL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Normal Texture", "GBuffer", NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
-	hr = _pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_NORMAL], &descShaderResourceView, &_pShaderResourceView[GBUF_NORMAL]);
+	hr = Device->CreateShaderResourceView(_pTexture[GBUF_NORMAL], &descShaderResourceView, &_pShaderResourceView[GBUF_NORMAL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Normal Resource View", "GBuffer", NULL);
 		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
-	hr = _pd3dDevice->CreateRenderTargetView(_pTexture[GBUF_NORMAL], &descRenderTargetView, &_pRenderTargetView[GBUF_NORMAL]);
+	hr = Device->CreateRenderTargetView(_pTexture[GBUF_NORMAL], &descRenderTargetView, &_pRenderTargetView[GBUF_NORMAL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Normal Render View", "GBuffer", NULL);
@@ -162,21 +163,21 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 
 	// Material
 	descTexture.Format = DXGI_FORMAT_R32G32B32A32_UINT;
-	hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_MATERIAL]);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_MATERIAL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Material Texture", "GBuffer", NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
-	hr = _pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_MATERIAL], &descShaderResourceView, &_pShaderResourceView[GBUF_MATERIAL]);
+	hr = Device->CreateShaderResourceView(_pTexture[GBUF_MATERIAL], &descShaderResourceView, &_pShaderResourceView[GBUF_MATERIAL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Material Resource View", "GBuffer", NULL);
 		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
-	hr = _pd3dDevice->CreateRenderTargetView(_pTexture[GBUF_MATERIAL], &descRenderTargetView, &_pRenderTargetView[GBUF_MATERIAL]);
+	hr = Device->CreateRenderTargetView(_pTexture[GBUF_MATERIAL], &descRenderTargetView, &_pRenderTargetView[GBUF_MATERIAL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Material Render View", "GBuffer", NULL);
@@ -185,21 +186,21 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 
 	// Light
 	descTexture.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_LIGHT]);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_LIGHT]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Light Texture", "GBuffer", NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
-	hr = _pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_LIGHT], &descShaderResourceView, &_pShaderResourceView[GBUF_LIGHT]);
+	hr = Device->CreateShaderResourceView(_pTexture[GBUF_LIGHT], &descShaderResourceView, &_pShaderResourceView[GBUF_LIGHT]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Light Resource View", "GBuffer", NULL);
 		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
-	hr = _pd3dDevice->CreateRenderTargetView(_pTexture[GBUF_LIGHT], &descRenderTargetView, &_pRenderTargetView[GBUF_LIGHT]);
+	hr = Device->CreateRenderTargetView(_pTexture[GBUF_LIGHT], &descRenderTargetView, &_pRenderTargetView[GBUF_LIGHT]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Light Render View", "GBuffer", NULL);
@@ -208,21 +209,21 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 
 	// Background
 	descTexture.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_BACKGROUND]);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_BACKGROUND]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Background Texture", "GBuffer", NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
-	hr = _pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_BACKGROUND], &descShaderResourceView, &_pShaderResourceView[GBUF_BACKGROUND]);
+	hr = Device->CreateShaderResourceView(_pTexture[GBUF_BACKGROUND], &descShaderResourceView, &_pShaderResourceView[GBUF_BACKGROUND]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Background Resource View", "GBuffer", NULL);
 		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
-	hr = _pd3dDevice->CreateRenderTargetView(_pTexture[GBUF_BACKGROUND], &descRenderTargetView, &_pRenderTargetView[GBUF_BACKGROUND]);
+	hr = Device->CreateRenderTargetView(_pTexture[GBUF_BACKGROUND], &descRenderTargetView, &_pRenderTargetView[GBUF_BACKGROUND]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Background Render View", "GBuffer", NULL);
@@ -232,28 +233,28 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	// Depth
 	descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
 	descTexture.Format = DXGI_FORMAT_R24G8_TYPELESS;
-	hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_DEPTH]);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_DEPTH]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Stencil Texture", "GBuffer", NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-	hr = _pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_DEPTH], &descShaderResourceView, &_pShaderResourceView[GBUF_DEPTH]);
+	hr = Device->CreateShaderResourceView(_pTexture[GBUF_DEPTH], &descShaderResourceView, &_pShaderResourceView[GBUF_DEPTH]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Resource View", "GBuffer", NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = DXGI_FORMAT_X24_TYPELESS_G8_UINT;
-	hr = _pd3dDevice->CreateShaderResourceView(_pTexture[GBUF_DEPTH], &descShaderResourceView, &_pShaderResourceView[GBUF_STENCIL]);
+	hr = Device->CreateShaderResourceView(_pTexture[GBUF_DEPTH], &descShaderResourceView, &_pShaderResourceView[GBUF_STENCIL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Stencil Resource View", "GBuffer", NULL);
 		exit(1);
 	}
 	descDepthView.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	hr = _pd3dDevice->CreateDepthStencilView(_pTexture[GBUF_DEPTH], &descDepthView, &_pDepthStencilView);
+	hr = Device->CreateDepthStencilView(_pTexture[GBUF_DEPTH], &descDepthView, &_pDepthStencilView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Stencil Render View", "GBuffer", NULL);
@@ -267,7 +268,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
-	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pSkyboxDepthStencilState);
+	hr = Device->CreateDepthStencilState(&descDepth, &_pSkyboxDepthStencilState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Skybox Depth Stencil State", "GBuffer", NULL);
@@ -288,7 +289,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	descDepth.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 	descDepth.BackFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
 	descDepth.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pGeometryDepthStencilState);
+	hr = Device->CreateDepthStencilState(&descDepth, &_pGeometryDepthStencilState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Geometry Depth Stencil State", "GBuffer", NULL);
@@ -298,7 +299,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	descDepth.DepthEnable = FALSE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	descDepth.StencilEnable = FALSE;
-	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pLightDepthStencilState);
+	hr = Device->CreateDepthStencilState(&descDepth, &_pLightDepthStencilState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Light Depth Stencil State", "GBuffer", NULL);
@@ -316,7 +317,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	descDepth.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 	descDepth.BackFace.StencilPassOp = D3D11_STENCIL_OP_ZERO;
 	descDepth.BackFace.StencilFunc = D3D11_COMPARISON_EQUAL;
-	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pBackgroundDepthStencilState);
+	hr = Device->CreateDepthStencilState(&descDepth, &_pBackgroundDepthStencilState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Light Depth Stencil State", "GBuffer", NULL);
@@ -330,7 +331,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	// Skybox Blending
 	descBlend.RenderTarget[0].BlendEnable = FALSE;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	hr = _pd3dDevice->CreateBlendState(&descBlend, &_pSkyboxBlendState);
+	hr = Device->CreateBlendState(&descBlend, &_pSkyboxBlendState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Skybox Blend State", "GBuffer", NULL);
@@ -339,7 +340,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	// Geometry Blending
 	descBlend.RenderTarget[0].BlendEnable = FALSE;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	hr = _pd3dDevice->CreateBlendState(&descBlend, &_pGeometryBlendState);
+	hr = Device->CreateBlendState(&descBlend, &_pGeometryBlendState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Geometry Blend State", "GBuffer", NULL);
@@ -354,7 +355,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
 	descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	hr = _pd3dDevice->CreateBlendState(&descBlend, &_pLightBlendState);
+	hr = Device->CreateBlendState(&descBlend, &_pLightBlendState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Light Blend State", "GBuffer", NULL);
@@ -369,7 +370,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	hr = _pd3dDevice->CreateBlendState(&descBlend, &_pBackgroundBlendState);
+	hr = Device->CreateBlendState(&descBlend, &_pBackgroundBlendState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Background Blend State", "GBuffer", NULL);
@@ -388,7 +389,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height, ID3D11Device
 	descRasterizer.ScissorEnable = FALSE;
 	descRasterizer.MultisampleEnable = FALSE;
 	descRasterizer.AntialiasedLineEnable = FALSE;
-	hr = _pd3dDevice->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
+	hr = Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Rasterizer State", "GBuffer", NULL);
@@ -415,11 +416,11 @@ void engine::GBuffer::setSkyboxState(void) const
 	{
 		_pRenderTargetView[GBUF_BACKGROUND],
 	};
-	_pContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_pContext->OMSetDepthStencilState(_pSkyboxDepthStencilState, 1);
-	_pContext->OMSetBlendState(_pSkyboxBlendState, NULL, 0xFFFFFFFF);
-	_pContext->RSSetState(_pRasterizerState);
-	_pContext->RSSetViewports(1, &_VP);
+	DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
+	DeviceContext->OMSetDepthStencilState(_pSkyboxDepthStencilState, 1);
+	DeviceContext->OMSetBlendState(_pSkyboxBlendState, NULL, 0xFFFFFFFF);
+	DeviceContext->RSSetState(_pRasterizerState);
+	DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void engine::GBuffer::setGeometryState(void) const
@@ -429,11 +430,11 @@ void engine::GBuffer::setGeometryState(void) const
 		_pRenderTargetView[GBUF_NORMAL],
 		_pRenderTargetView[GBUF_MATERIAL],
 	};
-	_pContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_pContext->OMSetDepthStencilState(_pGeometryDepthStencilState, 1);
-	_pContext->OMSetBlendState(_pGeometryBlendState, NULL, 0xFFFFFFFF);
-	_pContext->RSSetState(_pRasterizerState);
-	_pContext->RSSetViewports(1, &_VP);
+	DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
+	DeviceContext->OMSetDepthStencilState(_pGeometryDepthStencilState, 1);
+	DeviceContext->OMSetBlendState(_pGeometryBlendState, NULL, 0xFFFFFFFF);
+	DeviceContext->RSSetState(_pRasterizerState);
+	DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void engine::GBuffer::setLightState(void) const
@@ -442,11 +443,11 @@ void engine::GBuffer::setLightState(void) const
 	{
 		_pRenderTargetView[GBUF_LIGHT],
 	};
-	_pContext->OMSetRenderTargets(ARRAYSIZE(render), render, NULL);
-	_pContext->OMSetDepthStencilState(_pLightDepthStencilState, 1);
-	_pContext->OMSetBlendState(_pLightBlendState, NULL, 0xFFFFFFFF);
-	_pContext->RSSetState(_pRasterizerState);
-	_pContext->RSSetViewports(1, &_VP);
+	DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, NULL);
+	DeviceContext->OMSetDepthStencilState(_pLightDepthStencilState, 1);
+	DeviceContext->OMSetBlendState(_pLightBlendState, NULL, 0xFFFFFFFF);
+	DeviceContext->RSSetState(_pRasterizerState);
+	DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void engine::GBuffer::setBackgroundState(void) const
@@ -455,23 +456,23 @@ void engine::GBuffer::setBackgroundState(void) const
 	{
 		_pRenderTargetView[GBUF_BACKGROUND],
 	};
-	_pContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_pContext->OMSetDepthStencilState(_pBackgroundDepthStencilState, 1);
-	_pContext->OMSetBlendState(_pBackgroundBlendState, NULL, 0xFFFFFFFF);
-	_pContext->RSSetState(_pRasterizerState);
-	_pContext->RSSetViewports(1, &_VP);
+	DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
+	DeviceContext->OMSetDepthStencilState(_pBackgroundDepthStencilState, 1);
+	DeviceContext->OMSetBlendState(_pBackgroundBlendState, NULL, 0xFFFFFFFF);
+	DeviceContext->RSSetState(_pRasterizerState);
+	DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void engine::GBuffer::clear(void) const
 {
-	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], Colors::Transparent);
-	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], Colors::Transparent);
-	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_LIGHT], Colors::Transparent);
-	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_BACKGROUND], Colors::Transparent);
-	_pContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], Colors::Transparent);
+	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], Colors::Transparent);
+	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_LIGHT], Colors::Transparent);
+	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_BACKGROUND], Colors::Transparent);
+	DeviceContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void engine::GBuffer::clearLight(void) const
 {
-	_pContext->ClearRenderTargetView(_pRenderTargetView[GBUF_LIGHT], Colors::Transparent);
+	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_LIGHT], Colors::Transparent);
 }

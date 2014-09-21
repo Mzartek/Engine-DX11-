@@ -5,18 +5,18 @@
 
 namespace engine
 {
+	class Texture;
+	class Buffer;
+
 	class DLLAPI Mesh : public Object
 	{
 		friend int comparMesh(const void *p1, const void *p2);
 	private:
-		ID3D11Texture2D *_pColorTex;
-		ID3D11Texture2D *_pNMTex;
-		ID3D11ShaderResourceView *_pColorTexSHR;
-		ID3D11ShaderResourceView *_pNMTexSHR;
-		ID3D11SamplerState *_pTexSamplerState;
-		ID3D11Buffer *_pVertexBuffer;
-		ID3D11Buffer *_pIndexBuffer;
-		ID3D11Buffer *_pMaterialBuffer;
+		Texture *_colorTexture;
+		Texture *_NMTexture;
+		Buffer *_vertexBuffer;
+		Buffer *_indexBuffer;
+		Buffer *_materialBuffer;
 		struct material
 		{
 			XMFLOAT4 ambient;
@@ -26,20 +26,19 @@ namespace engine
 		} _material;
 		UINT _numElement;
 	public:
-		explicit Mesh(ID3D11Device *pd3dDevice);
+		Mesh(void);
 		~Mesh(void);
-		void setColorTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState);
-		void setNMTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView);
+		void setColorTexture(const TCHAR *path);
+		void setNMTexture(const TCHAR *path);
 		void setAmbient(const XMFLOAT4 &ambient);
 		void setDiffuse(const XMFLOAT4 &diffuse);
 		void setSpecular(const XMFLOAT4 &specular);
 		void setShininess(const FLOAT &shininess);
 		FLOAT getTransparency(void);
 		void load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
-			const UINT &sizeIndexArray, const UINT *indexArray,
-			ID3D11Device *pd3dDevice);
-		void display(ID3D11DeviceContext *pContext) const;
-		void displayShadow(ID3D11DeviceContext *pContext) const;
+			const UINT &sizeIndexArray, const UINT *indexArray);
+		void display(void) const;
+		void displayShadow(void) const;
 	};
   
 	int comparMesh(const void *p1, const void *p2);

@@ -17,8 +17,3 @@ UINT engine::FrameBuffer::getHeight(void) const
 {
 	return _height;
 }
-
-ID3D11DeviceContext *engine::FrameBuffer::getContext(void) const
-{
-	return _pContext;
-}

@@ -5,6 +5,7 @@
 
 namespace engine
 {
+	class Buffer;
 	class ShaderProgram;
 	class GBuffer;
 	class Renderer;
@@ -13,15 +14,15 @@ namespace engine
 	{
 	private:
 		ID3D11InputLayout *_pInputLayout;
-		ID3D11Buffer *_pVertexBuffer;
-		ID3D11Buffer *_pScreenColorBuffer;
+		Buffer *_vertexBuffer;
+		Buffer *_screenColorBuffer;
 		// Do not delete it
 		ShaderProgram *_backgroundProgram;
 		ShaderProgram *_directProgram;
 	public:
 		Screen();
 		~Screen();
-		void config(ShaderProgram *backgroundProgram, ShaderProgram *directProgram, ID3D11Device *pd3dDevice);
+		void config(ShaderProgram *backgroundProgram, ShaderProgram *directProgram);
 		void background(GBuffer *gbuf);
 		void display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a);
 	};

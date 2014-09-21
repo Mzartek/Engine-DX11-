@@ -1,51 +1,37 @@
 #include <Engine/Mesh.hpp>
+#include <Engine/Texture.hpp>
+#include <Engine/Buffer.hpp>
 
-engine::Mesh::Mesh(ID3D11Device *pd3dDevice)
-	: _pColorTex(NULL), _pNMTex(NULL), 
-	_pColorTexSHR(NULL), _pNMTexSHR(NULL),
-	_pTexSamplerState(NULL),
-	_pVertexBuffer(NULL), _pIndexBuffer(NULL)
+extern ID3D11DeviceContext *DeviceContext;
+
+engine::Mesh::Mesh(void)
 {
-	D3D11_BUFFER_DESC bd;
-	bd.ByteWidth = sizeof _material;
-	bd.Usage = D3D11_USAGE_DYNAMIC;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	bd.MiscFlags = 0;
-	bd.StructureByteStride = 0;
-	pd3dDevice->CreateBuffer(&bd, NULL, &_pMaterialBuffer);
+	_colorTexture = new Texture;
+	_NMTexture = new Texture;
+	_vertexBuffer = new Buffer;
+	_indexBuffer = new Buffer;
+	_materialBuffer = new Buffer;
+
+	_materialBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _material, D3D11_USAGE_DYNAMIC);
 }
 
 engine::Mesh::~Mesh(void)
 {
-	if (_pColorTex) _pColorTex->Release();
-	if (_pNMTex) _pNMTex->Release();
-	if (_pColorTexSHR) _pColorTexSHR->Release();
-	if (_pNMTexSHR) _pNMTexSHR->Release();
-	if (_pTexSamplerState) _pTexSamplerState->Release();
-	if (_pVertexBuffer) _pVertexBuffer->Release();
-	if (_pIndexBuffer) _pIndexBuffer->Release();
-	_pMaterialBuffer->Release();
+	delete _colorTexture;
+	delete _NMTexture;
+	delete _vertexBuffer;
+	delete _indexBuffer;
+	delete _materialBuffer;
 }
 
-void engine::Mesh::setColorTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView, ID3D11SamplerState *pSamplerState)
+void engine::Mesh::setColorTexture(const TCHAR *path)
 {
-	if (_pColorTex) _pColorTex->Release();
-	if (_pColorTexSHR) _pColorTexSHR->Release();
-	if (_pTexSamplerState) _pTexSamplerState->Release();
-	
-	_pColorTex = ptex;
-	_pColorTexSHR = pShaderResourceView;
-	_pTexSamplerState = pSamplerState;
+	_colorTexture->load2DTextureFromFile(path);
 }
 
-void engine::Mesh::setNMTexture(ID3D11Texture2D *ptex, ID3D11ShaderResourceView *pShaderResourceView)
+void engine::Mesh::setNMTexture(const TCHAR *path)
 {
-	if (_pNMTex) _pNMTex->Release();
-	if (_pNMTexSHR) _pNMTexSHR->Release();
-
-	_pNMTex = ptex;
-	_pNMTexSHR = pShaderResourceView;
+	_NMTexture->load2DTextureFromFile(path);
 }
 
 void engine::Mesh::setAmbient(const XMFLOAT4 &ambient)
@@ -74,71 +60,72 @@ FLOAT engine::Mesh::getTransparency(void)
 }
 
 void engine::Mesh::load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
-	const UINT &sizeIndexArray, const UINT *indexArray,
-	ID3D11Device *pd3dDevice)
+	const UINT &sizeIndexArray, const UINT *indexArray)
 {
-	HRESULT hr;
-	D3D11_BUFFER_DESC bd;
-	D3D11_SUBRESOURCE_DATA data;
-
-	if (_pVertexBuffer) _pVertexBuffer->Release();
-	if (_pIndexBuffer) _pIndexBuffer->Release();
-
 	_numElement = sizeIndexArray / (UINT)sizeof(UINT);
 
 	// Create vertex buffer
-	bd.ByteWidth = sizeVertexArray;
-	bd.Usage = D3D11_USAGE_IMMUTABLE;
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.MiscFlags = 0;
-	bd.StructureByteStride = 0;
-	bd.CPUAccessFlags = 0;
-	data.pSysMem = vertexArray;
-	data.SysMemPitch = 0;
-	data.SysMemSlicePitch = 0;
-	hr = pd3dDevice->CreateBuffer(&bd, &data, &_pVertexBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, "Failed to create Vertex Buffer", "Mesh", MB_OK);
-		exit(1);
-	}
+	_vertexBuffer->createStore(D3D11_BIND_VERTEX_BUFFER, vertexArray, sizeVertexArray, D3D11_USAGE_IMMUTABLE);
 
 	// Create index buffer
-	bd.ByteWidth = sizeIndexArray;
-	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	data.pSysMem = indexArray;
-	hr = pd3dDevice->CreateBuffer(&bd, &data, &_pIndexBuffer);
-	if (FAILED(hr))
+	_indexBuffer->createStore(D3D11_BIND_INDEX_BUFFER, indexArray, sizeIndexArray, D3D11_USAGE_IMMUTABLE);
+}
+
+void engine::Mesh::display(void) const
+{
+	ID3D11ShaderResourceView *pshr[] =
 	{
-		MessageBox(NULL, "Failed to create Index Buffer", "Mesh", MB_OK);
-		exit(1);
-	}
-}
+		_colorTexture->getShaderResourceView(),
+		_NMTexture->getShaderResourceView(),
+	};
+	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	ID3D11SamplerState *psam[] =
+	{
+		_colorTexture->getSamplerState(),
+		_NMTexture->getSamplerState(),
+	};
+	DeviceContext->PSSetSamplers(0, ARRAYSIZE(psam), psam);
 
-void engine::Mesh::display(ID3D11DeviceContext *pContext) const
-{
-	pContext->PSSetShaderResources(0, 1, &_pColorTexSHR);
-	pContext->PSSetShaderResources(1, 1, &_pNMTexSHR);
-	pContext->PSSetSamplers(0, 1, &_pTexSamplerState);
-
-	updateDynamicBuffer(_pMaterialBuffer, &_material, sizeof _material, pContext);
-	pContext->PSSetConstantBuffers(0, 1, &_pMaterialBuffer);
-
-	UINT stride = 11 * sizeof(FLOAT), offset = 0;
-	pContext->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
-	pContext->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
-	pContext->DrawIndexed(_numElement, 0, 0);
-}
-
-void engine::Mesh::displayShadow(ID3D11DeviceContext *pContext) const
-{
-	pContext->PSSetShaderResources(0, 1, &_pColorTexSHR);
-	pContext->PSSetSamplers(0, 1, &_pTexSamplerState);
+	_materialBuffer->updateStoreMap(&_material);
+	ID3D11Buffer *buf[] =
+	{
+		_materialBuffer->getBuffer(),
+	};
+	DeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
 	UINT stride = 11 * sizeof(FLOAT), offset = 0;
-	pContext->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
-	pContext->IASetIndexBuffer(_pIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
-	pContext->DrawIndexed(_numElement, 0, 0);
+	ID3D11Buffer *drawBuf[] =
+	{
+		_vertexBuffer->getBuffer(),
+		_indexBuffer->getBuffer(),
+	};
+	DeviceContext->IASetVertexBuffers(0, 1, &drawBuf[0], &stride, &offset);
+	DeviceContext->IASetIndexBuffer(drawBuf[1], DXGI_FORMAT_R32_UINT, offset);
+	DeviceContext->DrawIndexed(_numElement, 0, 0);
+}
+
+void engine::Mesh::displayShadow(void) const
+{
+	ID3D11ShaderResourceView *pshr[] =
+	{
+		_colorTexture->getShaderResourceView(),
+	};
+	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	ID3D11SamplerState *psam[] =
+	{
+		_colorTexture->getSamplerState(),
+	};
+	DeviceContext->PSSetSamplers(0, ARRAYSIZE(psam), psam);
+
+	UINT stride = 11 * sizeof(FLOAT), offset = 0;
+	ID3D11Buffer *drawBuf[] =
+	{
+		_vertexBuffer->getBuffer(),
+		_indexBuffer->getBuffer(),
+	};
+	DeviceContext->IASetVertexBuffers(0, 1, &drawBuf[0], &stride, &offset);
+	DeviceContext->IASetIndexBuffer(drawBuf[1], DXGI_FORMAT_R32_UINT, offset);
+	DeviceContext->DrawIndexed(_numElement, 0, 0);
 }
 
 int engine::comparMesh(const void *p1, const void *p2)

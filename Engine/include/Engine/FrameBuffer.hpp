@@ -11,15 +11,12 @@ namespace engine
 		UINT _width;
 		UINT _height;
 		D3D11_VIEWPORT _VP;
-		ID3D11Device *_pd3dDevice;
-		ID3D11DeviceContext *_pContext;
 	public:
 		FrameBuffer(void);
 		~FrameBuffer(void);
-		virtual void config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext) = 0;
+		virtual void config(const UINT &width, const UINT &height) = 0;
 		UINT getWidth(void) const;
 		UINT getHeight(void) const;
-		ID3D11DeviceContext *getContext(void) const;
 		virtual void clear(void) const = 0;
 	};
 }

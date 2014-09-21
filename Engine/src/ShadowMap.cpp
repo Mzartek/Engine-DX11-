@@ -1,5 +1,8 @@
 #include <Engine/ShadowMap.hpp>
 
+extern ID3D11Device *Device;
+extern ID3D11DeviceContext *DeviceContext;
+
 engine::ShadowMap::ShadowMap()
 {
 	// Texture
@@ -28,9 +31,12 @@ engine::ShadowMap::~ShadowMap()
 	if (_pSamplerComparisonState) _pSamplerComparisonState->Release();
 }
 
-void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+void engine::ShadowMap::config(const UINT &width, const UINT &height)
 {
 	HRESULT hr;
+
+	_width = width;
+	_height = height;
 
 	// Texture
 	if (_pTexture) _pTexture->Release();
@@ -42,11 +48,6 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Devi
 	if (_pDepthState) _pDepthState->Release();
 	if (_pRasterizerState) _pRasterizerState->Release();
 	if (_pSamplerComparisonState) _pSamplerComparisonState->Release();
-
-	_width = width;
-	_height = height;
-	_pd3dDevice = pd3dDevice;
-	_pContext = pContext;
 
 	D3D11_TEXTURE2D_DESC descTexture;
 	descTexture.Width = _width;
@@ -73,19 +74,19 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Devi
 	descTexture.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	descShaderResourceView.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 	descDepthView.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	hr = _pd3dDevice->CreateTexture2D(&descTexture, NULL, &_pTexture);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Texture", "GBuffer", NULL);
 		exit(1);
 	}
-	hr = _pd3dDevice->CreateShaderResourceView(_pTexture, &descShaderResourceView, &_pShaderResourceView);
+	hr = Device->CreateShaderResourceView(_pTexture, &descShaderResourceView, &_pShaderResourceView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Resource View", "GBuffer", NULL);
 		exit(1);
 	}
-	hr = _pd3dDevice->CreateDepthStencilView(_pTexture, &descDepthView, &_pDepthView);
+	hr = Device->CreateDepthStencilView(_pTexture, &descDepthView, &_pDepthView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Render View", "GBuffer", NULL);
@@ -98,7 +99,7 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Devi
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
-	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthState);
+	hr = Device->CreateDepthStencilState(&descDepth, &_pDepthState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil State", "ShadowMap", NULL);
@@ -116,7 +117,7 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Devi
 	descRasterizer.ScissorEnable = FALSE;
 	descRasterizer.MultisampleEnable = FALSE;
 	descRasterizer.AntialiasedLineEnable = FALSE;
-	hr = _pd3dDevice->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
+	hr = Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Rasterizer State", "ShadowMap", NULL);
@@ -137,7 +138,7 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height, ID3D11Devi
 	descSampler.BorderColor[3] = 1.0f;
 	descSampler.MinLOD = 0;
 	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	hr = pd3dDevice->CreateSamplerState(&descSampler, &_pSamplerComparisonState);
+	hr = Device->CreateSamplerState(&descSampler, &_pSamplerComparisonState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Error while creating the SamplerState", "ShadowMap", MB_OK);
@@ -165,14 +166,14 @@ ID3D11SamplerState *engine::ShadowMap::getSamplerComparisonState(void) const
 
 void engine::ShadowMap::setState(void) const
 {
-	_pContext->OMSetRenderTargets(0, NULL, _pDepthView);
-	_pContext->OMSetDepthStencilState(_pDepthState, 0);
-	_pContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
-	_pContext->RSSetState(_pRasterizerState);
-	_pContext->RSSetViewports(1, &_VP);
+	DeviceContext->OMSetRenderTargets(0, NULL, _pDepthView);
+	DeviceContext->OMSetDepthStencilState(_pDepthState, 0);
+	DeviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
+	DeviceContext->RSSetState(_pRasterizerState);
+	DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void engine::ShadowMap::clear(void) const
 {
-	_pContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	DeviceContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

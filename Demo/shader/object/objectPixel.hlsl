@@ -1,6 +1,7 @@
 Texture2D colorTex : register(t0);
 Texture2D NMTex : register(t1);
 SamplerState colorSampleType : register(s0);
+SamplerState NMSampleType : register(s1);
 
 cbuffer materialBuffer : register(b0)
 {
@@ -45,7 +46,7 @@ PS_OUTPUT main(PS_INPUT input)
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
 	float4 color = colorTex.Sample(colorSampleType, input.texCoord);
-	float3 normal = CalcBumpedNormal(input.TBN, NMTex.Sample(colorSampleType, input.texCoord).xyz);
+	float3 normal = CalcBumpedNormal(input.TBN, NMTex.Sample(NMSampleType, input.texCoord).xyz);
 
 	if (color.a > 0.5)
 	{

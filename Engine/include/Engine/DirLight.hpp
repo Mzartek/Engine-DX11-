@@ -17,7 +17,7 @@ namespace engine
 	public:
 		DirLight(void);
 		~DirLight(void);
-		void config(ShaderProgram *program, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
+		void config(ShaderProgram *program);
 		void setColor(const XMFLOAT3 &color);
 		void setDirection(const XMFLOAT3 &dir);
 		void setShadowMapping(const BOOL &shadow);

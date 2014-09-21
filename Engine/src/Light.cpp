@@ -1,9 +1,16 @@
 #include <Engine/Light.hpp>
+#include <Engine/Buffer.hpp>
 #include <Engine/ShadowMap.hpp>
 
 engine::Light::Light(void)
-	: _pInputLayout(NULL), _pVertexBuffer(NULL), _pShadowMatrixBuffer(NULL), _pIVPMatrixBuffer(NULL), _pScreenBuffer(NULL), _pCameraBuffer(NULL), _pLightInfoBuffer(NULL)
+	: _pInputLayout(NULL)
 {
+	_vertexBuffer = new Buffer;
+	_shadowMatrixBuffer = new Buffer;
+	_IVPMatrixBuffer = new Buffer;
+	_screenBuffer = new Buffer;
+	_cameraBuffer = new Buffer;
+	_lightInfoBuffer = new Buffer;
 	_VPMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_VPMatrix, 16);
 	_shadow = new ShadowMap;
 }
@@ -11,19 +18,19 @@ engine::Light::Light(void)
 engine::Light::~Light(void)
 {
 	if (_pInputLayout) _pInputLayout->Release();
-	if (_pVertexBuffer) _pVertexBuffer->Release();
-	if (_pShadowMatrixBuffer) _pShadowMatrixBuffer->Release();
-	if (_pIVPMatrixBuffer) _pIVPMatrixBuffer->Release();
-	if (_pScreenBuffer) _pScreenBuffer->Release();
-	if (_pCameraBuffer) _pCameraBuffer->Release();
-	if (_pLightInfoBuffer) _pLightInfoBuffer->Release();
+	delete _vertexBuffer;
+	delete _shadowMatrixBuffer;
+	delete _IVPMatrixBuffer;
+	delete _screenBuffer;
+	delete _cameraBuffer;
+	delete _lightInfoBuffer;
 	_aligned_free(_VPMatrix);
 	delete _shadow;
 }
 
-void engine::Light::configShadowMap(const UINT &width, const UINT &height, ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
+void engine::Light::configShadowMap(const UINT &width, const UINT &height)
 {
-	_shadow->config(width, height, pd3dDevice, pContext);
+	_shadow->config(width, height);
 }
 
 XMMATRIX engine::Light::getVPMatrix(void) const

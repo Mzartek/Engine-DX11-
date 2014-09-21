@@ -1,32 +1,37 @@
 #include <Engine/Renderer.hpp>
 
-D3D_FEATURE_LEVEL engine::EngineGraphicsFeatureLevel;
-std::string engine::EngineShaderLevel;
+D3D_FEATURE_LEVEL FeatureLevel;
+std::string ShaderLevel;
+ID3D11Device *Device;
+ID3D11DeviceContext *DeviceContext;
 
-static void checkShaderVersion(void)
+static std::string checkShaderVersion(const D3D_FEATURE_LEVEL &featureLevel)
 {
-	switch (engine::EngineGraphicsFeatureLevel)
+	std::string shaderLevel;
+
+	switch (featureLevel)
 	{
 	case D3D_FEATURE_LEVEL_11_1:
-		engine::EngineShaderLevel = "5_0";
+		shaderLevel = "5_0";
 		break;
 	case D3D_FEATURE_LEVEL_11_0:
-		engine::EngineShaderLevel = "5_0";
+		shaderLevel = "5_0";
 		break;
 	case D3D_FEATURE_LEVEL_10_1:
-		engine::EngineShaderLevel = "4_1";
+		shaderLevel = "4_1";
 		break;
 	case D3D_FEATURE_LEVEL_10_0:
-		engine::EngineShaderLevel = "4_0";
+		shaderLevel = "4_0";
+		break;
+	default:
+		shaderLevel = "unknown";
 		break;
 	}
+	return shaderLevel;
 }
 
 engine::Renderer::Renderer(void)
 {
-	// Device
-	_pd3dDevice = NULL;
-	_pContext = NULL;
 	// Texture
 	_pSwapChain = NULL;
 	_pDepthStencilTexture = NULL;
@@ -45,11 +50,11 @@ engine::Renderer::Renderer(void)
 
 engine::Renderer::~Renderer(void)
 {
-	if (_pContext) _pContext->ClearState();
+	if (DeviceContext) DeviceContext->ClearState();
 
-	//Device
-	if (_pd3dDevice)_pd3dDevice->Release();
-	if (_pContext) _pContext->Release();
+	// Device
+	if (Device) Device->Release();
+	if (DeviceContext) DeviceContext->Release();
 	// Texture
 	if (_pSwapChain) _pSwapChain->Release();
 	if (_pDepthStencilTexture) _pDepthStencilTexture->Release();
@@ -84,7 +89,8 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	RegisterClass(&wcex);
 
 	_hInst = hInstance;
-	_hWnd = CreateWindow(szTitle, szTitle, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, NULL, NULL, hInstance, NULL);
+	_hWnd = CreateWindow(szTitle, szTitle, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 
+		_width, _height, NULL, NULL, hInstance, NULL);
 
 	if (!_hWnd)
 	{
@@ -119,13 +125,13 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 		D3D_FEATURE_LEVEL_10_0,
 	};
 	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
-		&sd, &_pSwapChain, &_pd3dDevice, &EngineGraphicsFeatureLevel, &_pContext);
+		&sd, &_pSwapChain, &Device, &FeatureLevel, &DeviceContext);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Device and SwapChain", "Renderer", NULL);
 		exit(1);
 	}
-	checkShaderVersion();
+	ShaderLevel = checkShaderVersion(FeatureLevel);
 
 	// Create the RenderTargetView
 	ID3D11Texture2D *pBackBuffer;
@@ -135,7 +141,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 		MessageBox(NULL, "Failed to get BackBuffer", "Renderer", NULL);
 		exit(1);
 	}
-	hr = _pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &_pRenderTargetView);
+	hr = Device->CreateRenderTargetView(pBackBuffer, NULL, &_pRenderTargetView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create RenderTarget View", "Renderer", NULL);
@@ -155,7 +161,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	descDepthStencilTexture.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	descDepthStencilTexture.CPUAccessFlags = 0;
 	descDepthStencilTexture.MiscFlags = 0;
-	hr = _pd3dDevice->CreateTexture2D(&descDepthStencilTexture, NULL, &_pDepthStencilTexture);
+	hr = Device->CreateTexture2D(&descDepthStencilTexture, NULL, &_pDepthStencilTexture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil Texture", "Renderer", NULL);
@@ -168,7 +174,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	descDepthStencilView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDepthStencilView.Flags = 0;
 	descDepthStencilView.Texture2D.MipSlice = 0;
-	hr = _pd3dDevice->CreateDepthStencilView(_pDepthStencilTexture, &descDepthStencilView, &_pDepthStencilView);
+	hr = Device->CreateDepthStencilView(_pDepthStencilTexture, &descDepthStencilView, &_pDepthStencilView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil View", "Renderer", NULL);
@@ -180,7 +186,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	descDepth.DepthEnable = FALSE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	descDepth.StencilEnable = FALSE;
-	hr = _pd3dDevice->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+	hr = Device->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil State", "Renderer", NULL);
@@ -199,7 +205,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	hr = _pd3dDevice->CreateBlendState(&descBlend, &_pBlendState);
+	hr = Device->CreateBlendState(&descBlend, &_pBlendState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Blend State", "Renderer", NULL);
@@ -218,7 +224,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	descRasterizer.ScissorEnable = FALSE;
 	descRasterizer.MultisampleEnable = FALSE;
 	descRasterizer.AntialiasedLineEnable = FALSE;
-	hr = _pd3dDevice->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
+	hr = Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Rasterizer State", "Renderer", NULL);
@@ -269,16 +275,6 @@ HWND engine::Renderer::getHWND(void)
 	return _hWnd;
 }
 
-ID3D11Device *engine::Renderer::getD3DDevice(void)
-{
-	return _pd3dDevice;
-}
-
-ID3D11DeviceContext *engine::Renderer::getContext(void)
-{
-	return _pContext;
-}
-
 void engine::Renderer::mainLoop(int nCmdShow)
 {
 	MSG msg = { 0 };
@@ -319,15 +315,15 @@ void engine::Renderer::stopLoop(void)
 
 void engine::Renderer::setState(void) const
 {
-	_pContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
-	_pContext->OMSetDepthStencilState(_pDepthStencilState, 0);
-	_pContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
-	_pContext->RSSetState(_pRasterizerState);
-	_pContext->RSSetViewports(1, &_VP);
+	DeviceContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
+	DeviceContext->OMSetDepthStencilState(_pDepthStencilState, 0);
+	DeviceContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
+	DeviceContext->RSSetState(_pRasterizerState);
+	DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void engine::Renderer::clear(void)
 {
-	_pContext->ClearRenderTargetView(_pRenderTargetView, Colors::Transparent);
-	_pContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	DeviceContext->ClearRenderTargetView(_pRenderTargetView, Colors::Transparent);
+	DeviceContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
