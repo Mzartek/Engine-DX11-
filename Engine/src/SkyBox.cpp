@@ -73,13 +73,8 @@ void engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
 	};
 	_numElement = sizeof(indexArray) / sizeof(UINT);
 
-	// Create vertex buffer
 	_vertexBuffer->createStore(D3D11_BIND_VERTEX_BUFFER, vertexArray, sizeof vertexArray, D3D11_USAGE_IMMUTABLE);
-
-	// Create Index Buffer
 	_indexBuffer->createStore(D3D11_BIND_INDEX_BUFFER, indexArray, sizeof indexArray, D3D11_USAGE_IMMUTABLE);
-
-	// Create the matrix buffer
 	_MVPMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
 }
 

@@ -8,7 +8,7 @@ cbuffer materialBuffer : register(b0)
 	float4 matAmbient;
 	float4 matDiffuse;
 	float4 matSpecular;
-	float matShininess;
+	float shininess;
 }
 
 struct PS_INPUT
@@ -25,14 +25,13 @@ struct PS_OUTPUT
 	float depth : SV_Depth;
 };
 
-uint4 pack(int4 a, int4 b, int4 c, int4 d)
+uint packUnorm4x8(float4 v)
 {
-	uint4 res =
-		(0xFF000000 & (a << 24)) |
-		(0x00FF0000 & (b << 16)) |
-		(0x0000FF00 & (c << 8)) |
-		(0x000000FF & d);
-
+	uint res;
+	res = uint(round(clamp(v.x, 0.0, 1.0) * 255.0)) << 24;
+	res |= uint(round(clamp(v.y, 0.0, 1.0) * 255.0)) << 16;
+	res |= uint(round(clamp(v.z, 0.0, 1.0) * 255.0)) << 8;
+	res |= uint(round(clamp(v.w, 0.0, 1.0) * 255.0));
 	return res;
 }
 
@@ -50,8 +49,11 @@ PS_OUTPUT main(PS_INPUT input)
 
 	if (color.a > 0.5)
 	{
-		output.normal = float4(normal, matShininess);
-		output.material = pack(color * 255, matAmbient * 255, matDiffuse * 255, matSpecular * 255);
+		output.normal = float4(normal, shininess);
+		output.material.x = packUnorm4x8(color);
+		output.material.y = packUnorm4x8(matAmbient);
+		output.material.z = packUnorm4x8(matDiffuse);
+		output.material.w = packUnorm4x8(matSpecular);
 		output.depth = input.position.z;
 	}
 	else

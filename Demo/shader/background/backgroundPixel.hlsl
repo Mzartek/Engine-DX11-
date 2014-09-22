@@ -11,9 +11,14 @@ struct PS_OUTPUT
 	float4 finalColor : SV_TARGET;
 };
 
-int4 unpack(uint4 a, int v)
+float4 unpackUnorm4x8(uint v)
 {
-	return (0x000000FF & (a >> (v * 8)));
+	float4 res;
+	res.x = float(0x000000FF & (v >> 24)) / 255.0;
+	res.y = float(0x000000FF & (v >> 16)) / 255.0;
+	res.z = float(0x000000FF & (v >> 8)) / 255.0;
+	res.w = float(0x000000FF & v) / 255.0;
+	return res;
 }
 
 PS_OUTPUT main(PS_INPUT input)
@@ -23,7 +28,7 @@ PS_OUTPUT main(PS_INPUT input)
 	uint4 material = materialTex[input.position.xy];
 	float4 light = lightTex[input.position.xy];
 
-	output.finalColor = (float4(unpack(material, 3)) / 255) * ((float4(unpack(material, 2)) / 255) + light);
+	output.finalColor = unpackUnorm4x8(material.x) * (unpackUnorm4x8(material.y) + light);
 	output.finalColor = clamp(output.finalColor, 0.0, 1.0);
 
 	return output;

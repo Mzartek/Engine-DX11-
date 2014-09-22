@@ -45,20 +45,14 @@ struct PS_OUTPUT
 	float4 light : SV_TARGET;
 };
 
-uint4 pack(int4 a, int4 b, int4 c, int4 d)
+float4 unpackUnorm4x8(uint v)
 {
-	uint4 res =
-		(0xFF000000 & (a << 24)) |
-		(0x00FF0000 & (b << 16)) |
-		(0x0000FF00 & (c << 8)) |
-		(0x000000FF & d);
-
+	float4 res;
+	res.x = float(0x000000FF & (v >> 24)) / 255.0;
+	res.y = float(0x000000FF & (v >> 16)) / 255.0;
+	res.z = float(0x000000FF & (v >> 8)) / 255.0;
+	res.w = float(0x000000FF & v) / 255.0;
 	return res;
-}
-
-int4 unpack(uint4 a, int v)
-{
-	return (0x000000FF & (a >> (v * 8)));
 }
 
 float3 getPosition(float2 pixelCoord)
@@ -136,8 +130,8 @@ PS_OUTPUT main(PS_INPUT input)
 	float4 normal = normalTex[input.position.xy];
 	uint4 material = materialTex[input.position.xy];
 
-	float4 diffColor = (float4(unpack(material, 1)) / 255) * float4(lightColor, 1.0);
-	float4 specColor = (float4(unpack(material, 0)) / 255) * float4(lightColor, 1.0);
+	float4 diffColor = unpackUnorm4x8(material.z) * float4(lightColor, 1.0);
+	float4 specColor = unpackUnorm4x8(material.w) * float4(lightColor, 1.0);
 
 	float s = 1.0;
 	if (withShadowMapping)

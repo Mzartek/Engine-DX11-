@@ -32,7 +32,7 @@ namespace engine
 	public:
 		Renderer(void);
 		~Renderer(void);
-		void initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), 
+		void initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), const int &nCmdShow,
 			const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen);
 		void setDisplayFunc(void(*f) (void));
 		void setIdleFunc(void(*f) (void));
@@ -41,7 +41,7 @@ namespace engine
 		UINT getHeight(void);
 		HINSTANCE getHINSTANCE(void);
 		HWND getHWND(void);
-		void mainLoop(int nCmdShow);
+		void mainLoop(void);
 		void stopLoop(void);
 		void setState(void) const;
 		void clear(void);

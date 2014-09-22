@@ -53,7 +53,7 @@ void engine::Screen::config(ShaderProgram *backgroundProgram, ShaderProgram *dir
 	};
 	_vertexBuffer->createStore(D3D11_BIND_VERTEX_BUFFER, vertex, sizeof vertex, D3D11_USAGE_IMMUTABLE);
 
-	// Create Screen Color Buffer
+	// Create Color Buffer
 	_screenColorBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMFLOAT4, D3D11_USAGE_DYNAMIC);
 }
 

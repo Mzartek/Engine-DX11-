@@ -157,7 +157,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderer = new engine::Renderer;
 	input = new engine::Input;
 
-	renderer->initWindow(hInstance, WndProc, "Demo DirectX", 800, 600, FALSE);
+	renderer->initWindow(hInstance, WndProc, nCmdShow, "Demo DirectX", 800, 600, FALSE);
 	renderer->setReshapeFunc(reshape);
 	renderer->setIdleFunc(idle);
 	renderer->setDisplayFunc(display);
@@ -166,7 +166,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	init();
 
-	renderer->mainLoop(nCmdShow);
+	renderer->mainLoop();
 
 	kill();
 

@@ -50,7 +50,7 @@ engine::Renderer::Renderer(void)
 
 engine::Renderer::~Renderer(void)
 {
-	if (DeviceContext) DeviceContext->ClearState();
+	_pSwapChain->SetFullscreenState(FALSE, NULL);
 
 	// Device
 	if (Device) Device->Release();
@@ -67,7 +67,7 @@ engine::Renderer::~Renderer(void)
 	if (_pRasterizerState) _pRasterizerState->Release();
 }
 
-void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), 
+void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), const int &nCmdShow,
 	const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
 {
 	HRESULT hr;
@@ -75,48 +75,40 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	_height = height;
 
 	WNDCLASS wcex;
-	wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+	ZeroMemory(&wcex, sizeof wcex);
 	wcex.lpfnWndProc = WndProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(NULL, IDI_WINLOGO);
-	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wcex.lpszMenuName = NULL;
+	wcex.hbrBackground = (HBRUSH)COLOR_WINDOW;
 	wcex.lpszClassName = szTitle;
 
 	RegisterClass(&wcex);
 
 	_hInst = hInstance;
-	_hWnd = CreateWindow(szTitle, szTitle, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 
+	_hWnd = CreateWindow(szTitle, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 		_width, _height, NULL, NULL, hInstance, NULL);
-
 	if (!_hWnd)
 	{
-		MessageBox(NULL, "Failed to create Renderer", "Renderer", NULL);
+		MessageBox(NULL, "Failed to create Window", "Renderer", NULL);
 		exit(1);
 	}
+	ShowWindow(_hWnd, nCmdShow);
 
 	// Init swap chain
 	DXGI_SWAP_CHAIN_DESC sd;
+	ZeroMemory(&sd, sizeof sd);
 	sd.BufferDesc.Width = _width;
 	sd.BufferDesc.Height = _height;
-	sd.BufferDesc.RefreshRate.Numerator = 60;
-	sd.BufferDesc.RefreshRate.Denominator = 1;
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferCount = 1;
+	sd.BufferCount = 2;
 	sd.OutputWindow = _hWnd;
 	sd.Windowed = !fullScreen;
-	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-	sd.Flags = 0;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-	// Create the Device
+	// Create Device and SwapChain
 	D3D_FEATURE_LEVEL featureLevels[]
 	{
 		D3D_FEATURE_LEVEL_11_1,
@@ -147,6 +139,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 		MessageBox(NULL, "Failed to create RenderTarget View", "Renderer", NULL);
 		exit(1);
 	}
+	pBackBuffer->Release();
 
 	// Create the DepthStencilTexture
 	D3D11_TEXTURE2D_DESC descDepthStencilTexture;
@@ -275,7 +268,7 @@ HWND engine::Renderer::getHWND(void)
 	return _hWnd;
 }
 
-void engine::Renderer::mainLoop(int nCmdShow)
+void engine::Renderer::mainLoop(void)
 {
 	MSG msg = { 0 };
 
@@ -285,7 +278,6 @@ void engine::Renderer::mainLoop(int nCmdShow)
 		return;
 	}
 
-	ShowWindow(_hWnd, nCmdShow);
 	_stopLoop = FALSE;
 	_reshape(_width, _height);
 	while (msg.message != WM_QUIT)
