@@ -87,9 +87,6 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	_height = height;
 	_hInst = hInstance;
 
-	if (DeviceContext) DeviceContext->ClearState();
-	if (_pSwapChain) _pSwapChain->SetFullscreenState(FALSE, NULL);
-
 	// Device
 	if (Device) Device->Release();
 	if (DeviceContext) DeviceContext->Release();
