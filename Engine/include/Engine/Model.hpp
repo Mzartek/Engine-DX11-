@@ -32,9 +32,9 @@ namespace engine
 		void config(ShaderProgram *gProgram, ShaderProgram *smProgram);
 		void addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 				  const UINT &sizeIndexArray, const UINT *indexArray,
-				  const TCHAR *colorTexture, const TCHAR *NMTexture,
+				  const CHAR *colorTexture, const CHAR *NMTexture,
 				  const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess);
-		void loadFromFile(const TCHAR *szFileName);
+		void loadFromFile(const CHAR *szFileName);
 		void sortMesh(void);
 		void matIdentity(void);
 		void matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z);

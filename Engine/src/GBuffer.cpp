@@ -126,21 +126,21 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Normal Texture", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Normal Texture", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
 	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_NORMAL]);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Normal Resource View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Normal Resource View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
 	hr = Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_NORMAL]);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Normal Render View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Normal Render View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	texture->Release();
@@ -150,21 +150,21 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Material Texture", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Material Texture", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
 	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_MATERIAL]);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Material Resource View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Material Resource View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
 	hr = Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_MATERIAL]);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Material Render View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Material Render View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	texture->Release();
@@ -174,21 +174,21 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Light Texture", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Light Texture", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
 	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_LIGHT]);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Light Resource View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Light Resource View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
 	hr = Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_LIGHT]);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Light Render View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Light Render View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	texture->Release();
@@ -198,21 +198,21 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Background Texture", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Background Texture", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
 	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_BACKGROUND]);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Background Resource View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Background Resource View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
 	hr = Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_BACKGROUND]);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Background Render View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Background Render View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	texture->Release();
@@ -223,28 +223,28 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Depth Stencil Texture", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Depth Stencil Texture", TEXT(__FILE__), NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_DEPTH]);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Depth Resource View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Depth Resource View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	descShaderResourceView.Format = DXGI_FORMAT_X24_TYPELESS_G8_UINT;
 	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_STENCIL]);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Stencil Resource View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Stencil Resource View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	descDepthView.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	hr = Device->CreateDepthStencilView(texture, &descDepthView, &_pDepthStencilView);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Depth Stencil Render View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Depth Stencil Render View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	texture->Release();
@@ -259,7 +259,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateDepthStencilState(&descDepth, &_pSkyboxDepthStencilState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Skybox Depth Stencil State", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Skybox Depth Stencil State", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	// Geometry Depth Stencil
@@ -280,7 +280,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateDepthStencilState(&descDepth, &_pGeometryDepthStencilState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Geometry Depth Stencil State", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Geometry Depth Stencil State", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	// Light Depth Stencil
@@ -290,7 +290,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateDepthStencilState(&descDepth, &_pLightDepthStencilState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Light Depth Stencil State", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Light Depth Stencil State", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	// Background Depth Stencil
@@ -308,7 +308,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateDepthStencilState(&descDepth, &_pBackgroundDepthStencilState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Light Depth Stencil State", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Light Depth Stencil State", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 
@@ -322,7 +322,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateBlendState(&descBlend, &_pSkyboxBlendState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Skybox Blend State", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Skybox Blend State", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	// Geometry Blending
@@ -331,7 +331,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateBlendState(&descBlend, &_pGeometryBlendState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Geometry Blend State", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Geometry Blend State", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	// Light Blending
@@ -346,7 +346,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateBlendState(&descBlend, &_pLightBlendState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Light Blend State", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Light Blend State", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	// Background Blending
@@ -361,7 +361,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateBlendState(&descBlend, &_pBackgroundBlendState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Background Blend State", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Background Blend State", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	
@@ -380,7 +380,7 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	hr = Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Rasterizer State", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Rasterizer State", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 

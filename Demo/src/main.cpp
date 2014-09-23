@@ -36,7 +36,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
-		break;
 	}
 
 	return 0;
@@ -157,7 +156,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderer = new engine::Renderer;
 	input = new engine::Input;
 
-	renderer->initWindow(hInstance, WndProc, nCmdShow, "Demo DirectX", 800, 600, FALSE);
+	renderer->initWindow(hInstance, WndProc, nCmdShow, L"Demo DirectX", 800, 600, FALSE);
 	renderer->setReshapeFunc(reshape);
 	renderer->setIdleFunc(idle);
 	renderer->setDisplayFunc(display);
@@ -177,7 +176,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		std::string text;
 		text = std::to_string(engine::Object::getMemoryState());
-		MessageBox(NULL, text.c_str(), "memState", MB_OK);
+		MessageBoxA(NULL, text.c_str(), __FILE__, MB_OK);
 	}
 	engine::Object::saveMemoryInfo(L"memLost.txt");
 

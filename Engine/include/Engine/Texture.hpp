@@ -15,11 +15,11 @@ namespace engine
 		~Texture(void);
 		ID3D11ShaderResourceView *getShaderResourceView(void);
 		ID3D11SamplerState *getSamplerState(void);
-		void load2DTextureFromFile(const TCHAR *path);
+		void load2DTextureFromFile(const CHAR *path);
 		void loadCubeTextureFromFiles(
-			const TCHAR *posx, const TCHAR *negx,
-			const TCHAR *posy, const TCHAR *negy,
-			const TCHAR *posz, const TCHAR *negz);
+			const CHAR *posx, const CHAR *negx,
+			const CHAR *posy, const CHAR *negy,
+			const CHAR *posz, const CHAR *negz);
 	};
 }
 

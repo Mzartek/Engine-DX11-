@@ -40,7 +40,7 @@ void engine::Screen::config(ShaderProgram *backgroundProgram, ShaderProgram *dir
 		&_pInputLayout);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Input Layout", "Screen", MB_OK);
+		MessageBox(NULL, L"Failed to create Input Layout", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 

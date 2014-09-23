@@ -24,12 +24,12 @@ engine::Mesh::~Mesh(void)
 	delete _materialBuffer;
 }
 
-void engine::Mesh::setColorTexture(const TCHAR *path)
+void engine::Mesh::setColorTexture(const CHAR *path)
 {
 	_colorTexture->load2DTextureFromFile(path);
 }
 
-void engine::Mesh::setNMTexture(const TCHAR *path)
+void engine::Mesh::setNMTexture(const CHAR *path)
 {
 	_NMTexture->load2DTextureFromFile(path);
 }

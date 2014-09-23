@@ -57,8 +57,7 @@ void engine::Object::operator delete(void *p)
 			return;
 		}
 	}
-	std::string msg = "Error Delete";
-	MessageBox(NULL, msg.c_str(), "Error", MB_OK);
+	MessageBox(NULL, L"Error Delete", TEXT(__FILE__), MB_OK);
 }
 
 void engine::Object::operator delete[](void *p)
@@ -75,8 +74,7 @@ void engine::Object::operator delete[](void *p)
 			return;
 		}
 	}
-	std::string msg = "Error Delete";
-	MessageBox(NULL, msg.c_str(), "Error", MB_OK);
+	MessageBox(NULL, L"Error Delete", TEXT(__FILE__), MB_OK);
 }
 
 INT engine::Object::getMemoryState(void)

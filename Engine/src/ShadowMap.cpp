@@ -72,19 +72,19 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height)
 	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Depth Texture", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Depth Texture", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Depth Resource View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Depth Resource View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	hr = Device->CreateDepthStencilView(texture, &descDepthView, &_pDepthView);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Depth Render View", "GBuffer", NULL);
+		MessageBox(NULL, L"Failed to create Depth Render View", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	texture->Release();
@@ -98,7 +98,7 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height)
 	hr = Device->CreateDepthStencilState(&descDepth, &_pDepthState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create DepthStencil State", "ShadowMap", NULL);
+		MessageBox(NULL, L"Failed to create DepthStencil State", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 
@@ -116,7 +116,7 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height)
 	hr = Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Rasterizer State", "ShadowMap", NULL);
+		MessageBox(NULL, L"Failed to create Rasterizer State", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 
@@ -137,7 +137,7 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height)
 	hr = Device->CreateSamplerState(&descSampler, &_pSamplerComparisonState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Error while creating the SamplerState", "ShadowMap", MB_OK);
+		MessageBox(NULL, L"Error while creating the SamplerState", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 

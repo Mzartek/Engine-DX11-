@@ -25,9 +25,9 @@ namespace engine
 	public:
 		SkyBox(void);
 		~SkyBox(void);
-		void load(const TCHAR *posx, const TCHAR *negx,
-			const TCHAR *posy, const TCHAR *negy,
-			const TCHAR *posz, const TCHAR *negz,
+		void load(const CHAR *posx, const CHAR *negx,
+			const CHAR *posy, const CHAR *negy,
+			const CHAR *posz, const CHAR *negz,
 			FLOAT dim, ShaderProgram *program);
 		void rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void display(GBuffer *gbuf, Camera *cam);

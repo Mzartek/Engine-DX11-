@@ -87,7 +87,7 @@ void engine::Model::config(ShaderProgram *gProgram, ShaderProgram *smProgram)
 		&_pInputLayout);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Input Layout", "Model", MB_OK);
+		MessageBox(NULL, L"Failed to create Input Layout", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 
@@ -100,7 +100,7 @@ void engine::Model::config(ShaderProgram *gProgram, ShaderProgram *smProgram)
 
 void engine::Model::addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 	const UINT &sizeIndexArray, const UINT *indexArray,
-	const TCHAR *colorTexture, const TCHAR *NMTexture,
+	const CHAR *colorTexture, const CHAR *NMTexture,
 	const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess)
 {
 	Mesh *newone = new Mesh;
@@ -117,7 +117,7 @@ void engine::Model::addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArra
 	_tMesh->push_back(newone);
 }
 
-static std::string getDir(const TCHAR *file)
+static std::string getDir(const CHAR *file)
 {
 	UINT size, i;
 	std::string path;
@@ -131,14 +131,14 @@ static std::string getDir(const TCHAR *file)
 	return path;
 }
 
-void engine::Model::loadFromFile(const TCHAR *szFileName)
+void engine::Model::loadFromFile(const CHAR *szFileName)
 {
 	Assimp::Importer Importer;
 	UINT i, j;
 
 	if (_tMesh == NULL || isMirror == TRUE)
 	{
-		MessageBox(NULL, "Error Model configuration", "Model", MB_OK);
+		MessageBox(NULL, L"Error Model configuration", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	for (i = 0; i<_tMesh->size(); i++)
@@ -150,7 +150,7 @@ void engine::Model::loadFromFile(const TCHAR *szFileName)
 	{
 		std::string mes = "Failed to load File: ";
 		mes.append(szFileName);
-		MessageBox(NULL, mes.c_str(), "Model", MB_OK);
+		MessageBoxA(NULL, mes.c_str(), __FILE__, MB_OK);
 		exit(1);
 	}
 
@@ -264,7 +264,7 @@ engine::Mesh *engine::Model::getMesh(UINT num) const
 {
 	if (num >= _tMesh->size())
 	{
-		MessageBox(NULL, "Bad num Object!", "Error", MB_OK);
+		MessageBox(NULL, L"Bad num Object!", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	return (*_tMesh)[num];

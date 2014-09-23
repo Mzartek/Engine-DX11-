@@ -54,7 +54,7 @@ void engine::Buffer::createStore(const D3D11_BIND_FLAG &target, const void *data
 		hr = Device->CreateBuffer(&bd, NULL, &_pBuffer);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Buffer", "Buffer", MB_OK);
+		MessageBox(NULL, L"Failed to create Buffer", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 }

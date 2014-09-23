@@ -28,8 +28,8 @@ namespace engine
 	public:
 		Mesh(void);
 		~Mesh(void);
-		void setColorTexture(const TCHAR *path);
-		void setNMTexture(const TCHAR *path);
+		void setColorTexture(const CHAR *path);
+		void setNMTexture(const CHAR *path);
 		void setAmbient(const XMFLOAT4 &ambient);
 		void setDiffuse(const XMFLOAT4 &diffuse);
 		void setSpecular(const XMFLOAT4 &specular);

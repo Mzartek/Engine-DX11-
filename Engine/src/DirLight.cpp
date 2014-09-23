@@ -34,7 +34,7 @@ void engine::DirLight::config(ShaderProgram *program)
 		&_pInputLayout);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create Input Layout", "DirLight", MB_OK);
+		MessageBox(NULL, L"Failed to create Input Layout", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 

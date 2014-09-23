@@ -25,7 +25,7 @@ ID3D11SamplerState *engine::Texture::getSamplerState(void)
 	return _pSamplerState;
 }
 
-void engine::Texture::load2DTextureFromFile(const TCHAR *path)
+void engine::Texture::load2DTextureFromFile(const CHAR *path)
 {
 	HRESULT hr;
 	FIBITMAP *image;
@@ -40,7 +40,7 @@ void engine::Texture::load2DTextureFromFile(const TCHAR *path)
 	{
 		std::string text = "Fail to load file: ";
 		text.append(path);
-		MessageBox(NULL, text.c_str(), "Texture", MB_OK);
+		MessageBoxA(NULL, text.c_str(), __FILE__, MB_OK);
 		exit(1);
 	}
 	tmp = image;
@@ -63,7 +63,7 @@ void engine::Texture::load2DTextureFromFile(const TCHAR *path)
 	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Error while creating the Texture2D", "Texture", MB_OK);
+		MessageBox(NULL, L"Error while creating the Texture2D", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 
@@ -75,7 +75,7 @@ void engine::Texture::load2DTextureFromFile(const TCHAR *path)
 	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Error while creating the ShaderResourceView", "Texture", MB_OK);
+		MessageBox(NULL, L"Error while creating the ShaderResourceView", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 
@@ -99,7 +99,7 @@ void engine::Texture::load2DTextureFromFile(const TCHAR *path)
 	hr = Device->CreateSamplerState(&descSampler, &_pSamplerState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Error while creating the SamplerState", "Texture", MB_OK);
+		MessageBox(NULL, L"Error while creating the SamplerState", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 
@@ -108,9 +108,9 @@ void engine::Texture::load2DTextureFromFile(const TCHAR *path)
 }
 
 void engine::Texture::loadCubeTextureFromFiles(
-	const TCHAR *posx, const TCHAR *negx,
-	const TCHAR *posy, const TCHAR *negy,
-	const TCHAR *posz, const TCHAR *negz)
+	const CHAR *posx, const CHAR *negx,
+	const CHAR *posy, const CHAR *negy,
+	const CHAR *posz, const CHAR *negz)
 {
 	HRESULT hr;
 	UINT i;
@@ -146,7 +146,7 @@ void engine::Texture::loadCubeTextureFromFiles(
 	{
 		if (image == NULL)
 		{
-			MessageBox(NULL, "Fail to load an Image", "SkyBox", MB_OK);
+			MessageBox(NULL, L"Fail to load an Image", TEXT(__FILE__), MB_OK);
 			exit(1);
 		}
 		tmp = image[i];
@@ -160,7 +160,7 @@ void engine::Texture::loadCubeTextureFromFiles(
 	hr = Device->CreateTexture2D(&descTexture, data, &texture);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create the Cube Texture", "SkyBox", MB_OK);
+		MessageBox(NULL, L"Failed to create the Cube Texture", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 
@@ -172,7 +172,7 @@ void engine::Texture::loadCubeTextureFromFiles(
 	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Failed to create the ShaderResourceView", "SkyBox", MB_OK);
+		MessageBox(NULL, L"Failed to create the ShaderResourceView", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 
@@ -193,7 +193,7 @@ void engine::Texture::loadCubeTextureFromFiles(
 	hr = Device->CreateSamplerState(&descSampler, &_pSamplerState);
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, "Error while creating the SamplerState", "SkyBox", MB_OK);
+		MessageBox(NULL, L"Error while creating the SamplerState", TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 

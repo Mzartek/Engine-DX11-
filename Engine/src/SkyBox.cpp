@@ -30,9 +30,9 @@ engine::SkyBox::~SkyBox()
 	_aligned_free(_rotateMatrix);
 }
 
-void engine::SkyBox::load(const TCHAR *posx, const TCHAR *negx,
-	const TCHAR *posy, const TCHAR *negy,
-	const TCHAR *posz, const TCHAR *negz,
+void engine::SkyBox::load(const CHAR *posx, const CHAR *negx,
+	const CHAR *posy, const CHAR *negy,
+	const CHAR *posz, const CHAR *negz,
 	FLOAT dim, ShaderProgram *program)
 {
 	HRESULT hr;
