@@ -5,12 +5,6 @@ extern ID3D11DeviceContext *DeviceContext;
 
 engine::GBuffer::GBuffer(void)
 {
-	// Texture
-	_pTexture[GBUF_NORMAL] = NULL;
-	_pTexture[GBUF_MATERIAL] = NULL;
-	_pTexture[GBUF_LIGHT] = NULL;
-	_pTexture[GBUF_BACKGROUND] = NULL;
-	_pTexture[GBUF_DEPTH] = NULL;
 	// Shader Resouce View
 	_pShaderResourceView[GBUF_NORMAL] = NULL;
 	_pShaderResourceView[GBUF_MATERIAL] = NULL;
@@ -41,12 +35,6 @@ engine::GBuffer::GBuffer(void)
 
 engine::GBuffer::~GBuffer(void)
 {
-	// Texture
-	if (_pTexture[GBUF_NORMAL]) _pTexture[GBUF_NORMAL]->Release();
-	if (_pTexture[GBUF_MATERIAL]) _pTexture[GBUF_MATERIAL]->Release();
-	if (_pTexture[GBUF_LIGHT]) _pTexture[GBUF_LIGHT]->Release();
-	if (_pTexture[GBUF_BACKGROUND]) _pTexture[GBUF_BACKGROUND]->Release();
-	if (_pTexture[GBUF_DEPTH]) _pTexture[GBUF_DEPTH]->Release();
 	// Shader Resource View
 	if (_pShaderResourceView[GBUF_NORMAL]) _pShaderResourceView[GBUF_NORMAL]->Release();
 	if (_pShaderResourceView[GBUF_MATERIAL]) _pShaderResourceView[GBUF_MATERIAL]->Release();
@@ -77,16 +65,11 @@ engine::GBuffer::~GBuffer(void)
 void engine::GBuffer::config(const UINT &width, const UINT &height)
 {
 	HRESULT hr;
+	ID3D11Texture2D *texture;
 
 	_width = width;
 	_height = height;
 
-	// Texture
-	if (_pTexture[GBUF_NORMAL]) _pTexture[GBUF_NORMAL]->Release();
-	if (_pTexture[GBUF_MATERIAL]) _pTexture[GBUF_MATERIAL]->Release();
-	if (_pTexture[GBUF_LIGHT]) _pTexture[GBUF_LIGHT]->Release();
-	if (_pTexture[GBUF_BACKGROUND]) _pTexture[GBUF_BACKGROUND]->Release();
-	if (_pTexture[GBUF_DEPTH]) _pTexture[GBUF_DEPTH]->Release();
 	// Shader Resource View
 	if (_pShaderResourceView[GBUF_NORMAL]) _pShaderResourceView[GBUF_NORMAL]->Release();
 	if (_pShaderResourceView[GBUF_MATERIAL]) _pShaderResourceView[GBUF_MATERIAL]->Release();
@@ -140,126 +123,131 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 
 	// Normal
 	descTexture.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_NORMAL]);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Normal Texture", "GBuffer", NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
-	hr = Device->CreateShaderResourceView(_pTexture[GBUF_NORMAL], &descShaderResourceView, &_pShaderResourceView[GBUF_NORMAL]);
+	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_NORMAL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Normal Resource View", "GBuffer", NULL);
 		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
-	hr = Device->CreateRenderTargetView(_pTexture[GBUF_NORMAL], &descRenderTargetView, &_pRenderTargetView[GBUF_NORMAL]);
+	hr = Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_NORMAL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Normal Render View", "GBuffer", NULL);
 		exit(1);
 	}
+	texture->Release();
 
 	// Material
 	descTexture.Format = DXGI_FORMAT_R32G32B32A32_UINT;
-	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_MATERIAL]);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Material Texture", "GBuffer", NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
-	hr = Device->CreateShaderResourceView(_pTexture[GBUF_MATERIAL], &descShaderResourceView, &_pShaderResourceView[GBUF_MATERIAL]);
+	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_MATERIAL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Material Resource View", "GBuffer", NULL);
 		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
-	hr = Device->CreateRenderTargetView(_pTexture[GBUF_MATERIAL], &descRenderTargetView, &_pRenderTargetView[GBUF_MATERIAL]);
+	hr = Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_MATERIAL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Material Render View", "GBuffer", NULL);
 		exit(1);
 	}
+	texture->Release();
 
 	// Light
 	descTexture.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_LIGHT]);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Light Texture", "GBuffer", NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
-	hr = Device->CreateShaderResourceView(_pTexture[GBUF_LIGHT], &descShaderResourceView, &_pShaderResourceView[GBUF_LIGHT]);
+	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_LIGHT]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Light Resource View", "GBuffer", NULL);
 		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
-	hr = Device->CreateRenderTargetView(_pTexture[GBUF_LIGHT], &descRenderTargetView, &_pRenderTargetView[GBUF_LIGHT]);
+	hr = Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_LIGHT]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Light Render View", "GBuffer", NULL);
 		exit(1);
 	}
+	texture->Release();
 
 	// Background
 	descTexture.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_BACKGROUND]);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Background Texture", "GBuffer", NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = descTexture.Format;
-	hr = Device->CreateShaderResourceView(_pTexture[GBUF_BACKGROUND], &descShaderResourceView, &_pShaderResourceView[GBUF_BACKGROUND]);
+	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_BACKGROUND]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Background Resource View", "GBuffer", NULL);
 		exit(1);
 	}
 	descRenderTargetView.Format = descTexture.Format;
-	hr = Device->CreateRenderTargetView(_pTexture[GBUF_BACKGROUND], &descRenderTargetView, &_pRenderTargetView[GBUF_BACKGROUND]);
+	hr = Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_BACKGROUND]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Background Render View", "GBuffer", NULL);
 		exit(1);
 	}
+	texture->Release();
 
 	// Depth
 	descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
 	descTexture.Format = DXGI_FORMAT_R24G8_TYPELESS;
-	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture[GBUF_DEPTH]);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Stencil Texture", "GBuffer", NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-	hr = Device->CreateShaderResourceView(_pTexture[GBUF_DEPTH], &descShaderResourceView, &_pShaderResourceView[GBUF_DEPTH]);
+	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_DEPTH]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Resource View", "GBuffer", NULL);
 		exit(1);
 	}
 	descShaderResourceView.Format = DXGI_FORMAT_X24_TYPELESS_G8_UINT;
-	hr = Device->CreateShaderResourceView(_pTexture[GBUF_DEPTH], &descShaderResourceView, &_pShaderResourceView[GBUF_STENCIL]);
+	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_STENCIL]);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Stencil Resource View", "GBuffer", NULL);
 		exit(1);
 	}
 	descDepthView.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	hr = Device->CreateDepthStencilView(_pTexture[GBUF_DEPTH], &descDepthView, &_pDepthStencilView);
+	hr = Device->CreateDepthStencilView(texture, &descDepthView, &_pDepthStencilView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Stencil Render View", "GBuffer", NULL);
 		exit(1);
 	}
+	texture->Release();
 
 	// Depth Stencil State
 	D3D11_DEPTH_STENCIL_DESC descDepth;

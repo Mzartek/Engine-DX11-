@@ -5,8 +5,6 @@ extern ID3D11DeviceContext *DeviceContext;
 
 engine::ShadowMap::ShadowMap()
 {
-	// Texture
-	_pTexture = NULL;
 	// Shader Resource View
 	_pShaderResourceView = NULL;
 	// View
@@ -19,8 +17,6 @@ engine::ShadowMap::ShadowMap()
 
 engine::ShadowMap::~ShadowMap()
 {
-	// Texture
-	if (_pTexture) _pTexture->Release();
 	// Shader Resource View
 	if (_pShaderResourceView) _pShaderResourceView->Release();
 	// View
@@ -34,12 +30,11 @@ engine::ShadowMap::~ShadowMap()
 void engine::ShadowMap::config(const UINT &width, const UINT &height)
 {
 	HRESULT hr;
+	ID3D11Texture2D *texture;
 
 	_width = width;
 	_height = height;
 
-	// Texture
-	if (_pTexture) _pTexture->Release();
 	// Shader Resource View
 	if (_pShaderResourceView) _pShaderResourceView->Release();
 	// View
@@ -74,24 +69,25 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height)
 	descTexture.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	descShaderResourceView.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 	descDepthView.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Texture", "GBuffer", NULL);
 		exit(1);
 	}
-	hr = Device->CreateShaderResourceView(_pTexture, &descShaderResourceView, &_pShaderResourceView);
+	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Resource View", "GBuffer", NULL);
 		exit(1);
 	}
-	hr = Device->CreateDepthStencilView(_pTexture, &descDepthView, &_pDepthView);
+	hr = Device->CreateDepthStencilView(texture, &descDepthView, &_pDepthView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Depth Render View", "GBuffer", NULL);
 		exit(1);
 	}
+	texture->Release();
 	
 	// State
 	D3D11_DEPTH_STENCIL_DESC descDepth;

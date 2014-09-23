@@ -8,8 +8,6 @@ namespace engine
 	class DLLAPI ShadowMap : public FrameBuffer
 	{
 	private:
-		// Texture
-		ID3D11Texture2D *_pTexture;
 		// ShaderRessource
 		ID3D11ShaderResourceView *_pShaderResourceView;
 		// View

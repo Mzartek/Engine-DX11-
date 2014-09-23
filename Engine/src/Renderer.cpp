@@ -32,9 +32,8 @@ static std::string checkShaderVersion(const D3D_FEATURE_LEVEL &featureLevel)
 
 engine::Renderer::Renderer(void)
 {
-	// Texture
+	// SwapChain
 	_pSwapChain = NULL;
-	_pDepthStencilTexture = NULL;
 	// View
 	_pRenderTargetView = NULL;
 	_pDepthStencilView = NULL;
@@ -50,14 +49,14 @@ engine::Renderer::Renderer(void)
 
 engine::Renderer::~Renderer(void)
 {
-	_pSwapChain->SetFullscreenState(FALSE, NULL);
+	if (DeviceContext) DeviceContext->ClearState();
+	if (_pSwapChain) _pSwapChain->SetFullscreenState(FALSE, NULL);
 
 	// Device
 	if (Device) Device->Release();
 	if (DeviceContext) DeviceContext->Release();
-	// Texture
+	// SwapChain
 	if (_pSwapChain) _pSwapChain->Release();
-	if (_pDepthStencilTexture) _pDepthStencilTexture->Release();
 	// View
 	if (_pRenderTargetView) _pRenderTargetView->Release();
 	if (_pDepthStencilView) _pDepthStencilView->Release();
@@ -65,12 +64,17 @@ engine::Renderer::~Renderer(void)
 	if (_pDepthStencilState) _pDepthStencilState->Release();
 	if (_pBlendState) _pBlendState->Release();
 	if (_pRasterizerState) _pRasterizerState->Release();
+
+	DestroyWindow(_hWnd);
+	UnregisterClass("EngineWindowClass", _hInst);
 }
 
 void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), const int &nCmdShow,
 	const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
 {
 	HRESULT hr;
+	ID3D11Texture2D *texture;
+
 	_width = width;
 	_height = height;
 
@@ -79,12 +83,12 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	wcex.lpfnWndProc = WndProc;
 	wcex.hInstance = hInstance;
 	wcex.hbrBackground = (HBRUSH)COLOR_WINDOW;
-	wcex.lpszClassName = szTitle;
+	wcex.lpszClassName = "EngineWindowClass";
 
 	RegisterClass(&wcex);
 
 	_hInst = hInstance;
-	_hWnd = CreateWindow(szTitle, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+	_hWnd = CreateWindow("EngineWindowClass", szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 		_width, _height, NULL, NULL, hInstance, NULL);
 	if (!_hWnd)
 	{
@@ -126,20 +130,19 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	ShaderLevel = checkShaderVersion(FeatureLevel);
 
 	// Create the RenderTargetView
-	ID3D11Texture2D *pBackBuffer;
-	hr = _pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&pBackBuffer);
+	hr = _pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&texture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to get BackBuffer", "Renderer", NULL);
 		exit(1);
 	}
-	hr = Device->CreateRenderTargetView(pBackBuffer, NULL, &_pRenderTargetView);
+	hr = Device->CreateRenderTargetView(texture, NULL, &_pRenderTargetView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create RenderTarget View", "Renderer", NULL);
 		exit(1);
 	}
-	pBackBuffer->Release();
+	texture->Release();
 
 	// Create the DepthStencilTexture
 	D3D11_TEXTURE2D_DESC descDepthStencilTexture;
@@ -154,7 +157,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	descDepthStencilTexture.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	descDepthStencilTexture.CPUAccessFlags = 0;
 	descDepthStencilTexture.MiscFlags = 0;
-	hr = Device->CreateTexture2D(&descDepthStencilTexture, NULL, &_pDepthStencilTexture);
+	hr = Device->CreateTexture2D(&descDepthStencilTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil Texture", "Renderer", NULL);
@@ -167,12 +170,13 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	descDepthStencilView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDepthStencilView.Flags = 0;
 	descDepthStencilView.Texture2D.MipSlice = 0;
-	hr = Device->CreateDepthStencilView(_pDepthStencilTexture, &descDepthStencilView, &_pDepthStencilView);
+	hr = Device->CreateDepthStencilView(texture, &descDepthStencilView, &_pDepthStencilView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create DepthStencil View", "Renderer", NULL);
 		exit(1);
 	}
+	texture->Release();
 
 	// Create the DepthStencilState
 	D3D11_DEPTH_STENCIL_DESC descDepth;

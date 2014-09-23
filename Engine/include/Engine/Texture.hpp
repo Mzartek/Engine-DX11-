@@ -8,13 +8,6 @@ namespace engine
 	class DLLAPI Texture : public Object
 	{
 	private:
-		BYTE _dimension;
-		union texture
-		{
-			ID3D11Texture1D *oneDim;
-			ID3D11Texture2D *twoDim;
-			ID3D11Texture3D *threeDim;
-		} _pTexture;
 		ID3D11ShaderResourceView *_pShaderResourceView;
 		ID3D11SamplerState *_pSamplerState;
 	public:

@@ -13,9 +13,8 @@ namespace engine
 		UINT _height;
 		HINSTANCE _hInst;
 		HWND _hWnd;
-		// Texture
+		// SwapChain
 		IDXGISwapChain *_pSwapChain;
-		ID3D11Texture2D *_pDepthStencilTexture;
 		// View
 		ID3D11RenderTargetView *_pRenderTargetView;
 		ID3D11DepthStencilView *_pDepthStencilView;

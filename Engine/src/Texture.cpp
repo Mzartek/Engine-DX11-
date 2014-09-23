@@ -7,27 +7,10 @@ extern ID3D11DeviceContext *DeviceContext;
 engine::Texture::Texture(void)
 	: _pShaderResourceView(NULL), _pSamplerState(NULL)
 {
-	_pTexture.oneDim = NULL;
-	_dimension = 1;
 }
 
 engine::Texture::~Texture(void)
 {
-	switch (_dimension)
-	{
-	case 1:
-		if (_pTexture.oneDim) _pTexture.oneDim->Release();
-		break;
-	case 2:
-		if (_pTexture.twoDim) _pTexture.twoDim->Release();
-		break;
-	case 3:
-		if (_pTexture.threeDim) _pTexture.threeDim->Release();
-		break;
-	default:
-		MessageBox(NULL, "Problem with texture dimension", "Error", MB_OK);
-		exit(1);
-	}
 	if (_pShaderResourceView) _pShaderResourceView->Release();
 	if (_pSamplerState) _pSamplerState->Release();
 }
@@ -47,26 +30,10 @@ void engine::Texture::load2DTextureFromFile(const TCHAR *path)
 	HRESULT hr;
 	FIBITMAP *image;
 	FIBITMAP *tmp;
+	ID3D11Texture2D *texture;
 
-	switch (_dimension)
-	{
-	case 1:
-		if (_pTexture.oneDim) _pTexture.oneDim->Release();
-		break;
-	case 2:
-		if (_pTexture.twoDim) _pTexture.twoDim->Release();
-		break;
-	case 3:
-		if (_pTexture.threeDim) _pTexture.threeDim->Release();
-		break;
-	default:
-		MessageBox(NULL, "Problem with texture dimension", "Error", MB_OK);
-		exit(1);
-	}
 	if (_pShaderResourceView) _pShaderResourceView->Release();
 	if (_pSamplerState) _pSamplerState->Release();
-
-	_dimension = 2;
 
 	image = FreeImage_Load(FreeImage_GetFileType(path), path);
 	if (image == NULL)
@@ -93,7 +60,7 @@ void engine::Texture::load2DTextureFromFile(const TCHAR *path)
 	descTexture.CPUAccessFlags = 0;
 	descTexture.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
-	hr = Device->CreateTexture2D(&descTexture, NULL, &_pTexture.twoDim);
+	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Error while creating the Texture2D", "Texture", MB_OK);
@@ -105,14 +72,14 @@ void engine::Texture::load2DTextureFromFile(const TCHAR *path)
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	descShaderResourceView.Texture2D.MostDetailedMip = 0;
 	descShaderResourceView.Texture2D.MipLevels = descTexture.MipLevels;
-	hr = Device->CreateShaderResourceView(_pTexture.twoDim, &descShaderResourceView, &_pShaderResourceView);
+	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Error while creating the ShaderResourceView", "Texture", MB_OK);
 		exit(1);
 	}
 
-	DeviceContext->UpdateSubresource(_pTexture.twoDim, 0, NULL, FreeImage_GetBits(image), 4 * descTexture.Width, 4 * descTexture.Width * descTexture.Height);
+	DeviceContext->UpdateSubresource(texture, 0, NULL, FreeImage_GetBits(image), 4 * descTexture.Width, 4 * descTexture.Width * descTexture.Height);
 	DeviceContext->GenerateMips(_pShaderResourceView);
 
 	D3D11_SAMPLER_DESC descSampler;
@@ -137,6 +104,7 @@ void engine::Texture::load2DTextureFromFile(const TCHAR *path)
 	}
 
 	FreeImage_Unload(image);
+	texture->Release();
 }
 
 void engine::Texture::loadCubeTextureFromFiles(
@@ -148,22 +116,8 @@ void engine::Texture::loadCubeTextureFromFiles(
 	UINT i;
 	FIBITMAP *image[6];
 	FIBITMAP *tmp;
+	ID3D11Texture2D *texture;
 
-	switch (_dimension)
-	{
-	case 1:
-		if (_pTexture.oneDim) _pTexture.oneDim->Release();
-		break;
-	case 2:
-		if (_pTexture.twoDim) _pTexture.twoDim->Release();
-		break;
-	case 3:
-		if (_pTexture.threeDim) _pTexture.threeDim->Release();
-		break;
-	default:
-		MessageBox(NULL, "Problem with texture dimension", "Error", MB_OK);
-		exit(1);
-	}
 	if (_pShaderResourceView) _pShaderResourceView->Release();
 	if (_pSamplerState) _pSamplerState->Release();
 
@@ -203,7 +157,7 @@ void engine::Texture::loadCubeTextureFromFiles(
 		data[i].SysMemPitch = 4 * descTexture.Width;
 		data[i].SysMemSlicePitch = 0;
 	}
-	hr = Device->CreateTexture2D(&descTexture, data, &_pTexture.twoDim);
+	hr = Device->CreateTexture2D(&descTexture, data, &texture);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create the Cube Texture", "SkyBox", MB_OK);
@@ -215,7 +169,7 @@ void engine::Texture::loadCubeTextureFromFiles(
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 	descShaderResourceView.TextureCube.MostDetailedMip = 0;
 	descShaderResourceView.TextureCube.MipLevels = descTexture.MipLevels;
-	hr = Device->CreateShaderResourceView(_pTexture.twoDim, &descShaderResourceView, &_pShaderResourceView);
+	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create the ShaderResourceView", "SkyBox", MB_OK);
@@ -242,4 +196,6 @@ void engine::Texture::loadCubeTextureFromFiles(
 		MessageBox(NULL, "Error while creating the SamplerState", "SkyBox", MB_OK);
 		exit(1);
 	}
+
+	texture->Release();
 }

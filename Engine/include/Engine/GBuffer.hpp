@@ -16,8 +16,6 @@ namespace engine
 	class DLLAPI GBuffer : public FrameBuffer
 	{
 	private:
-		// Texture
-		ID3D11Texture2D *_pTexture[GBUF_NUM_TEX];
 		// Shader Resource View
 		ID3D11ShaderResourceView *_pShaderResourceView[GBUF_NUM_TEX + 1];
 		// Render View

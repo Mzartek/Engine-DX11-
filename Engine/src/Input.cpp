@@ -1,7 +1,7 @@
 #include <Engine/Input.hpp>
 
 engine::Input::Input(void)
-	: _pDirectInputObject(NULL), _pKeyBoard(NULL), _pMouse(NULL)
+	: _pKeyBoard(NULL), _pMouse(NULL)
 {
 	ZeroMemory(_keyState, sizeof(_keyState));
 	ZeroMemory(&_mouseState, sizeof(_mouseState));
@@ -9,37 +9,30 @@ engine::Input::Input(void)
 
 engine::Input::~Input(void)
 {
-	if (_pDirectInputObject) _pDirectInputObject->Release();
-	if (_pKeyBoard)
-	{
-		_pKeyBoard->Unacquire();
-		_pKeyBoard->Release();
-	}
-	if (_pMouse)
-	{
-		_pMouse->Unacquire();
-		_pMouse->Release();
-	}
+	if (_pKeyBoard)	_pKeyBoard->Release();
+	if (_pMouse) _pMouse->Release();
 }
 
 void engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
 {
 	HRESULT hr;
-	hr = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&_pDirectInputObject, NULL);
+	LPDIRECTINPUT8 directInputObject;
+
+	hr = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&directInputObject, NULL);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Input", "Input", MB_OK);
 		exit(1);
 	}
 
-	hr = _pDirectInputObject->CreateDevice(GUID_SysKeyboard, &_pKeyBoard, NULL);
+	hr = directInputObject->CreateDevice(GUID_SysKeyboard, &_pKeyBoard, NULL);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create KeyBoard Device", "Input", MB_OK);
 		exit(1);
 	}
 
-	hr = _pDirectInputObject->CreateDevice(GUID_SysMouse, &_pMouse, NULL);
+	hr = directInputObject->CreateDevice(GUID_SysMouse, &_pMouse, NULL);
 	if (FAILED(hr))
 	{
 		MessageBox(NULL, "Failed to create Mouse Device", "Input", MB_OK);
@@ -76,6 +69,7 @@ void engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
 
 	_pKeyBoard->Acquire();
 	_pMouse->Acquire();
+	directInputObject->Release();
 }
 
 BOOL engine::Input::getKeyBoardState(const BYTE &button)

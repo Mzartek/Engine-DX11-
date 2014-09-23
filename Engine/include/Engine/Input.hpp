@@ -8,7 +8,6 @@ namespace engine
 	class DLLAPI Input : public Object
 	{
 	private:
-		LPDIRECTINPUT8 _pDirectInputObject;
 		LPDIRECTINPUTDEVICE8 _pKeyBoard;
 		LPDIRECTINPUTDEVICE8 _pMouse;
 		BYTE _keyState[256];
