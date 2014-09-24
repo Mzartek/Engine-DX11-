@@ -90,21 +90,11 @@ float calcShadow(float4 coord, float pcf)
 	return shadow;
 }
 
-float4 calcDirLight(float4 diffColor, float4 specColor, float3 N, float3 eyeVec, float shininess, float shadow) // N need to be normalize
+float4 calcLight(float4 diffColor, float4 specColor, float3 N, float3 L, float3 V, float shininess)
 {
-	float3 L, V, R;
-	float4 diff, spec;
-
-	diff = float4(0.0, 0.0, 0.0, 0.0);
-	spec = float4(0.0, 0.0, 0.0, 0.0);
-
-	L = normalize(-lightDirection);
-	V = normalize(eyeVec);
-	R = reflect(-L, N);
-
-	diff = max(dot(N, L), 0.0) * diffColor * shadow;
-	spec = pow(max(dot(R, V), 0.0), shininess) * specColor * shadow;
-
+	float3 R = reflect(-L, N);
+	float4 diff = max(dot(N, L), 0.0) * diffColor;
+	float4 spec = pow(max(dot(R, V), 0.0), shininess) * specColor;
 	return diff + spec;
 }
 
@@ -112,8 +102,7 @@ PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
-	if (stencilTex[input.position.xy].y != 1)
-		return output;
+	if (stencilTex[input.position.xy].y != 1) return output;
 
 	float3 position = getPosition(input.position.xy);
 	float4 normal = normalTex[input.position.xy];
@@ -122,10 +111,10 @@ PS_OUTPUT main(PS_INPUT input)
 	float4 diffColor = unpackUnorm4x8(material.z) * float4(lightColor, 1.0);
 	float4 specColor = unpackUnorm4x8(material.w) * float4(lightColor, 1.0);
 	
-	float s = 1.0;
+	float shadow = 1.0;
 	if (withShadowMapping)
-		s = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 1.0);
-	output.light = calcDirLight(diffColor, specColor, normal.xyz, camPosition - position, normal.w, s);
+		shadow = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 1.0);
+	output.light = calcLight(diffColor, specColor, normal.xyz, normalize(-lightDirection), normalize(camPosition - position), normal.w) * shadow;
 
 	return output;
 }

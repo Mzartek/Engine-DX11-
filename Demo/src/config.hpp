@@ -27,6 +27,7 @@ extern engine::GBuffer *gBuffer;
 extern engine::ShaderProgram *objectProgram;
 extern engine::ShaderProgram *dirLightProgram;
 extern engine::ShaderProgram *spotLightProgram;
+extern engine::ShaderProgram *vLightProgram;
 extern engine::ShaderProgram *shadowMapProgram;
 extern engine::ShaderProgram *skyboxProgram;
 extern engine::ShaderProgram *backgroundProgram;

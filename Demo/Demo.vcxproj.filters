@@ -26,12 +26,6 @@
     <FxCompile Include="shader\shadowMap\shadowMapVertex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shader\shadowVolumeSpot\shadowVolumeSpotVertex.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\shadowVolumeSpot\shadowVolumeSpotGeom.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shader\dirLight\dirLightPixel.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -63,6 +57,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shader\background\backgroundVertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\vLight\vLightPixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\vLight\vLightVertex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

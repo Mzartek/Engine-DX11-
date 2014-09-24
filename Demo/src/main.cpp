@@ -15,6 +15,7 @@ engine::GBuffer *gBuffer;
 engine::ShaderProgram *objectProgram;
 engine::ShaderProgram *dirLightProgram;
 engine::ShaderProgram *spotLightProgram;
+engine::ShaderProgram *vLightProgram;
 engine::ShaderProgram *shadowMapProgram;
 engine::ShaderProgram *skyboxProgram;
 engine::ShaderProgram *backgroundProgram;
@@ -53,20 +54,20 @@ void display(void)
 
 	// Shadow Map
 	sol->displayShadowMap(sun);
-	//heli->displayShadowMap(sun);
+	heli->displayShadowMap(sun);
 	sol->displayShadowMap(torch);
-	//heli->displayShadowMap(torch);
+	heli->displayShadowMap(torch);
 
 	// Opaque Object
 	sol->display(gBuffer, cam);
-	//heli->display(gBuffer, cam);
+	heli->display(gBuffer, cam);
 	sun->display(gBuffer, cam);
 	torch->display(gBuffer, cam);
 	screen->background(gBuffer);
 
 	// Transparent Object
 	sol->displayTransparent(gBuffer, cam);
-	//heli->displayTransparent(gBuffer, cam);
+	heli->displayTransparent(gBuffer, cam);
 	sun->display(gBuffer, cam);
 	torch->display(gBuffer, cam);
 	screen->background(gBuffer);
@@ -115,6 +116,7 @@ void init(void)
 	objectProgram = new engine::ShaderProgram;
 	dirLightProgram = new engine::ShaderProgram;
 	spotLightProgram = new engine::ShaderProgram;
+	vLightProgram = new engine::ShaderProgram;
 	shadowMapProgram = new engine::ShaderProgram;
 	skyboxProgram = new engine::ShaderProgram;
 	backgroundProgram = new engine::ShaderProgram;
@@ -137,6 +139,7 @@ void kill()
 	delete backgroundProgram;
 	delete skyboxProgram;
 	delete shadowMapProgram;
+	delete vLightProgram;
 	delete spotLightProgram;
 	delete dirLightProgram;
 	delete objectProgram;
@@ -159,7 +162,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderer = new engine::Renderer;
 	input = new engine::Input;
 
-	renderer->initWindow(hInstance, WndProc, nCmdShow, L"Demo DirectX", 800, 600, FALSE);
+	renderer->initWindow(hInstance, WndProc, nCmdShow, L"Demo DirectX", 1680, 1050, FALSE);
 	renderer->setReshapeFunc(reshape);
 	renderer->setIdleFunc(idle);
 	renderer->setDisplayFunc(display);
