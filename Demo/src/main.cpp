@@ -53,20 +53,20 @@ void display(void)
 
 	// Shadow Map
 	sol->displayShadowMap(sun);
-	heli->displayShadowMap(sun);
+	//heli->displayShadowMap(sun);
 	sol->displayShadowMap(torch);
-	heli->displayShadowMap(torch);
+	//heli->displayShadowMap(torch);
 
 	// Opaque Object
 	sol->display(gBuffer, cam);
-	heli->display(gBuffer, cam);
+	//heli->display(gBuffer, cam);
 	sun->display(gBuffer, cam);
 	torch->display(gBuffer, cam);
 	screen->background(gBuffer);
 
 	// Transparent Object
 	sol->displayTransparent(gBuffer, cam);
-	heli->displayTransparent(gBuffer, cam);
+	//heli->displayTransparent(gBuffer, cam);
 	sun->display(gBuffer, cam);
 	torch->display(gBuffer, cam);
 	screen->background(gBuffer);
@@ -84,7 +84,10 @@ void idle(void)
 	if (input->getKeyBoardState(DIK_LSHIFT))
 		cam->setSpeed(0.05f);
 	else
-		cam->setSpeed(0.25f);
+		cam->setSpeed(0.5f);
+
+	if (input->getMouseState(0))
+		cam->setSpeed(10.0f);
 
 	heli->matRotate(0.1f, 0, 1, 0);
 

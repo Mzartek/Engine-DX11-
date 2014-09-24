@@ -84,19 +84,19 @@ BOOL engine::Input::getKeyBoardState(const BYTE &button)
 
 BOOL engine::Input::getMouseState(const BYTE &button)
 {
-	if (_mouseState.buttons[button] & 0x80)
+	if (_mouseState.rgbButtons[button] & 0x80)
 		return TRUE;
 	return FALSE;
 }
 
 LONG engine::Input::getMouseRelX(void)
 {
-	return _mouseState.x;
+	return _mouseState.lX;
 }
 
 LONG engine::Input::getMouseRelY(void)
 {
-	return _mouseState.y;
+	return _mouseState.lY;
 }
 
 void engine::Input::refresh(void)

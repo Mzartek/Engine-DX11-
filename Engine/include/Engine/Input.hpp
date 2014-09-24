@@ -11,13 +11,7 @@ namespace engine
 		LPDIRECTINPUTDEVICE8 _pKeyBoard;
 		LPDIRECTINPUTDEVICE8 _pMouse;
 		BYTE _keyState[256];
-		struct MOUSESTATE 
-		{
-			LONG x;
-			LONG y;
-			LONG z;
-			BYTE buttons[4];
-		} _mouseState;
+		DIMOUSESTATE _mouseState;
 	public:
 		Input(void);
 		~Input(void);
