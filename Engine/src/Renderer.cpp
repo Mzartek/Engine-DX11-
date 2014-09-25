@@ -5,7 +5,7 @@ std::string ShaderLevel;
 ID3D11Device *Device;
 ID3D11DeviceContext *DeviceContext; 
 
-std::vector<IDXGIAdapter*> EnumerateAdapters(void)
+static std::vector<IDXGIAdapter*> EnumerateAdapters(void)
 {
 	HRESULT hr;
 	IDXGIFactory *pFactory;
@@ -303,9 +303,24 @@ HWND engine::Renderer::getHWND(void)
 	return _hWnd;
 }
 
+static long long milliseconds_now()
+{
+	static LARGE_INTEGER s_frequency;
+	static BOOL s_use_qpc = QueryPerformanceFrequency(&s_frequency);
+	if (s_use_qpc)
+	{
+		LARGE_INTEGER now;
+		QueryPerformanceCounter(&now);
+		return (1000LL * now.QuadPart) / s_frequency.QuadPart;
+	}
+	else
+		return GetTickCount();
+}
+
 void engine::Renderer::mainLoop(void)
 {
 	MSG msg;
+	long long lastTime, limit = 1000 / 60;
 
 	if (!_reshape || !_idle || !_display)
 	{
@@ -315,6 +330,7 @@ void engine::Renderer::mainLoop(void)
 
 	_stopLoop = FALSE;
 	_reshape(_width, _height);
+	lastTime = milliseconds_now();
 	while (!_stopLoop)
 	{
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -328,11 +344,13 @@ void engine::Renderer::mainLoop(void)
 				break;
 			}
 		}
-
-		_idle();
+		if ((milliseconds_now() - lastTime) > limit)
+		{
+			_idle();
+			lastTime = milliseconds_now();
+		}
 		_display();
-
-		_pSwapChain->Present(1, 0);
+		_pSwapChain->Present(0, 0);
 	}
 }
 

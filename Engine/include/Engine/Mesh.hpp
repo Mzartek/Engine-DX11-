@@ -11,6 +11,7 @@ namespace engine
 	class DLLAPI Mesh : public Object
 	{
 		friend int comparMesh(const void *p1, const void *p2);
+
 	private:
 		Texture *_colorTexture;
 		Texture *_NMTexture;
@@ -40,9 +41,8 @@ namespace engine
 		void display(void) const;
 		void displayShadow(void) const;
 	};
-  
+
 	int comparMesh(const void *p1, const void *p2);
-  
 }
 
 

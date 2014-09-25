@@ -189,15 +189,13 @@ void engine::Model::loadFromFile(const CHAR *szFileName)
 		std::string dir, colorPath, NMPath;
 		dir = getDir(szFileName);
 		if (pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
-		{
 			colorPath += dir + path.C_Str();
-			NMPath += dir + "NM_" + path.C_Str();
-		}
 		else
-		{
 			colorPath = "resources/none.png";
+		if (pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->GetTexture(aiTextureType_NORMALS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
+			NMPath += dir + "NM_" + path.C_Str();
+		else
 			NMPath = "resources/NM_none.png";
-		}
 
 		aiColor4D mat_ambient;
 		aiColor4D mat_diffuse;

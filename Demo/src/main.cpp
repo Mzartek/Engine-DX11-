@@ -88,7 +88,7 @@ void idle(void)
 		cam->setSpeed(0.5f);
 
 	if (input->getMouseState(0))
-		cam->setSpeed(10.0f);
+		cam->setSpeed(5.0f);
 
 	heli->matRotate(0.1f, 0, 1, 0);
 
@@ -162,7 +162,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderer = new engine::Renderer;
 	input = new engine::Input;
 
-	renderer->initWindow(hInstance, WndProc, nCmdShow, L"Demo DirectX", 1680, 1050, FALSE);
+	renderer->initWindow(hInstance, WndProc, nCmdShow, L"Demo DirectX", 800, 600, FALSE);
 	renderer->setReshapeFunc(reshape);
 	renderer->setIdleFunc(idle);
 	renderer->setDisplayFunc(display);
