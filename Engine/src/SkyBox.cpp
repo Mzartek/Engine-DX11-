@@ -5,8 +5,8 @@
 #include <Engine/GBuffer.hpp>
 #include <Engine/Camera.hpp>
 
-extern ID3D11Device *Device;
-extern ID3D11DeviceContext *DeviceContext;
+extern ID3D11Device1 *Device;
+extern ID3D11DeviceContext1 *DeviceContext;
 
 engine::SkyBox::SkyBox()
 	: _pInputLayout(NULL)
@@ -35,8 +35,6 @@ void engine::SkyBox::load(const CHAR *posx, const CHAR *negx,
 	const CHAR *posz, const CHAR *negz,
 	FLOAT dim, ShaderProgram *program)
 {
-	HRESULT hr;
-
 	_program = program;
 
 	_cubeTexture->loadCubeTextureFromFiles(posx, negx, posy, negy, posz, negz);
@@ -48,9 +46,7 @@ void engine::SkyBox::load(const CHAR *posx, const CHAR *negx,
 	{
 		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	hr = Device->CreateInputLayout(layout, ARRAYSIZE(layout),
-		_program->getEntryBufferPointer(), _program->getEntryBytecodeLength(),
-		&_pInputLayout);
+	Device->CreateInputLayout(layout, ARRAYSIZE(layout), _program->getEntryBufferPointer(), _program->getEntryBytecodeLength(), &_pInputLayout);
 
 	// Create the Cube
 	FLOAT vertexArray[] = {

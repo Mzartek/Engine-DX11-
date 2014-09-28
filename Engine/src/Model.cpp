@@ -11,8 +11,8 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-extern ID3D11Device *Device;
-extern ID3D11DeviceContext *DeviceContext;
+extern ID3D11Device1 *Device;
+extern ID3D11DeviceContext1 *DeviceContext;
 
 engine::Model::Model(void)
 	: _tMesh(NULL), _pInputLayout(NULL)
@@ -67,8 +67,6 @@ void engine::Model::initMeshMirror(Model *m)
 
 void engine::Model::config(ShaderProgram *gProgram, ShaderProgram *smProgram)
 {
-	HRESULT hr;
-
 	_gProgram = gProgram;
 	_smProgram = smProgram;
 
@@ -82,14 +80,7 @@ void engine::Model::config(ShaderProgram *gProgram, ShaderProgram *smProgram)
 		{ "IN_NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 5 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "IN_TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 8 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	hr = Device->CreateInputLayout(layout, ARRAYSIZE(layout),
-		gProgram->getEntryBufferPointer(), gProgram->getEntryBytecodeLength(),
-		&_pInputLayout);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Input Layout", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateInputLayout(layout, ARRAYSIZE(layout), gProgram->getEntryBufferPointer(), gProgram->getEntryBytecodeLength(), &_pInputLayout);
 
 	// MVPMatrix Buffer
 	_MVPMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
@@ -138,7 +129,7 @@ void engine::Model::loadFromFile(const CHAR *szFileName)
 
 	if (_tMesh == NULL || isMirror == TRUE)
 	{
-		MessageBox(NULL, L"Error Model configuration", TEXT(__FILE__), MB_OK);
+		MessageBox(NULL, TEXT("Error Model configuration"), TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	for (i = 0; i<_tMesh->size(); i++)
@@ -262,7 +253,7 @@ engine::Mesh *engine::Model::getMesh(UINT num) const
 {
 	if (num >= _tMesh->size())
 	{
-		MessageBox(NULL, L"Bad num Object!", TEXT(__FILE__), MB_OK);
+		MessageBox(NULL, TEXT("Bad num Object!"), TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	return (*_tMesh)[num];

@@ -2,14 +2,14 @@
 
 void configShaders(void)
 {
-	objectProgram->loadProgram(L"shader/object/objectVertex.hlsl", NULL, NULL, L"shader/object/objectGeom.hlsl", L"shader/object/objectPixel.hlsl");
-	dirLightProgram->loadProgram(L"shader/dirLight/dirLightVertex.hlsl", NULL, NULL, NULL, L"shader/dirLight/dirLightPixel.hlsl");
-	spotLightProgram->loadProgram(L"shader/spotLight/spotLightVertex.hlsl", NULL, NULL, NULL, L"shader/spotLight/spotLightPixel.hlsl");
-	vLightProgram->loadProgram(L"shader/vLight/vLightVertex.hlsl", NULL, NULL, NULL, L"shader/vLight/vLightPixel.hlsl");
-	shadowMapProgram->loadProgram(L"shader/shadowMap/shadowMapVertex.hlsl", NULL, NULL, NULL, L"shader/shadowMap/shadowMapPixel.hlsl");
-	skyboxProgram->loadProgram(L"shader/skybox/skyboxVertex.hlsl", NULL, NULL, NULL, L"shader/skybox/skyboxPixel.hlsl");
-	backgroundProgram->loadProgram(L"shader/background/backgroundVertex.hlsl", NULL, NULL, NULL, L"shader/background/backgroundPixel.hlsl");
-	screenProgram->loadProgram(L"shader/screen/screenVertex.hlsl", NULL, NULL, NULL, L"shader/screen/screenPixel.hlsl");
+	objectProgram->loadProgram(TEXT("shader/object/objectVertex.hlsl"), NULL, NULL, TEXT("shader/object/objectGeom.hlsl"), TEXT("shader/object/objectPixel.hlsl"));
+	dirLightProgram->loadProgram(TEXT("shader/dirLight/dirLightVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/dirLight/dirLightPixel.hlsl"));
+	spotLightProgram->loadProgram(TEXT("shader/spotLight/spotLightVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/spotLight/spotLightPixel.hlsl"));
+	vLightProgram->loadProgram(TEXT("shader/vLight/vLightVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/vLight/vLightPixel.hlsl"));
+	shadowMapProgram->loadProgram(TEXT("shader/shadowMap/shadowMapVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/shadowMap/shadowMapPixel.hlsl"));
+	skyboxProgram->loadProgram(TEXT("shader/skybox/skyboxVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/skybox/skyboxPixel.hlsl"));
+	backgroundProgram->loadProgram(TEXT("shader/background/backgroundVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/background/backgroundPixel.hlsl"));
+	screenProgram->loadProgram(TEXT("shader/screen/screenVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/screen/screenPixel.hlsl"));
 }
 
 void configBuffers(void)

@@ -42,7 +42,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-void display(void)
+void display(FLOAT state)
 {
 	renderer->clear();
 	gBuffer->clear();
@@ -162,7 +162,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderer = new engine::Renderer;
 	input = new engine::Input;
 
-	renderer->initWindow(hInstance, WndProc, nCmdShow, L"Demo DirectX", 800, 600, FALSE);
+	renderer->initWindow(hInstance, WndProc, nCmdShow, TEXT("Demo DirectX"), 800, 600, FALSE);
 	renderer->setReshapeFunc(reshape);
 	renderer->setIdleFunc(idle);
 	renderer->setDisplayFunc(display);
@@ -184,7 +184,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		text = std::to_string(engine::Object::getMemoryState());
 		MessageBoxA(NULL, text.c_str(), __FILE__, MB_OK);
 	}
-	engine::Object::saveMemoryInfo(L"memLost.txt");
+	engine::Object::saveMemoryInfo(TEXT("memLost.txt"));
 
 	return 0;
 }

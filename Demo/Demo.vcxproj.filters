@@ -14,9 +14,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shader\screen\screenPixel.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shader\screen\screenVertex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -50,9 +47,6 @@
     <FxCompile Include="shader\object\objectPixel.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shader\object\objectVertex.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shader\background\backgroundPixel.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -63,6 +57,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shader\vLight\vLightVertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\screen\screenPixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\object\objectVertex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

@@ -5,8 +5,8 @@
 #include <Engine/GBuffer.hpp>
 #include <Engine/Camera.hpp>
 
-extern ID3D11Device *Device;
-extern ID3D11DeviceContext *DeviceContext;
+extern ID3D11Device1 *Device;
+extern ID3D11DeviceContext1 *DeviceContext;
 
 engine::DirLight::DirLight(void)
 {
@@ -18,8 +18,6 @@ engine::DirLight::~DirLight(void)
 
 void engine::DirLight::config(ShaderProgram *program)
 {
-	HRESULT hr;
-
 	_program = program;
 
 	if (_pInputLayout) _pInputLayout->Release();
@@ -29,14 +27,7 @@ void engine::DirLight::config(ShaderProgram *program)
 	{
 		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	hr = Device->CreateInputLayout(layout, ARRAYSIZE(layout),
-		program->getEntryBufferPointer(), program->getEntryBytecodeLength(),
-		&_pInputLayout);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Input Layout", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateInputLayout(layout, ARRAYSIZE(layout), program->getEntryBufferPointer(), program->getEntryBytecodeLength(), &_pInputLayout);
 
 	// Create Vertex Buffer
 	FLOAT vertex[] = {

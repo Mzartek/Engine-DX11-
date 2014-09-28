@@ -15,60 +15,20 @@ engine::Input::~Input(void)
 
 void engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
 {
-	HRESULT hr;
 	LPDIRECTINPUT8 directInputObject;
 
 	if (_pKeyBoard)	_pKeyBoard->Release();
 	if (_pMouse) _pMouse->Release();
 
-	hr = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&directInputObject, NULL);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Input", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&directInputObject, NULL);
+	directInputObject->CreateDevice(GUID_SysKeyboard, &_pKeyBoard, NULL);
+	directInputObject->CreateDevice(GUID_SysMouse, &_pMouse, NULL);
 
-	hr = directInputObject->CreateDevice(GUID_SysKeyboard, &_pKeyBoard, NULL);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create KeyBoard Device", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	_pKeyBoard->SetDataFormat(&c_dfDIKeyboard);
+	_pKeyBoard->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
 
-	hr = directInputObject->CreateDevice(GUID_SysMouse, &_pMouse, NULL);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Mouse Device", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
-
-	hr = _pKeyBoard->SetDataFormat(&c_dfDIKeyboard);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to set Keyboard DataFormat", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
-
-	hr = _pKeyBoard->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to set Keyboard CooperativeLevel", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
-
-	hr = _pMouse->SetDataFormat(&c_dfDIMouse);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to set Mouse DataFormat", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
-
-	hr = _pMouse->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to set Mouse CooperativeLevel", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	_pMouse->SetDataFormat(&c_dfDIMouse);
+	_pMouse->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
 
 	_pKeyBoard->Acquire();
 	_pMouse->Acquire();

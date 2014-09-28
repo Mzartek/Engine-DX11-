@@ -14,7 +14,7 @@ namespace engine
 		HINSTANCE _hInst;
 		HWND _hWnd;
 		// SwapChain
-		IDXGISwapChain *_pSwapChain;
+		IDXGISwapChain1 *_pSwapChain;
 		// View
 		ID3D11RenderTargetView *_pRenderTargetView;
 		ID3D11DepthStencilView *_pDepthStencilView;
@@ -25,7 +25,7 @@ namespace engine
 		// ViewPort
 		D3D11_VIEWPORT _VP;
 		// Function Pointer
-		void(*_display) (void);
+		void(*_display) (FLOAT);
 		void(*_idle) (void);
 		void(*_reshape) (UINT, UINT);
 	public:
@@ -33,7 +33,7 @@ namespace engine
 		~Renderer(void);
 		void initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), const int &nCmdShow,
 			const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen);
-		void setDisplayFunc(void(*f) (void));
+		void setDisplayFunc(void(*f) (FLOAT));
 		void setIdleFunc(void(*f) (void));
 		void setReshapeFunc(void(*f) (UINT, UINT));
 		UINT getWidth(void);

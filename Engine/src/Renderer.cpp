@@ -2,33 +2,10 @@
 
 D3D_FEATURE_LEVEL FeatureLevel;
 std::string ShaderLevel;
-ID3D11Device *Device;
-ID3D11DeviceContext *DeviceContext; 
+ID3D11Device1 *Device;
+ID3D11DeviceContext1 *DeviceContext;
 
-static std::vector<IDXGIAdapter*> EnumerateAdapters(void)
-{
-	HRESULT hr;
-	IDXGIFactory *pFactory;
-	IDXGIAdapter *pAdapter;
-	std::vector <IDXGIAdapter*> vAdapters;
-
-	// Create a DXGIFactory object.
-	hr = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pFactory);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to enumerate Adapters", TEXT(__FILE__), MB_OK);
-	}
-
-	for (UINT i = 0; pFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND; i++)
-	{
-		vAdapters.push_back(pAdapter);
-	}
-	pFactory->Release();
-
-	return vAdapters;
-}
-
-static std::string checkShaderVersion(const D3D_FEATURE_LEVEL &featureLevel)
+static std::string ShaderVersion(const D3D_FEATURE_LEVEL &featureLevel)
 {
 	std::string shaderLevel;
 
@@ -80,7 +57,6 @@ engine::Renderer::~Renderer(void)
 void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), const int &nCmdShow,
 	const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
 {
-	HRESULT hr;
 	ID3D11Texture2D *texture;
 
 	_width = width;
@@ -106,41 +82,25 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = _hInst;
-	wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)COLOR_WINDOW;
+	wcex.hIcon = LoadIcon(_hInst, IDI_APPLICATION);
+	wcex.hCursor = LoadCursor(_hInst, IDC_ARROW);
+	wcex.hbrBackground = NULL;
 	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = L"EngineWindowClass";
-
+	wcex.lpszClassName = TEXT("EngineWindowClass");
 	RegisterClass(&wcex);
 	_hWnd = CreateWindow(wcex.lpszClassName, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, NULL, NULL, hInstance, NULL);
-	if (!_hWnd)
+	if (_hWnd == NULL)
 	{
-		MessageBox(NULL, L"Failed to create Window", TEXT(__FILE__), MB_OK);
+		MessageBox(NULL, TEXT("Failed to create Window"), TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	ShowWindow(_hWnd, nCmdShow);
 
-	// Init swap chain
-	DXGI_SWAP_CHAIN_DESC sd;
-	sd.BufferDesc.Width = _width;
-	sd.BufferDesc.Height = _height;
-	sd.BufferDesc.RefreshRate.Numerator = 0;
-	sd.BufferDesc.RefreshRate.Denominator = 0;
-	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	sd.SampleDesc.Count = 1;
-	sd.SampleDesc.Quality = 0;
-	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferCount = 2;
-	sd.OutputWindow = _hWnd;
-	sd.Windowed = !fullScreen;
-	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
 	// Create Device and SwapChain
-	std::vector<IDXGIAdapter *> vAdapters = EnumerateAdapters();
+	ID3D11Device *pd3dDevice;
+	ID3D11DeviceContext *pd3dDeviceContext;
+	IDXGIFactory1 *pFactory1;
+	IDXGIFactory2 *pFactory2;
 	D3D_FEATURE_LEVEL featureLevels[]
 	{
 		D3D_FEATURE_LEVEL_11_1,
@@ -148,31 +108,43 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 		D3D_FEATURE_LEVEL_10_1,
 		D3D_FEATURE_LEVEL_10_0,
 	};
-	hr = D3D11CreateDeviceAndSwapChain(vAdapters[0], D3D_DRIVER_TYPE_UNKNOWN, NULL, NULL, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
-		&sd, &_pSwapChain, &Device, &FeatureLevel, &DeviceContext);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Device and SwapChain", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
-	ShaderLevel = checkShaderVersion(FeatureLevel);
-	// Release Adapters List
-	for (UINT i = 0; i < vAdapters.size(); i++)
-		vAdapters[i]->Release();
+	DXGI_SWAP_CHAIN_DESC1 sd;
+	sd.Width = _width;
+	sd.Height = _height;
+	sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sd.Stereo = FALSE;
+	sd.SampleDesc.Count = 1;
+	sd.SampleDesc.Quality = 0;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	sd.BufferCount = 2;
+	sd.Scaling = DXGI_SCALING_STRETCH;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	DXGI_SWAP_CHAIN_FULLSCREEN_DESC sfd;
+	sfd.RefreshRate.Numerator = 60;
+	sfd.RefreshRate.Denominator = 1;
+	sfd.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	sfd.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	sfd.Windowed = !fullScreen;
+
+	D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &pd3dDevice, &FeatureLevel, &pd3dDeviceContext);
+	pd3dDevice->QueryInterface(__uuidof(ID3D11Device1), reinterpret_cast<void**>(&Device));
+	pd3dDeviceContext->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void**>(&DeviceContext));
+	CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pFactory1));
+	pFactory1->QueryInterface(__uuidof(IDXGIFactory2), reinterpret_cast<void**>(&pFactory2));
+	pFactory2->CreateSwapChainForHwnd(Device, _hWnd, &sd, &sfd, NULL, &_pSwapChain);
+
+	pd3dDevice->Release();
+	pd3dDeviceContext->Release();
+	pFactory1->Release();
+	pFactory2->Release();
+
+	ShaderLevel = ShaderVersion(FeatureLevel);
 
 	// Create the RenderTargetView
-	hr = _pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&texture);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to get BackBuffer", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
-	hr = Device->CreateRenderTargetView(texture, NULL, &_pRenderTargetView);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create RenderTarget View", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&texture));
+	Device->CreateRenderTargetView(texture, NULL, &_pRenderTargetView);
 	texture->Release();
 
 	// Create the DepthStencilTexture
@@ -188,12 +160,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	descDepthStencilTexture.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	descDepthStencilTexture.CPUAccessFlags = 0;
 	descDepthStencilTexture.MiscFlags = 0;
-	hr = Device->CreateTexture2D(&descDepthStencilTexture, NULL, &texture);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create DepthStencil Texture", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateTexture2D(&descDepthStencilTexture, NULL, &texture);
 
 	// Create the DepthStencilView
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDepthStencilView;
@@ -201,12 +168,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	descDepthStencilView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDepthStencilView.Flags = 0;
 	descDepthStencilView.Texture2D.MipSlice = 0;
-	hr = Device->CreateDepthStencilView(texture, &descDepthStencilView, &_pDepthStencilView);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create DepthStencil View", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateDepthStencilView(texture, &descDepthStencilView, &_pDepthStencilView);
 	texture->Release();
 
 	// Create the DepthStencilState
@@ -214,12 +176,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	descDepth.DepthEnable = FALSE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	descDepth.StencilEnable = FALSE;
-	hr = Device->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create DepthStencil State", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
 
 	// Create the BlendState
 	D3D11_BLEND_DESC descBlend;
@@ -233,12 +190,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	hr = Device->CreateBlendState(&descBlend, &_pBlendState);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Blend State", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateBlendState(&descBlend, &_pBlendState);
 
 	// Create the RasterizerState
 	D3D11_RASTERIZER_DESC descRasterizer;
@@ -252,12 +204,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	descRasterizer.ScissorEnable = FALSE;
 	descRasterizer.MultisampleEnable = FALSE;
 	descRasterizer.AntialiasedLineEnable = FALSE;
-	hr = Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Rasterizer State", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 
 	// Create the Viewport
 	_VP.TopLeftX = 0.0f;
@@ -268,7 +215,7 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	_VP.MaxDepth = 1.0f;
 }
 
-void engine::Renderer::setDisplayFunc(void (*f) (void))
+void engine::Renderer::setDisplayFunc(void(*f) (FLOAT))
 {
 	_display = f;
 }
@@ -320,17 +267,19 @@ static long long milliseconds_now()
 void engine::Renderer::mainLoop(void)
 {
 	MSG msg;
-	long long lastTime, limit = 1000 / 60;
+	long long currentTime, newTime, frameTime;
+	long long accumulator = 0;
+	long long dt = 16;
 
 	if (!_reshape || !_idle || !_display)
 	{
-		MessageBox(NULL, L"You need to set the Reshape, Idle and Display Function before", TEXT(__FILE__), MB_OK);
+		MessageBox(NULL, TEXT("You need to set the Reshape, Idle and Display Function before"), TEXT(__FILE__), MB_OK);
 		return;
 	}
 
 	_stopLoop = FALSE;
 	_reshape(_width, _height);
-	lastTime = milliseconds_now();
+	currentTime = milliseconds_now();
 	while (!_stopLoop)
 	{
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -344,12 +293,12 @@ void engine::Renderer::mainLoop(void)
 				break;
 			}
 		}
-		if ((milliseconds_now() - lastTime) > limit)
-		{
+		newTime = milliseconds_now();
+		frameTime = newTime - currentTime;
+		currentTime = newTime;
+		for (accumulator += frameTime; accumulator >= dt; accumulator -= dt)
 			_idle();
-			lastTime = milliseconds_now();
-		}
-		_display();
+		_display((FLOAT)accumulator / dt);
 		_pSwapChain->Present(0, 0);
 	}
 }

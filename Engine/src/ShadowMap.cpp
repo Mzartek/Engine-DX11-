@@ -1,7 +1,7 @@
 #include <Engine/ShadowMap.hpp>
 
-extern ID3D11Device *Device;
-extern ID3D11DeviceContext *DeviceContext;
+extern ID3D11Device1 *Device;
+extern ID3D11DeviceContext1 *DeviceContext;
 
 engine::ShadowMap::ShadowMap()
 {
@@ -29,7 +29,6 @@ engine::ShadowMap::~ShadowMap()
 
 void engine::ShadowMap::config(const UINT &width, const UINT &height)
 {
-	HRESULT hr;
 	ID3D11Texture2D *texture;
 
 	_width = width;
@@ -67,26 +66,11 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height)
 	descDepthView.Texture2D.MipSlice = 0;
 	
 	descTexture.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	Device->CreateTexture2D(&descTexture, NULL, &texture);
 	descShaderResourceView.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
 	descDepthView.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Depth Texture", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
-	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Depth Resource View", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
-	hr = Device->CreateDepthStencilView(texture, &descDepthView, &_pDepthView);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Depth Render View", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateDepthStencilView(texture, &descDepthView, &_pDepthView);
 	texture->Release();
 	
 	// State
@@ -95,12 +79,7 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height)
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
-	hr = Device->CreateDepthStencilState(&descDepth, &_pDepthState);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create DepthStencil State", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateDepthStencilState(&descDepth, &_pDepthState);
 
 	D3D11_RASTERIZER_DESC descRasterizer;
 	descRasterizer.FillMode = D3D11_FILL_SOLID;
@@ -113,12 +92,7 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height)
 	descRasterizer.ScissorEnable = FALSE;
 	descRasterizer.MultisampleEnable = FALSE;
 	descRasterizer.AntialiasedLineEnable = FALSE;
-	hr = Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Rasterizer State", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 
 	D3D11_SAMPLER_DESC descSampler;
 	descSampler.Filter = D3D11_FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR;
@@ -134,12 +108,7 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height)
 	descSampler.BorderColor[3] = 1.0f;
 	descSampler.MinLOD = 0;
 	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	hr = Device->CreateSamplerState(&descSampler, &_pSamplerComparisonState);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Error while creating the SamplerState", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateSamplerState(&descSampler, &_pSamplerComparisonState);
 
 	// Create the Viewport
 	_VP.TopLeftX = 0.0f;

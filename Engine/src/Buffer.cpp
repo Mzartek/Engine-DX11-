@@ -1,7 +1,7 @@
 #include "Engine/Buffer.hpp"
 
-extern ID3D11Device *Device;
-extern ID3D11DeviceContext *DeviceContext;
+extern ID3D11Device1 *Device;
+extern ID3D11DeviceContext1 *DeviceContext;
 
 engine::Buffer::Buffer(void)
 	: _target(D3D11_BIND_VERTEX_BUFFER), _pBuffer(NULL), _size(0)
@@ -20,7 +20,6 @@ ID3D11Buffer *engine::Buffer::getBuffer(void)
 
 void engine::Buffer::createStore(const D3D11_BIND_FLAG &target, const void *data, const UINT &size, const D3D11_USAGE &usage)
 {
-	HRESULT hr;
 	D3D11_BUFFER_DESC bd;
 	D3D11_SUBRESOURCE_DATA dt;
 
@@ -48,15 +47,10 @@ void engine::Buffer::createStore(const D3D11_BIND_FLAG &target, const void *data
 		dt.pSysMem = data;
 		dt.SysMemPitch = 0;
 		dt.SysMemSlicePitch = 0;
-		hr = Device->CreateBuffer(&bd, &dt, &_pBuffer);
+		Device->CreateBuffer(&bd, &dt, &_pBuffer);
 	}
 	else
-		hr = Device->CreateBuffer(&bd, NULL, &_pBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Buffer", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+		Device->CreateBuffer(&bd, NULL, &_pBuffer);
 }
 
 void engine::Buffer::updateStoreSub(const void *data)

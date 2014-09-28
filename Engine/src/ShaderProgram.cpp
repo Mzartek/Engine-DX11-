@@ -1,28 +1,27 @@
 #include <Engine/ShaderProgram.hpp>
 
 extern std::string ShaderLevel;
-extern ID3D11Device *Device;
+extern ID3D11Device1 *Device;
 
 static void CompileShaderFromFile(const LPCWSTR szFileName, const std::string szEntryPoint, const std::string szShaderModel, ID3DBlob **ppBlobOut)
 {
 	HRESULT hr;
-	DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 	ID3DBlob *pErrorBlob = NULL;
 
-	hr = D3DCompileFromFile(szFileName, NULL, NULL, szEntryPoint.c_str(), szShaderModel.c_str(),
-		dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
+	hr = D3DCompileFromFile(szFileName, NULL, NULL, szEntryPoint.c_str(), szShaderModel.c_str(), D3DCOMPILE_ENABLE_STRICTNESS, 0, ppBlobOut, &pErrorBlob);
 	if (FAILED(hr))
 	{
+		std::wstring txt = L"Error file: ";
+		txt.append(szFileName);
+		MessageBoxW(NULL, txt.c_str(), L"Error shader", MB_OK);
 		if (pErrorBlob)
 		{
-			MessageBoxA(NULL, (char *)pErrorBlob->GetBufferPointer(), __FILE__, MB_OK);
+			MessageBoxA(NULL, (char *)pErrorBlob->GetBufferPointer(), "Error shader", MB_OK);
 			pErrorBlob->Release();
 		}
-		MessageBox(NULL, szFileName, L"File not found", MB_OK);
 		exit(1);
 	}
-	if (pErrorBlob) 
-		pErrorBlob->Release();
+	if (pErrorBlob) pErrorBlob->Release();
 }
 
 engine::ShaderProgram::ShaderProgram(void)
@@ -43,7 +42,6 @@ engine::ShaderProgram::~ShaderProgram(void)
 
 void engine::ShaderProgram::loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps)
 {
-	HRESULT hr;
 	ID3DBlob *pTmpBlob;
 
 	if (_pVertexShader)
@@ -80,27 +78,17 @@ void engine::ShaderProgram::loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCW
 	// Compile and create the Vertex Shader
 	if (vs == NULL)
 	{
-		MessageBox(NULL, L"Need a Vertex Shader for ShaderProgram", TEXT(__FILE__), MB_OK);
+		MessageBox(NULL, TEXT("Need a Vertex Shader for ShaderProgram"), TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 	CompileShaderFromFile(vs, "main", "vs_" + ShaderLevel, &_pBlob);
-	hr = Device->CreateVertexShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pVertexShader);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create Vertex Shader.", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateVertexShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pVertexShader);
 
 	// Compile and create the Hull Shader
 	if (hs != NULL)
 	{
 		CompileShaderFromFile(hs, "main", "hs_" + ShaderLevel, &pTmpBlob);
-		hr = Device->CreateHullShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pHullShader);
-		if (FAILED(hr))
-		{
-			MessageBox(NULL, L"Failed to create Hull Shader.", TEXT(__FILE__), MB_OK);
-			exit(1);
-		}
+		Device->CreateHullShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pHullShader);
 		pTmpBlob->Release();
 	}
 
@@ -108,12 +96,7 @@ void engine::ShaderProgram::loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCW
 	if (ds != NULL)
 	{
 		CompileShaderFromFile(ds, "main", "ds_" + ShaderLevel, &pTmpBlob);
-		hr = Device->CreateDomainShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pDomainShader);
-		if (FAILED(hr))
-		{
-			MessageBox(NULL, L"Failed to create Domain Shader.", TEXT(__FILE__), MB_OK);
-			exit(1);
-		}
+		Device->CreateDomainShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pDomainShader);
 		pTmpBlob->Release();
 	}
 
@@ -121,12 +104,7 @@ void engine::ShaderProgram::loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCW
 	if (gs != NULL)
 	{
 		CompileShaderFromFile(gs, "main", "gs_" + ShaderLevel, &pTmpBlob);
-		hr = Device->CreateGeometryShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pGeometryShader);
-		if (FAILED(hr))
-		{
-			MessageBox(NULL, L"Failed to create Geometry Shader.", TEXT(__FILE__), MB_OK);
-			exit(1);
-		}
+		Device->CreateGeometryShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pGeometryShader);
 		pTmpBlob->Release();
 	}
 
@@ -134,12 +112,7 @@ void engine::ShaderProgram::loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCW
 	if (ps != NULL)
 	{
 		CompileShaderFromFile(ps, "main", "ps_" + ShaderLevel, &pTmpBlob);
-		hr = Device->CreatePixelShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pPixelShader);
-		if (FAILED(hr))
-		{
-			MessageBox(NULL, L"Failed to create Pixel Shader.", TEXT(__FILE__), MB_OK);
-			exit(1);
-		}
+		Device->CreatePixelShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pPixelShader);
 		pTmpBlob->Release();
 	}
 }

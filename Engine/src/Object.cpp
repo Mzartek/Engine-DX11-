@@ -57,7 +57,7 @@ void engine::Object::operator delete(void *p)
 			return;
 		}
 	}
-	MessageBox(NULL, L"Error Delete", TEXT(__FILE__), MB_OK);
+	MessageBox(NULL, TEXT("Error Delete"), TEXT(__FILE__), MB_OK);
 }
 
 void engine::Object::operator delete[](void *p)
@@ -74,7 +74,7 @@ void engine::Object::operator delete[](void *p)
 			return;
 		}
 	}
-	MessageBox(NULL, L"Error Delete", TEXT(__FILE__), MB_OK);
+	MessageBox(NULL, TEXT("Error Delete"), TEXT(__FILE__), MB_OK);
 }
 
 INT engine::Object::getMemoryState(void)
@@ -82,7 +82,7 @@ INT engine::Object::getMemoryState(void)
 	return _memState;
 }
 
-void engine::Object::saveMemoryInfo(const WCHAR *filename)
+void engine::Object::saveMemoryInfo(const TCHAR *filename)
 {
 	std::ofstream file(filename, std::ifstream::out);
 	unsigned int i;

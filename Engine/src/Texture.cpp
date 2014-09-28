@@ -1,8 +1,8 @@
 #include <Engine/Texture.hpp>
 #include <FreeImage.h>
 
-extern ID3D11Device *Device;
-extern ID3D11DeviceContext *DeviceContext;
+extern ID3D11Device1 *Device;
+extern ID3D11DeviceContext1 *DeviceContext;
 
 engine::Texture::Texture(void)
 	: _pShaderResourceView(NULL), _pSamplerState(NULL)
@@ -27,7 +27,6 @@ ID3D11SamplerState *engine::Texture::getSamplerState(void)
 
 void engine::Texture::load2DTextureFromFile(const CHAR *path)
 {
-	HRESULT hr;
 	FIBITMAP *image;
 	FIBITMAP *tmp;
 	ID3D11Texture2D *texture;
@@ -59,25 +58,14 @@ void engine::Texture::load2DTextureFromFile(const CHAR *path)
 	descTexture.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	descTexture.CPUAccessFlags = 0;
 	descTexture.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-
-	hr = Device->CreateTexture2D(&descTexture, NULL, &texture);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Error while creating the Texture2D", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateTexture2D(&descTexture, NULL, &texture);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC descShaderResourceView;
 	descShaderResourceView.Format = descTexture.Format;
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	descShaderResourceView.Texture2D.MostDetailedMip = 0;
 	descShaderResourceView.Texture2D.MipLevels = descTexture.MipLevels;
-	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Error while creating the ShaderResourceView", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
 
 	DeviceContext->UpdateSubresource(texture, 0, NULL, FreeImage_GetBits(image), 4 * descTexture.Width, 4 * descTexture.Width * descTexture.Height);
 	DeviceContext->GenerateMips(_pShaderResourceView);
@@ -96,12 +84,7 @@ void engine::Texture::load2DTextureFromFile(const CHAR *path)
 	descSampler.BorderColor[3] = 0.0f;
 	descSampler.MinLOD = 0;
 	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	hr = Device->CreateSamplerState(&descSampler, &_pSamplerState);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Error while creating the SamplerState", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateSamplerState(&descSampler, &_pSamplerState);
 
 	FreeImage_Unload(image);
 	texture->Release();
@@ -112,7 +95,6 @@ void engine::Texture::loadCubeTextureFromFiles(
 	const CHAR *posy, const CHAR *negy,
 	const CHAR *posz, const CHAR *negz)
 {
-	HRESULT hr;
 	UINT i;
 	FIBITMAP *image[6];
 	FIBITMAP *tmp;
@@ -146,7 +128,7 @@ void engine::Texture::loadCubeTextureFromFiles(
 	{
 		if (image == NULL)
 		{
-			MessageBox(NULL, L"Fail to load an Image", TEXT(__FILE__), MB_OK);
+			MessageBox(NULL, TEXT("Fail to load an Image"), TEXT(__FILE__), MB_OK);
 			exit(1);
 		}
 		tmp = image[i];
@@ -157,24 +139,14 @@ void engine::Texture::loadCubeTextureFromFiles(
 		data[i].SysMemPitch = 4 * descTexture.Width;
 		data[i].SysMemSlicePitch = 0;
 	}
-	hr = Device->CreateTexture2D(&descTexture, data, &texture);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create the Cube Texture", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateTexture2D(&descTexture, data, &texture);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC descShaderResourceView;
 	descShaderResourceView.Format = descTexture.Format;
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 	descShaderResourceView.TextureCube.MostDetailedMip = 0;
 	descShaderResourceView.TextureCube.MipLevels = descTexture.MipLevels;
-	hr = Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Failed to create the ShaderResourceView", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
 
 	D3D11_SAMPLER_DESC descSampler;
 	descSampler.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -190,12 +162,7 @@ void engine::Texture::loadCubeTextureFromFiles(
 	descSampler.BorderColor[3] = 0.0f;
 	descSampler.MinLOD = 0;
 	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	hr = Device->CreateSamplerState(&descSampler, &_pSamplerState);
-	if (FAILED(hr))
-	{
-		MessageBox(NULL, L"Error while creating the SamplerState", TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
+	Device->CreateSamplerState(&descSampler, &_pSamplerState);
 
 	texture->Release();
 }

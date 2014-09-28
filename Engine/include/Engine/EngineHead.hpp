@@ -17,7 +17,7 @@
 #include <string>
 
 #include <Windows.h>
-#include <d3d11.h>
+#include <d3d11_1.h>
 #include <dinput.h>
 #include <d3dcompiler.h>
 #include <directxcolors.h>

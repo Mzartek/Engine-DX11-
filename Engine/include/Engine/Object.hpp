@@ -17,7 +17,7 @@ namespace engine
 		void operator delete(void *p);
 		void operator delete[](void *p);
 		static INT getMemoryState(void);
-		static void saveMemoryInfo(const WCHAR *filename);
+		static void saveMemoryInfo(const TCHAR *filename);
 	};
 }
 

@@ -2,7 +2,7 @@
 #include <Engine/Texture.hpp>
 #include <Engine/Buffer.hpp>
 
-extern ID3D11DeviceContext *DeviceContext;
+extern ID3D11DeviceContext1 *DeviceContext;
 
 engine::Mesh::Mesh(void)
 {
