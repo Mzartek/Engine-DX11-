@@ -1,34 +1,19 @@
 #include <Engine/Object.hpp>
 
-INT engine::Object::_memState = 0;
+INT Engine::Object::_memState = 0;
 static std::vector<void *> _tmemNew;
 static std::vector<void *> _tmemDelete;
 static std::vector<void *> _tmem;
 
-engine::Object::Object(void)
+Engine::Object::Object(void)
 {
 }
 
-engine::Object::~Object(void)
+Engine::Object::~Object(void)
 {
 }
 
-void *engine::Object::operator new(size_t sz)
-{
-	void *p = malloc(sz);
-	if (p == NULL)
-	{
-		fprintf(stderr, "Error alloc\n");
-		exit(1);
-	}
-	_memState++;
-	_tmemNew.push_back(p);
-	_tmem.push_back(p);
-
-	return p;
-}
-
-void *engine::Object::operator new[](size_t sz)
+void *Engine::Object::operator new(size_t sz)
 {
 	void *p = malloc(sz);
 	if (p == NULL)
@@ -43,7 +28,22 @@ void *engine::Object::operator new[](size_t sz)
 	return p;
 }
 
-void engine::Object::operator delete(void *p)
+void *Engine::Object::operator new[](size_t sz)
+{
+	void *p = malloc(sz);
+	if (p == NULL)
+	{
+		fprintf(stderr, "Error alloc\n");
+		exit(1);
+	}
+	_memState++;
+	_tmemNew.push_back(p);
+	_tmem.push_back(p);
+
+	return p;
+}
+
+void Engine::Object::operator delete(void *p)
 {
 	UINT i;
 	for (i = 0; i < _tmem.size(); i++)
@@ -60,7 +60,7 @@ void engine::Object::operator delete(void *p)
 	MessageBox(NULL, TEXT("Error Delete"), TEXT(__FILE__), MB_OK);
 }
 
-void engine::Object::operator delete[](void *p)
+void Engine::Object::operator delete[](void *p)
 {
 	UINT i;
 	for (i = 0; i < _tmem.size(); i++)
@@ -77,12 +77,12 @@ void engine::Object::operator delete[](void *p)
 	MessageBox(NULL, TEXT("Error Delete"), TEXT(__FILE__), MB_OK);
 }
 
-INT engine::Object::getMemoryState(void)
+INT Engine::Object::getMemoryState(void)
 {
 	return _memState;
 }
 
-void engine::Object::saveMemoryInfo(const TCHAR *filename)
+void Engine::Object::saveMemoryInfo(const TCHAR *filename)
 {
 	std::ofstream file(filename, std::ifstream::out);
 	unsigned int i;

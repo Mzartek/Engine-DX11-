@@ -8,7 +8,7 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-engine::SkyBox::SkyBox()
+Engine::SkyBox::SkyBox(void)
 	: _pInputLayout(NULL)
 {
 	_cubeTexture = new Texture;
@@ -20,7 +20,7 @@ engine::SkyBox::SkyBox()
 	*_rotateMatrix = XMMatrixIdentity();
 }
 
-engine::SkyBox::~SkyBox()
+Engine::SkyBox::~SkyBox(void)
 {
 	if (_pInputLayout) _pInputLayout->Release();
 	delete _cubeTexture;
@@ -30,7 +30,7 @@ engine::SkyBox::~SkyBox()
 	_aligned_free(_rotateMatrix);
 }
 
-void engine::SkyBox::load(const CHAR *posx, const CHAR *negx,
+void Engine::SkyBox::load(const CHAR *posx, const CHAR *negx,
 	const CHAR *posy, const CHAR *negy,
 	const CHAR *posz, const CHAR *negz,
 	FLOAT dim, ShaderProgram *program)
@@ -74,12 +74,12 @@ void engine::SkyBox::load(const CHAR *posx, const CHAR *negx,
 	_MVPMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
 }
 
-void engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
+void Engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
 	*_rotateMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)XM_PI / 180)) * *_rotateMatrix;
 }
 
-void engine::SkyBox::display(GBuffer *gbuf, Camera *cam)
+void Engine::SkyBox::display(GBuffer *gbuf, Camera *cam)
 {
 	XMMATRIX pos = XMMatrixTranslation(cam->getPositionCamera().x, cam->getPositionCamera().y, cam->getPositionCamera().z);
 	pos = *_rotateMatrix * pos;

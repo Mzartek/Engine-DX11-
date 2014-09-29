@@ -4,7 +4,7 @@
 
 extern ID3D11DeviceContext1 *DeviceContext;
 
-engine::Mesh::Mesh(void)
+Engine::Mesh::Mesh(void)
 {
 	_colorTexture = new Texture;
 	_NMTexture = new Texture;
@@ -15,7 +15,7 @@ engine::Mesh::Mesh(void)
 	_materialBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _material, D3D11_USAGE_DYNAMIC);
 }
 
-engine::Mesh::~Mesh(void)
+Engine::Mesh::~Mesh(void)
 {
 	delete _colorTexture;
 	delete _NMTexture;
@@ -24,42 +24,42 @@ engine::Mesh::~Mesh(void)
 	delete _materialBuffer;
 }
 
-void engine::Mesh::setColorTexture(const CHAR *path)
+void Engine::Mesh::setColorTexture(const CHAR *path)
 {
 	_colorTexture->load2DTextureFromFile(path);
 }
 
-void engine::Mesh::setNMTexture(const CHAR *path)
+void Engine::Mesh::setNMTexture(const CHAR *path)
 {
 	_NMTexture->load2DTextureFromFile(path);
 }
 
-void engine::Mesh::setAmbient(const XMFLOAT4 &ambient)
+void Engine::Mesh::setAmbient(const XMFLOAT4 &ambient)
 {
 	_material.ambient = ambient;
 }
 
-void engine::Mesh::setDiffuse(const XMFLOAT4 &diffuse)
+void Engine::Mesh::setDiffuse(const XMFLOAT4 &diffuse)
 {
 	_material.diffuse = diffuse;
 }
 
-void engine::Mesh::setSpecular(const XMFLOAT4 &specular)
+void Engine::Mesh::setSpecular(const XMFLOAT4 &specular)
 {
 	_material.specular = specular;
 }
 
-void engine::Mesh::setShininess(const FLOAT &shininess)
+void Engine::Mesh::setShininess(const FLOAT &shininess)
 {
 	_material.shininess = shininess;
 }
 
-FLOAT engine::Mesh::getTransparency(void)
+FLOAT Engine::Mesh::getTransparency(void)
 {
 	return _material.diffuse.w;
 }
 
-void engine::Mesh::load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
+void Engine::Mesh::load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 	const UINT &sizeIndexArray, const UINT *indexArray)
 {
 	_numElement = sizeIndexArray / (UINT)sizeof(UINT);
@@ -71,7 +71,7 @@ void engine::Mesh::load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 	_indexBuffer->createStore(D3D11_BIND_INDEX_BUFFER, indexArray, sizeIndexArray, D3D11_USAGE_IMMUTABLE);
 }
 
-void engine::Mesh::display(void) const
+void Engine::Mesh::display(void) const
 {
 	ID3D11ShaderResourceView *pshr[] =
 	{
@@ -104,7 +104,7 @@ void engine::Mesh::display(void) const
 	DeviceContext->DrawIndexed(_numElement, 0, 0);
 }
 
-void engine::Mesh::displayShadow(void) const
+void Engine::Mesh::displayShadow(void) const
 {
 	ID3D11ShaderResourceView *pshr[] =
 	{
@@ -128,10 +128,10 @@ void engine::Mesh::displayShadow(void) const
 	DeviceContext->DrawIndexed(_numElement, 0, 0);
 }
 
-int engine::comparMesh(const void *p1, const void *p2)
+int Engine::comparMesh(const void *p1, const void *p2)
 {
-	Mesh **obj1 = (engine::Mesh **)p1;
-	Mesh **obj2 = (engine::Mesh **)p2;
+	Mesh **obj1 = (Engine::Mesh **)p1;
+	Mesh **obj2 = (Engine::Mesh **)p2;
 
 	if ((*obj1)->_material.diffuse.z < (*obj2)->_material.diffuse.z)
 		return 1;

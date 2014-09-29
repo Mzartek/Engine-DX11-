@@ -3,22 +3,22 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-engine::Buffer::Buffer(void)
+Engine::Buffer::Buffer(void)
 	: _target(D3D11_BIND_VERTEX_BUFFER), _pBuffer(NULL), _size(0)
 {
 }
 
-engine::Buffer::~Buffer(void)
+Engine::Buffer::~Buffer(void)
 {
 	if (_pBuffer) _pBuffer->Release();
 }
 
-ID3D11Buffer *engine::Buffer::getBuffer(void)
+ID3D11Buffer *Engine::Buffer::getBuffer(void)
 {
 	return _pBuffer;
 }
 
-void engine::Buffer::createStore(const D3D11_BIND_FLAG &target, const void *data, const UINT &size, const D3D11_USAGE &usage)
+void Engine::Buffer::createStore(const D3D11_BIND_FLAG &target, const void *data, const UINT &size, const D3D11_USAGE &usage)
 {
 	D3D11_BUFFER_DESC bd;
 	D3D11_SUBRESOURCE_DATA dt;
@@ -53,12 +53,12 @@ void engine::Buffer::createStore(const D3D11_BIND_FLAG &target, const void *data
 		Device->CreateBuffer(&bd, NULL, &_pBuffer);
 }
 
-void engine::Buffer::updateStoreSub(const void *data)
+void Engine::Buffer::updateStoreSub(const void *data)
 {
 	DeviceContext->UpdateSubresource(_pBuffer, 0, NULL, data, 0, 0);
 }
 
-void engine::Buffer::updateStoreMap(const void *data)
+void Engine::Buffer::updateStoreMap(const void *data)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 

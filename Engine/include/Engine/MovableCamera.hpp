@@ -3,7 +3,7 @@
 
 #include "Camera.hpp"
 
-namespace engine
+namespace Engine
 {
 	class DLLAPI MovableCamera : public Camera
 	{

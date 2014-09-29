@@ -3,7 +3,7 @@
 
 #include "Object.hpp"
 
-namespace engine
+namespace Engine
 {
 	class Mesh;
 	class Buffer;
@@ -25,8 +25,8 @@ namespace engine
 		ShaderProgram *_gProgram;
 		ShaderProgram *_smProgram;
 	public:
-		Model();
-		~Model();
+		Model(void);
+		~Model(void);
 		void initMeshArray(void);
 		void initMeshMirror(Model *m);
 		void config(ShaderProgram *gProgram, ShaderProgram *smProgram);

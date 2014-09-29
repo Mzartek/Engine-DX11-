@@ -4,28 +4,28 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-engine::Texture::Texture(void)
+Engine::Texture::Texture(void)
 	: _pShaderResourceView(NULL), _pSamplerState(NULL)
 {
 }
 
-engine::Texture::~Texture(void)
+Engine::Texture::~Texture(void)
 {
 	if (_pShaderResourceView) _pShaderResourceView->Release();
 	if (_pSamplerState) _pSamplerState->Release();
 }
 
-ID3D11ShaderResourceView *engine::Texture::getShaderResourceView(void)
+ID3D11ShaderResourceView *Engine::Texture::getShaderResourceView(void)
 {
 	return _pShaderResourceView;
 }
 
-ID3D11SamplerState *engine::Texture::getSamplerState(void)
+ID3D11SamplerState *Engine::Texture::getSamplerState(void)
 {
 	return _pSamplerState;
 }
 
-void engine::Texture::load2DTextureFromFile(const CHAR *path)
+void Engine::Texture::load2DTextureFromFile(const CHAR *path)
 {
 	FIBITMAP *image;
 	FIBITMAP *tmp;
@@ -90,7 +90,7 @@ void engine::Texture::load2DTextureFromFile(const CHAR *path)
 	texture->Release();
 }
 
-void engine::Texture::loadCubeTextureFromFiles(
+void Engine::Texture::loadCubeTextureFromFiles(
 	const CHAR *posx, const CHAR *negx,
 	const CHAR *posy, const CHAR *negy,
 	const CHAR *posz, const CHAR *negz)

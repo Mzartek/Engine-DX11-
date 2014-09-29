@@ -13,25 +13,25 @@
 #include <Engine/ShaderProgram.hpp>
 
 // Globales variables
-extern engine::Renderer *renderer;
-extern engine::Input *input;
-extern engine::FreeCam *cam;
-extern engine::DirLight *sun;
-extern engine::SpotLight *torch;
-extern engine::Model *sol;
-extern engine::Model *heli;
-extern engine::SkyBox *skybox;
-extern engine::Screen *screen;
-extern engine::GBuffer *gBuffer;
+extern Engine::Renderer *renderer;
+extern Engine::Input *input;
+extern Engine::FreeCam *cam;
+extern Engine::DirLight *sun;
+extern Engine::SpotLight *torch;
+extern Engine::Model *sol;
+extern Engine::Model *heli;
+extern Engine::SkyBox *skybox;
+extern Engine::Screen *screen;
+extern Engine::GBuffer *gBuffer;
 
-extern engine::ShaderProgram *objectProgram;
-extern engine::ShaderProgram *dirLightProgram;
-extern engine::ShaderProgram *spotLightProgram;
-extern engine::ShaderProgram *vLightProgram;
-extern engine::ShaderProgram *shadowMapProgram;
-extern engine::ShaderProgram *skyboxProgram;
-extern engine::ShaderProgram *backgroundProgram;
-extern engine::ShaderProgram *screenProgram;
+extern Engine::ShaderProgram *objectProgram;
+extern Engine::ShaderProgram *dirLightProgram;
+extern Engine::ShaderProgram *spotLightProgram;
+extern Engine::ShaderProgram *vLightProgram;
+extern Engine::ShaderProgram *shadowMapProgram;
+extern Engine::ShaderProgram *skyboxProgram;
+extern Engine::ShaderProgram *backgroundProgram;
+extern Engine::ShaderProgram *screenProgram;
 
 extern void configShaders(void);
 extern void configBuffers(void);

@@ -3,7 +3,7 @@
 
 #include "ShaderProgram.hpp"
 
-namespace engine
+namespace Engine
 {
 	class DLLAPI Camera : public Object
 	{

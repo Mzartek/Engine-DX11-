@@ -3,7 +3,7 @@
 
 #include "FrameBuffer.hpp"
 
-namespace engine
+namespace Engine
 {
 	class DLLAPI ShadowMap : public FrameBuffer
 	{
@@ -17,8 +17,8 @@ namespace engine
 		ID3D11RasterizerState *_pRasterizerState;
 		ID3D11SamplerState *_pSamplerComparisonState;
 	public:
-		ShadowMap();
-		~ShadowMap();
+		ShadowMap(void);
+		~ShadowMap(void);
 		void config(const UINT &width, const UINT &height);
 		ID3D11ShaderResourceView *getShaderResourceView(void) const;
 		ID3D11SamplerState *getSamplerComparisonState(void) const;

@@ -3,7 +3,7 @@
 
 #include "Object.hpp"
 
-namespace engine
+namespace Engine
 {
 	class Buffer;
 	class ShaderProgram;
@@ -20,8 +20,8 @@ namespace engine
 		ShaderProgram *_backgroundProgram;
 		ShaderProgram *_directProgram;
 	public:
-		Screen();
-		~Screen();
+		Screen(void);
+		~Screen(void);
 		void config(ShaderProgram *backgroundProgram, ShaderProgram *directProgram);
 		void background(GBuffer *gbuf);
 		void display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a);

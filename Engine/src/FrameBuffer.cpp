@@ -1,19 +1,19 @@
 #include <Engine/FrameBuffer.hpp>
 
-engine::FrameBuffer::FrameBuffer(void)
+Engine::FrameBuffer::FrameBuffer(void)
 {
 }
 
-engine::FrameBuffer::~FrameBuffer(void)
+Engine::FrameBuffer::~FrameBuffer(void)
 {
 }
 
-UINT engine::FrameBuffer::getWidth(void) const
+UINT Engine::FrameBuffer::getWidth(void) const
 {
 	return _width;
 }
 
-UINT engine::FrameBuffer::getHeight(void) const
+UINT Engine::FrameBuffer::getHeight(void) const
 {
 	return _height;
 }

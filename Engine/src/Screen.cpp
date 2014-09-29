@@ -7,21 +7,21 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-engine::Screen::Screen()
+Engine::Screen::Screen(void)
 	: _pInputLayout(NULL)
 {
 	_vertexBuffer = new Buffer;
 	_screenColorBuffer = new Buffer;
 }
 
-engine::Screen::~Screen()
+Engine::Screen::~Screen(void)
 {
 	if (_pInputLayout) _pInputLayout->Release();
 	delete _vertexBuffer;
 	delete _screenColorBuffer;
 }
 
-void engine::Screen::config(ShaderProgram *backgroundProgram, ShaderProgram *directProgram)
+void Engine::Screen::config(ShaderProgram *backgroundProgram, ShaderProgram *directProgram)
 {
 	_backgroundProgram = backgroundProgram;
 	_directProgram = directProgram;
@@ -48,7 +48,7 @@ void engine::Screen::config(ShaderProgram *backgroundProgram, ShaderProgram *dir
 	_screenColorBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMFLOAT4, D3D11_USAGE_DYNAMIC);
 }
 
-void engine::Screen::background(GBuffer *gbuf)
+void Engine::Screen::background(GBuffer *gbuf)
 {
 	gbuf->setBackgroundState();
 
@@ -81,7 +81,7 @@ void engine::Screen::background(GBuffer *gbuf)
 	gbuf->clearLight();
 }
 
-void engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
+void Engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, const FLOAT &g, const FLOAT &b, const FLOAT &a)
 {
 	renderer->setState();
 

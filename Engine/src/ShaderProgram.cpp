@@ -24,13 +24,13 @@ static void CompileShaderFromFile(const LPCWSTR szFileName, const std::string sz
 	if (pErrorBlob) pErrorBlob->Release();
 }
 
-engine::ShaderProgram::ShaderProgram(void)
+Engine::ShaderProgram::ShaderProgram(void)
 	: _pVertexShader(NULL), _pHullShader(NULL), _pDomainShader(NULL), _pGeometryShader(NULL), _pPixelShader(NULL),
 	_pBlob(NULL)
 {
 }
 
-engine::ShaderProgram::~ShaderProgram(void)
+Engine::ShaderProgram::~ShaderProgram(void)
 {
 	if (_pVertexShader) _pVertexShader->Release();
 	if (_pHullShader) _pHullShader->Release();
@@ -40,7 +40,7 @@ engine::ShaderProgram::~ShaderProgram(void)
 	if (_pBlob) _pBlob->Release();
 }
 
-void engine::ShaderProgram::loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps)
+void Engine::ShaderProgram::loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps)
 {
 	ID3DBlob *pTmpBlob;
 
@@ -117,37 +117,37 @@ void engine::ShaderProgram::loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCW
 	}
 }
 
-ID3D11VertexShader *engine::ShaderProgram::getVertexShader(void) const
+ID3D11VertexShader *Engine::ShaderProgram::getVertexShader(void) const
 {
 	return _pVertexShader;
 }
 
-ID3D11HullShader *engine::ShaderProgram::getHullShader(void) const
+ID3D11HullShader *Engine::ShaderProgram::getHullShader(void) const
 {
 	return _pHullShader;
 }
 
-ID3D11DomainShader *engine::ShaderProgram::getDomainShader(void) const
+ID3D11DomainShader *Engine::ShaderProgram::getDomainShader(void) const
 {
 	return _pDomainShader;
 }
 
-ID3D11GeometryShader *engine::ShaderProgram::getGeometryShader(void) const
+ID3D11GeometryShader *Engine::ShaderProgram::getGeometryShader(void) const
 {
 	return _pGeometryShader;
 }
 
-ID3D11PixelShader *engine::ShaderProgram::getPixelShader(void) const
+ID3D11PixelShader *Engine::ShaderProgram::getPixelShader(void) const
 {
 	return _pPixelShader;
 }
 
-void *engine::ShaderProgram::getEntryBufferPointer(void)
+void *Engine::ShaderProgram::getEntryBufferPointer(void)
 {
 	return _pBlob->GetBufferPointer();
 }
 
-SIZE_T engine::ShaderProgram::getEntryBytecodeLength(void)
+SIZE_T Engine::ShaderProgram::getEntryBytecodeLength(void)
 {
 	return _pBlob->GetBufferSize();
 }

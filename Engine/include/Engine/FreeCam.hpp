@@ -3,7 +3,7 @@
 
 #include "MovableCamera.hpp"
 
-namespace engine
+namespace Engine
 {
 	class DLLAPI FreeCam : public MovableCamera
 	{

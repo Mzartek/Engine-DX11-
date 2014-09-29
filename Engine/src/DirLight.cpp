@@ -8,15 +8,15 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-engine::DirLight::DirLight(void)
+Engine::DirLight::DirLight(void)
 {
 }
 
-engine::DirLight::~DirLight(void)
+Engine::DirLight::~DirLight(void)
 {
 }
 
-void engine::DirLight::config(ShaderProgram *program)
+void Engine::DirLight::config(ShaderProgram *program)
 {
 	_program = program;
 
@@ -44,32 +44,32 @@ void engine::DirLight::config(ShaderProgram *program)
 	_lightInfoBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _lightInfo, D3D11_USAGE_DYNAMIC);
 }
 
-void engine::DirLight::setColor(const XMFLOAT3 &color)
+void Engine::DirLight::setColor(const XMFLOAT3 &color)
 {
 	_lightInfo.color = color;
 }
 
-void engine::DirLight::setDirection(const XMFLOAT3 &dir)
+void Engine::DirLight::setDirection(const XMFLOAT3 &dir)
 {
 	_lightInfo.direction = dir;
 }
 
-void engine::DirLight::setShadowMapping(const BOOL &shadow)
+void Engine::DirLight::setShadowMapping(const BOOL &shadow)
 {
 	_lightInfo.withShadowMapping = shadow;
 }
 
-XMFLOAT3 engine::DirLight::getColor(void) const
+XMFLOAT3 Engine::DirLight::getColor(void) const
 {
 	return _lightInfo.color;
 }
 
-XMFLOAT3 engine::DirLight::getDirection(void) const
+XMFLOAT3 Engine::DirLight::getDirection(void) const
 {
 	return _lightInfo.direction;
 }
 
-void engine::DirLight::position(const XMFLOAT3 &position, const FLOAT &dim)
+void Engine::DirLight::position(const XMFLOAT3 &position, const FLOAT &dim)
 {
 	XMVECTOR pos = XMVectorSet(position.x, position.y, position.z, 0.0f);
 	XMVECTOR dir = XMVectorSet(_lightInfo.direction.x, _lightInfo.direction.y, _lightInfo.direction.z, 0.0f);
@@ -78,7 +78,7 @@ void engine::DirLight::position(const XMFLOAT3 &position, const FLOAT &dim)
 		XMMatrixOrthographicOffCenterRH(-dim, dim, -dim, dim, -dim, dim);
 }
 
-void engine::DirLight::display(GBuffer *gbuf, Camera *cam)
+void Engine::DirLight::display(GBuffer *gbuf, Camera *cam)
 {	
 	gbuf->setLightState();
 

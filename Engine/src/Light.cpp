@@ -2,7 +2,7 @@
 #include <Engine/Buffer.hpp>
 #include <Engine/ShadowMap.hpp>
 
-engine::Light::Light(void)
+Engine::Light::Light(void)
 	: _pInputLayout(NULL)
 {
 	_vertexBuffer = new Buffer;
@@ -15,7 +15,7 @@ engine::Light::Light(void)
 	_shadow = new ShadowMap;
 }
 
-engine::Light::~Light(void)
+Engine::Light::~Light(void)
 {
 	if (_pInputLayout) _pInputLayout->Release();
 	delete _vertexBuffer;
@@ -28,22 +28,22 @@ engine::Light::~Light(void)
 	delete _shadow;
 }
 
-void engine::Light::configShadowMap(const UINT &width, const UINT &height)
+void Engine::Light::configShadowMap(const UINT &width, const UINT &height)
 {
 	_shadow->config(width, height);
 }
 
-XMMATRIX engine::Light::getVPMatrix(void) const
+XMMATRIX Engine::Light::getVPMatrix(void) const
 {
 	return *_VPMatrix;
 }
 
-engine::ShadowMap *engine::Light::getShadowMap(void)
+Engine::ShadowMap *Engine::Light::getShadowMap(void)
 {
 	return _shadow;
 }
 
-void engine::Light::clear(void) const
+void Engine::Light::clear(void) const
 {
 	_shadow->clear();
 }

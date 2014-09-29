@@ -8,15 +8,15 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-engine::SpotLight::SpotLight(void)
+Engine::SpotLight::SpotLight(void)
 {
 }
 
-engine::SpotLight::~SpotLight(void)
+Engine::SpotLight::~SpotLight(void)
 {
 }
 
-void engine::SpotLight::config(ShaderProgram *program)
+void Engine::SpotLight::config(ShaderProgram *program)
 {
 	_program = program;
 
@@ -54,52 +54,52 @@ void engine::SpotLight::config(ShaderProgram *program)
 	_lightInfoBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _lightInfo, D3D11_USAGE_DYNAMIC);
 }
 
-void engine::SpotLight::setColor(const XMFLOAT3 &color)
+void Engine::SpotLight::setColor(const XMFLOAT3 &color)
 {
 	_lightInfo.color = color;
 }
 
-void engine::SpotLight::setPosition(const XMFLOAT3 &position)
+void Engine::SpotLight::setPosition(const XMFLOAT3 &position)
 {
 	_lightInfo.position = position;
 }
 
-void engine::SpotLight::setDirection(const XMFLOAT3 &dir)
+void Engine::SpotLight::setDirection(const XMFLOAT3 &dir)
 {
 	_lightInfo.direction = dir;
 }
 
-void engine::SpotLight::setSpotCutOff(const FLOAT &spot)
+void Engine::SpotLight::setSpotCutOff(const FLOAT &spot)
 {
 	_lightInfo.spotCutOff = spot;
 }
 
-void engine::SpotLight::setShadowMapping(const BOOL &shadow)
+void Engine::SpotLight::setShadowMapping(const BOOL &shadow)
 {
 	_lightInfo.withShadowMapping = shadow;
 }
 
-XMFLOAT3 engine::SpotLight::getColor(void) const
+XMFLOAT3 Engine::SpotLight::getColor(void) const
 {
 	return _lightInfo.color;
 }
 
-XMFLOAT3 engine::SpotLight::getPosition(void) const
+XMFLOAT3 Engine::SpotLight::getPosition(void) const
 {
 	return _lightInfo.position;
 }
 
-XMFLOAT3 engine::SpotLight::getDirection(void) const
+XMFLOAT3 Engine::SpotLight::getDirection(void) const
 {
 	return _lightInfo.direction;
 }
 
-FLOAT engine::SpotLight::getSpotCutOff(void) const
+FLOAT Engine::SpotLight::getSpotCutOff(void) const
 {
 	return _lightInfo.spotCutOff;
 }
 
-void engine::SpotLight::position(void)
+void Engine::SpotLight::position(void)
 {
 	XMVECTOR pos = XMVectorSet(_lightInfo.position.x, _lightInfo.position.y, _lightInfo.position.z, 0.0f);
 	XMVECTOR dir = XMVectorSet(_lightInfo.direction.x, _lightInfo.direction.y, _lightInfo.direction.z, 0.0f);
@@ -108,7 +108,7 @@ void engine::SpotLight::position(void)
 		XMMatrixPerspectiveFovRH(_lightInfo.spotCutOff * 2 * ((FLOAT)XM_PI / 180), (FLOAT)_shadow->getWidth() / _shadow->getHeight(), 0.1f, 1000.0f);
 }
 
-void engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
+void Engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
 {
 	gbuf->setLightState();
 

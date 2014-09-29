@@ -3,7 +3,7 @@
 
 #include "Object.hpp"
 
-namespace engine
+namespace Engine
 {
 	class DLLAPI FrameBuffer : public Object
 	{

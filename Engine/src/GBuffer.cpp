@@ -3,7 +3,7 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-engine::GBuffer::GBuffer(void)
+Engine::GBuffer::GBuffer(void)
 {
 	// Shader Resouce View
 	_pShaderResourceView[GBUF_NORMAL] = NULL;
@@ -33,7 +33,7 @@ engine::GBuffer::GBuffer(void)
 	_pRasterizerState = NULL;
 }
 
-engine::GBuffer::~GBuffer(void)
+Engine::GBuffer::~GBuffer(void)
 {
 	// Shader Resource View
 	if (_pShaderResourceView[GBUF_NORMAL]) _pShaderResourceView[GBUF_NORMAL]->Release();
@@ -62,7 +62,7 @@ engine::GBuffer::~GBuffer(void)
 
 }
 
-void engine::GBuffer::config(const UINT &width, const UINT &height)
+void Engine::GBuffer::config(const UINT &width, const UINT &height)
 {
 	ID3D11Texture2D *texture;
 
@@ -267,12 +267,12 @@ void engine::GBuffer::config(const UINT &width, const UINT &height)
 	_VP.MaxDepth = 1.0f;
 }
 
-ID3D11ShaderResourceView *engine::GBuffer::getShaderResourceView(const UINT &num) const
+ID3D11ShaderResourceView *Engine::GBuffer::getShaderResourceView(const UINT &num) const
 {
 	return _pShaderResourceView[num];
 }
 
-void engine::GBuffer::setSkyboxState(void) const
+void Engine::GBuffer::setSkyboxState(void) const
 {
 	ID3D11RenderTargetView *render[]
 	{
@@ -285,7 +285,7 @@ void engine::GBuffer::setSkyboxState(void) const
 	DeviceContext->RSSetViewports(1, &_VP);
 }
 
-void engine::GBuffer::setGeometryState(void) const
+void Engine::GBuffer::setGeometryState(void) const
 {
 	ID3D11RenderTargetView *render[]
 	{
@@ -299,7 +299,7 @@ void engine::GBuffer::setGeometryState(void) const
 	DeviceContext->RSSetViewports(1, &_VP);
 }
 
-void engine::GBuffer::setLightState(void) const
+void Engine::GBuffer::setLightState(void) const
 {
 	ID3D11RenderTargetView *render[]
 	{
@@ -312,7 +312,7 @@ void engine::GBuffer::setLightState(void) const
 	DeviceContext->RSSetViewports(1, &_VP);
 }
 
-void engine::GBuffer::setBackgroundState(void) const
+void Engine::GBuffer::setBackgroundState(void) const
 {
 	ID3D11RenderTargetView *render[]
 	{
@@ -325,7 +325,7 @@ void engine::GBuffer::setBackgroundState(void) const
 	DeviceContext->RSSetViewports(1, &_VP);
 }
 
-void engine::GBuffer::clear(void) const
+void Engine::GBuffer::clear(void) const
 {
 	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], Colors::Transparent);
 	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], Colors::Transparent);
@@ -334,7 +334,7 @@ void engine::GBuffer::clear(void) const
 	DeviceContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
-void engine::GBuffer::clearLight(void) const
+void Engine::GBuffer::clearLight(void) const
 {
 	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_LIGHT], Colors::Transparent);
 }

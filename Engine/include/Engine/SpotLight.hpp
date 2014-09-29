@@ -3,7 +3,7 @@
 
 #include "Light.hpp"
 
-namespace engine
+namespace Engine
 {
 	class DLLAPI SpotLight : public Light
 	{

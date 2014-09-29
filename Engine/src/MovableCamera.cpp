@@ -1,19 +1,19 @@
 #include <Engine/MovableCamera.hpp>
 
-engine::MovableCamera::MovableCamera(void)
+Engine::MovableCamera::MovableCamera(void)
 	: _speed(1), _atheta(0), _aphi(0)
 {
 	_vforward = (XMVECTOR *)_aligned_malloc(sizeof *_vforward, 16);
 	_vleft = (XMVECTOR *)_aligned_malloc(sizeof *_vleft, 16);
 }
 
-engine::MovableCamera::~MovableCamera(void)
+Engine::MovableCamera::~MovableCamera(void)
 {
 	_aligned_free(_vforward);
 	_aligned_free(_vleft);
 }
 
-void engine::MovableCamera::setInitialAngle(const FLOAT &t, const FLOAT &p)
+void Engine::MovableCamera::setInitialAngle(const FLOAT &t, const FLOAT &p)
 {
 	_atheta = t;
 	_aphi = p;
@@ -40,12 +40,12 @@ void engine::MovableCamera::setInitialAngle(const FLOAT &t, const FLOAT &p)
 	*_ptarget = *_pcamera + *_vforward;
 }
 
-void engine::MovableCamera::setSpeed(const FLOAT &v)
+void Engine::MovableCamera::setSpeed(const FLOAT &v)
 {
 	_speed = v;
 }
 
-XMFLOAT3 engine::MovableCamera::getForward(void) const
+XMFLOAT3 Engine::MovableCamera::getForward(void) const
 {
 	XMFLOAT3 forward;
 	XMStoreFloat3(&forward, *_vforward);
@@ -53,7 +53,7 @@ XMFLOAT3 engine::MovableCamera::getForward(void) const
 	return forward;
 }
 
-XMFLOAT3 engine::MovableCamera::getLeft(void) const
+XMFLOAT3 Engine::MovableCamera::getLeft(void) const
 {
 	XMFLOAT3 left;
 	XMStoreFloat3(&left, *_vleft);
@@ -61,7 +61,7 @@ XMFLOAT3 engine::MovableCamera::getLeft(void) const
 	return left;
 }
 
-void engine::MovableCamera::mouseMove(const INT &xrel, const INT &yrel)
+void Engine::MovableCamera::mouseMove(const INT &xrel, const INT &yrel)
 {
 	_atheta -= (FLOAT)xrel;
 	_aphi -= (FLOAT)yrel;

@@ -1,46 +1,25 @@
 #include "config.hpp"
 
 // Globales variables
-engine::Renderer *renderer;
-engine::Input *input;
-engine::FreeCam *cam;
-engine::DirLight *sun;
-engine::SpotLight *torch;
-engine::Model *sol;
-engine::Model *heli;
-engine::SkyBox *skybox;
-engine::Screen *screen;
-engine::GBuffer *gBuffer;
+Engine::Renderer *renderer;
+Engine::Input *input;
+Engine::FreeCam *cam;
+Engine::DirLight *sun;
+Engine::SpotLight *torch;
+Engine::Model *sol;
+Engine::Model *heli;
+Engine::SkyBox *skybox;
+Engine::Screen *screen;
+Engine::GBuffer *gBuffer;
 
-engine::ShaderProgram *objectProgram;
-engine::ShaderProgram *dirLightProgram;
-engine::ShaderProgram *spotLightProgram;
-engine::ShaderProgram *vLightProgram;
-engine::ShaderProgram *shadowMapProgram;
-engine::ShaderProgram *skyboxProgram;
-engine::ShaderProgram *backgroundProgram;
-engine::ShaderProgram *screenProgram;
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	PAINTSTRUCT ps;
-	HDC hdc;
-
-	switch (message)
-	{
-	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		EndPaint(hWnd, &ps);
-		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-
-	return 0;
-}
+Engine::ShaderProgram *objectProgram;
+Engine::ShaderProgram *dirLightProgram;
+Engine::ShaderProgram *spotLightProgram;
+Engine::ShaderProgram *vLightProgram;
+Engine::ShaderProgram *shadowMapProgram;
+Engine::ShaderProgram *skyboxProgram;
+Engine::ShaderProgram *backgroundProgram;
+Engine::ShaderProgram *screenProgram;
 
 void display(FLOAT state)
 {
@@ -104,23 +83,23 @@ void reshape(UINT width, UINT height)
 
 void init(void)
 {
-	cam = new engine::FreeCam;
-	sun = new engine::DirLight;
-	torch = new engine::SpotLight;
-	sol = new engine::Model;
-	heli = new engine::Model;
-	skybox = new engine::SkyBox;
-	screen = new engine::Screen;
-	gBuffer = new engine::GBuffer;
+	cam = new Engine::FreeCam;
+	sun = new Engine::DirLight;
+	torch = new Engine::SpotLight;
+	sol = new Engine::Model;
+	heli = new Engine::Model;
+	skybox = new Engine::SkyBox;
+	screen = new Engine::Screen;
+	gBuffer = new Engine::GBuffer;
 
-	objectProgram = new engine::ShaderProgram;
-	dirLightProgram = new engine::ShaderProgram;
-	spotLightProgram = new engine::ShaderProgram;
-	vLightProgram = new engine::ShaderProgram;
-	shadowMapProgram = new engine::ShaderProgram;
-	skyboxProgram = new engine::ShaderProgram;
-	backgroundProgram = new engine::ShaderProgram;
-	screenProgram = new engine::ShaderProgram;
+	objectProgram = new Engine::ShaderProgram;
+	dirLightProgram = new Engine::ShaderProgram;
+	spotLightProgram = new Engine::ShaderProgram;
+	vLightProgram = new Engine::ShaderProgram;
+	shadowMapProgram = new Engine::ShaderProgram;
+	skyboxProgram = new Engine::ShaderProgram;
+	backgroundProgram = new Engine::ShaderProgram;
+	screenProgram = new Engine::ShaderProgram;
 
 	configShaders();
 	configBuffers();
@@ -159,10 +138,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	renderer = new engine::Renderer;
-	input = new engine::Input;
+	renderer = new Engine::Renderer;
+	input = new Engine::Input;
 
-	renderer->initWindow(hInstance, WndProc, nCmdShow, TEXT("Demo DirectX"), 800, 600, FALSE);
+	renderer->initWindow(hInstance, nCmdShow, TEXT("Demo DirectX"), 800, 600, FALSE);
 	renderer->setReshapeFunc(reshape);
 	renderer->setIdleFunc(idle);
 	renderer->setDisplayFunc(display);
@@ -178,13 +157,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	delete renderer;
 	delete input;
 
-	if (engine::Object::getMemoryState() != 0)
+	if (Engine::Object::getMemoryState() != 0)
 	{
 		std::string text;
-		text = std::to_string(engine::Object::getMemoryState());
+		text = std::to_string(Engine::Object::getMemoryState());
 		MessageBoxA(NULL, text.c_str(), __FILE__, MB_OK);
 	}
-	engine::Object::saveMemoryInfo(TEXT("memLost.txt"));
+	Engine::Object::saveMemoryInfo(TEXT("memLost.txt"));
 
 	return 0;
 }

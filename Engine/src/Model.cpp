@@ -14,7 +14,7 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-engine::Model::Model(void)
+Engine::Model::Model(void)
 	: _tMesh(NULL), _pInputLayout(NULL)
 {
 	_MVPMatrixBuffer = new Buffer;
@@ -24,7 +24,7 @@ engine::Model::Model(void)
 	this->matIdentity();
 }
 
-engine::Model::~Model(void)
+Engine::Model::~Model(void)
 {
 	UINT i;
 	if (_tMesh != NULL && isMirror != TRUE)
@@ -39,7 +39,7 @@ engine::Model::~Model(void)
 	_aligned_free(_ModelMatrix);
 }
 
-void engine::Model::initMeshArray(void)
+void Engine::Model::initMeshArray(void)
 {
 	UINT i;
 	if (_tMesh != NULL && isMirror != TRUE)
@@ -52,7 +52,7 @@ void engine::Model::initMeshArray(void)
 	_tMesh = new std::vector<Mesh *>;
 }
 
-void engine::Model::initMeshMirror(Model *m)
+void Engine::Model::initMeshMirror(Model *m)
 {
 	UINT i;
 	if (_tMesh != NULL && isMirror != TRUE)
@@ -65,7 +65,7 @@ void engine::Model::initMeshMirror(Model *m)
 	_tMesh = m->_tMesh;
 }
 
-void engine::Model::config(ShaderProgram *gProgram, ShaderProgram *smProgram)
+void Engine::Model::config(ShaderProgram *gProgram, ShaderProgram *smProgram)
 {
 	_gProgram = gProgram;
 	_smProgram = smProgram;
@@ -89,7 +89,7 @@ void engine::Model::config(ShaderProgram *gProgram, ShaderProgram *smProgram)
 	_normalMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
 }
 
-void engine::Model::addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArray,
+void Engine::Model::addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 	const UINT &sizeIndexArray, const UINT *indexArray,
 	const CHAR *colorTexture, const CHAR *NMTexture,
 	const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess)
@@ -122,7 +122,7 @@ static std::string getDir(const CHAR *file)
 	return path;
 }
 
-void engine::Model::loadFromFile(const CHAR *szFileName)
+void Engine::Model::loadFromFile(const CHAR *szFileName)
 {
 	Assimp::Importer Importer;
 	UINT i, j;
@@ -214,32 +214,32 @@ void engine::Model::loadFromFile(const CHAR *szFileName)
 	}
 }
 
-void engine::Model::sortMesh(void)
+void Engine::Model::sortMesh(void)
 {
 	qsort(&(*_tMesh)[0], _tMesh->size(), sizeof(*_tMesh)[0], comparMesh);
 }
 
-void engine::Model::matIdentity(void)
+void Engine::Model::matIdentity(void)
 {
 	*_ModelMatrix = XMMatrixIdentity();
 }
 
-void engine::Model::matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z)
+void Engine::Model::matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
 	*_ModelMatrix = XMMatrixTranslation(x, y, z) * *_ModelMatrix;
 }
 
-void engine::Model::matRotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
+void Engine::Model::matRotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
 	*_ModelMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)XM_PI / 180)) * *_ModelMatrix;
 }
 
-void engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)
+void Engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
 	*_ModelMatrix = XMMatrixScaling(x, y, z) * *_ModelMatrix;
 }
 
-XMFLOAT3 engine::Model::getPosition(void) const
+XMFLOAT3 Engine::Model::getPosition(void) const
 {
 	XMFLOAT3 tmp;
 	tmp.x = XMVectorGetW(_ModelMatrix->r[0]);
@@ -249,7 +249,7 @@ XMFLOAT3 engine::Model::getPosition(void) const
 	return tmp;
 }
 
-engine::Mesh *engine::Model::getMesh(UINT num) const
+Engine::Mesh *Engine::Model::getMesh(UINT num) const
 {
 	if (num >= _tMesh->size())
 	{
@@ -259,7 +259,7 @@ engine::Mesh *engine::Model::getMesh(UINT num) const
 	return (*_tMesh)[num];
 }
   
-void engine::Model::display(GBuffer *gbuf, Camera *cam) const
+void Engine::Model::display(GBuffer *gbuf, Camera *cam) const
 {
 	UINT i;
 	XMMATRIX MVPMatrix = *_ModelMatrix * cam->getVPMatrix();
@@ -290,7 +290,7 @@ void engine::Model::display(GBuffer *gbuf, Camera *cam) const
 			(*_tMesh)[i]->display();
 }
 
-void engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
+void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
 {
 	UINT i;
 	XMMATRIX MVPMatrix = *_ModelMatrix * cam->getVPMatrix();
@@ -321,7 +321,7 @@ void engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
 			(*_tMesh)[i]->display();
 }
 
-void engine::Model::displayShadowMap(Light *light) const
+void Engine::Model::displayShadowMap(Light *light) const
 {
 	UINT i;
 	XMMATRIX MVPMatrix = *_ModelMatrix * light->getVPMatrix();

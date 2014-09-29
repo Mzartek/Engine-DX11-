@@ -1,19 +1,19 @@
 #include <Engine/Input.hpp>
 
-engine::Input::Input(void)
+Engine::Input::Input(void)
 	: _pKeyBoard(NULL), _pMouse(NULL)
 {
 	ZeroMemory(_keyState, sizeof(_keyState));
 	ZeroMemory(&_mouseState, sizeof(_mouseState));
 }
 
-engine::Input::~Input(void)
+Engine::Input::~Input(void)
 {
 	if (_pKeyBoard)	_pKeyBoard->Release();
 	if (_pMouse) _pMouse->Release();
 }
 
-void engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
+void Engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
 {
 	LPDIRECTINPUT8 directInputObject;
 
@@ -35,31 +35,31 @@ void engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
 	directInputObject->Release();
 }
 
-BOOL engine::Input::getKeyBoardState(const BYTE &button)
+BOOL Engine::Input::getKeyBoardState(const BYTE &button)
 {
 	if (_keyState[button] & 0x80)
 		return TRUE;
 	return FALSE;
 }
 
-BOOL engine::Input::getMouseState(const BYTE &button)
+BOOL Engine::Input::getMouseState(const BYTE &button)
 {
 	if (_mouseState.rgbButtons[button] & 0x80)
 		return TRUE;
 	return FALSE;
 }
 
-LONG engine::Input::getMouseRelX(void)
+LONG Engine::Input::getMouseRelX(void)
 {
 	return _mouseState.lX;
 }
 
-LONG engine::Input::getMouseRelY(void)
+LONG Engine::Input::getMouseRelY(void)
 {
 	return _mouseState.lY;
 }
 
-void engine::Input::refresh(void)
+void Engine::Input::refresh(void)
 {
 	HRESULT hr;
 

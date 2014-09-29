@@ -3,7 +3,7 @@
 
 #include "Renderer.hpp"
 
-namespace engine
+namespace Engine
 {
 	class DLLAPI ShaderProgram : public Object
 	{

@@ -10,6 +10,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo", "..\Demo\Demo.vcxpro
 		{7FE3C0AA-20F7-4B72-8970-54080A4DF692} = {7FE3C0AA-20F7-4B72-8970-54080A4DF692}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineWrap", "..\EngineWrap\EngineWrap.vcxproj", "{955BD6E4-C060-457D-BF4F-B2EBBE3D3CB4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7FE3C0AA-20F7-4B72-8970-54080A4DF692} = {7FE3C0AA-20F7-4B72-8970-54080A4DF692}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -24,6 +29,10 @@ Global
 		{E4C6123C-B109-4BB1-8EFE-70D2DA525102}.Debug|Win32.Build.0 = Debug|Win32
 		{E4C6123C-B109-4BB1-8EFE-70D2DA525102}.Release|Win32.ActiveCfg = Release|Win32
 		{E4C6123C-B109-4BB1-8EFE-70D2DA525102}.Release|Win32.Build.0 = Release|Win32
+		{955BD6E4-C060-457D-BF4F-B2EBBE3D3CB4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{955BD6E4-C060-457D-BF4F-B2EBBE3D3CB4}.Debug|Win32.Build.0 = Debug|Win32
+		{955BD6E4-C060-457D-BF4F-B2EBBE3D3CB4}.Release|Win32.ActiveCfg = Release|Win32
+		{955BD6E4-C060-457D-BF4F-B2EBBE3D3CB4}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

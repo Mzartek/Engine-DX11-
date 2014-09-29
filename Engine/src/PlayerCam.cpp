@@ -1,14 +1,14 @@
 #include <Engine/PlayerCam.hpp>
 
-engine::PlayerCam::PlayerCam(void)
+Engine::PlayerCam::PlayerCam(void)
 {
 }
 
-engine::PlayerCam::~PlayerCam(void)
+Engine::PlayerCam::~PlayerCam(void)
 {
 }
 
-void engine::PlayerCam::keyboardMove(const BOOL &f, const BOOL &b, const BOOL &l, const BOOL &r)
+void Engine::PlayerCam::keyboardMove(const BOOL &f, const BOOL &b, const BOOL &l, const BOOL &r)
 {
 	if (f)
 	{

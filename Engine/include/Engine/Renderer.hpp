@@ -3,7 +3,7 @@
 
 #include "Object.hpp"
 
-namespace engine
+namespace Engine
 {
 	class DLLAPI Renderer : public Object
 	{
@@ -31,8 +31,7 @@ namespace engine
 	public:
 		Renderer(void);
 		~Renderer(void);
-		void initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), const int &nCmdShow,
-			const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen);
+		void initWindow(const HINSTANCE &hInstance, const INT &nCmdShow, const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen);
 		void setDisplayFunc(void(*f) (FLOAT));
 		void setIdleFunc(void(*f) (void));
 		void setReshapeFunc(void(*f) (UINT, UINT));

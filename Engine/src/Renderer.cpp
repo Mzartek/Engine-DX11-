@@ -5,6 +5,27 @@ std::string ShaderLevel;
 ID3D11Device1 *Device;
 ID3D11DeviceContext1 *DeviceContext;
 
+static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	PAINTSTRUCT ps;
+	HDC hdc;
+
+	switch (message)
+	{
+	case WM_PAINT:
+		hdc = BeginPaint(hWnd, &ps);
+		EndPaint(hWnd, &ps);
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+
+	return 0;
+}
+
 static std::string ShaderVersion(const D3D_FEATURE_LEVEL &featureLevel)
 {
 	std::string shaderLevel;
@@ -30,7 +51,7 @@ static std::string ShaderVersion(const D3D_FEATURE_LEVEL &featureLevel)
 	return shaderLevel;
 }
 
-engine::Renderer::Renderer(void)
+Engine::Renderer::Renderer(void)
 	: _hWnd(NULL), _pSwapChain(NULL), 
 	_pRenderTargetView(NULL), _pDepthStencilView(NULL), 
 	_pDepthStencilState(NULL), _pBlendState(NULL), _pRasterizerState(NULL), 
@@ -38,7 +59,7 @@ engine::Renderer::Renderer(void)
 {
 }
 
-engine::Renderer::~Renderer(void)
+Engine::Renderer::~Renderer(void)
 {
 	// Device
 	if (Device) Device->Release();
@@ -54,8 +75,7 @@ engine::Renderer::~Renderer(void)
 	if (_pRasterizerState) _pRasterizerState->Release();
 }
 
-void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *WndProc) (HWND, UINT, WPARAM, LPARAM), const int &nCmdShow,
-	const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
+void Engine::Renderer::initWindow(const HINSTANCE &hInstance, const INT &nCmdShow, const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
 {
 	ID3D11Texture2D *texture;
 
@@ -215,37 +235,37 @@ void engine::Renderer::initWindow(const HINSTANCE &hInstance, LRESULT(CALLBACK *
 	_VP.MaxDepth = 1.0f;
 }
 
-void engine::Renderer::setDisplayFunc(void(*f) (FLOAT))
+void Engine::Renderer::setDisplayFunc(void(*f) (FLOAT))
 {
 	_display = f;
 }
 
-void engine::Renderer::setIdleFunc(void (*f) (void))
+void Engine::Renderer::setIdleFunc(void (*f) (void))
 {
 	_idle = f;
 }
 
-void engine::Renderer::setReshapeFunc(void(*f) (UINT, UINT))
+void Engine::Renderer::setReshapeFunc(void(*f) (UINT, UINT))
 {
 	_reshape = f;
 }
 
-UINT engine::Renderer::getWidth(void)
+UINT Engine::Renderer::getWidth(void)
 {
 	return _width;
 }
 
-UINT engine::Renderer::getHeight(void)
+UINT Engine::Renderer::getHeight(void)
 {
 	return _height;
 }
 
-HINSTANCE engine::Renderer::getHINSTANCE(void)
+HINSTANCE Engine::Renderer::getHINSTANCE(void)
 {
 	return _hInst;
 }
 
-HWND engine::Renderer::getHWND(void)
+HWND Engine::Renderer::getHWND(void)
 {
 	return _hWnd;
 }
@@ -264,7 +284,7 @@ static long long milliseconds_now()
 		return GetTickCount();
 }
 
-void engine::Renderer::mainLoop(void)
+void Engine::Renderer::mainLoop(void)
 {
 	MSG msg;
 	long long currentTime, newTime, frameTime;
@@ -303,12 +323,12 @@ void engine::Renderer::mainLoop(void)
 	}
 }
 
-void engine::Renderer::stopLoop(void)
+void Engine::Renderer::stopLoop(void)
 {
 	_stopLoop = TRUE;
 }
 
-void engine::Renderer::setState(void) const
+void Engine::Renderer::setState(void) const
 {
 	DeviceContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
 	DeviceContext->OMSetDepthStencilState(_pDepthStencilState, 0);
@@ -317,7 +337,7 @@ void engine::Renderer::setState(void) const
 	DeviceContext->RSSetViewports(1, &_VP);
 }
 
-void engine::Renderer::clear(void)
+void Engine::Renderer::clear(void)
 {
 	DeviceContext->ClearRenderTargetView(_pRenderTargetView, Colors::Transparent);
 	DeviceContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);

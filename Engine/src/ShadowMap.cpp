@@ -3,7 +3,7 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-engine::ShadowMap::ShadowMap()
+Engine::ShadowMap::ShadowMap(void)
 {
 	// Shader Resource View
 	_pShaderResourceView = NULL;
@@ -15,7 +15,7 @@ engine::ShadowMap::ShadowMap()
 	_pSamplerComparisonState = NULL;
 }
 
-engine::ShadowMap::~ShadowMap()
+Engine::ShadowMap::~ShadowMap(void)
 {
 	// Shader Resource View
 	if (_pShaderResourceView) _pShaderResourceView->Release();
@@ -27,7 +27,7 @@ engine::ShadowMap::~ShadowMap()
 	if (_pSamplerComparisonState) _pSamplerComparisonState->Release();
 }
 
-void engine::ShadowMap::config(const UINT &width, const UINT &height)
+void Engine::ShadowMap::config(const UINT &width, const UINT &height)
 {
 	ID3D11Texture2D *texture;
 
@@ -119,17 +119,17 @@ void engine::ShadowMap::config(const UINT &width, const UINT &height)
 	_VP.MaxDepth = 1.0f;
 }
 
-ID3D11ShaderResourceView *engine::ShadowMap::getShaderResourceView(void) const
+ID3D11ShaderResourceView *Engine::ShadowMap::getShaderResourceView(void) const
 {
 	return _pShaderResourceView;
 }
 
-ID3D11SamplerState *engine::ShadowMap::getSamplerComparisonState(void) const
+ID3D11SamplerState *Engine::ShadowMap::getSamplerComparisonState(void) const
 {
 	return _pSamplerComparisonState;
 }
 
-void engine::ShadowMap::setState(void) const
+void Engine::ShadowMap::setState(void) const
 {
 	DeviceContext->OMSetRenderTargets(0, NULL, _pDepthView);
 	DeviceContext->OMSetDepthStencilState(_pDepthState, 0);
@@ -138,7 +138,7 @@ void engine::ShadowMap::setState(void) const
 	DeviceContext->RSSetViewports(1, &_VP);
 }
 
-void engine::ShadowMap::clear(void) const
+void Engine::ShadowMap::clear(void) const
 {
 	DeviceContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
