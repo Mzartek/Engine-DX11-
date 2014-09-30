@@ -64,10 +64,9 @@ Engine::GBuffer::~GBuffer(void)
 
 void Engine::GBuffer::config(const UINT &width, const UINT &height)
 {
-	ID3D11Texture2D *texture;
+	FrameBuffer::config(width, height);
 
-	_width = width;
-	_height = height;
+	ID3D11Texture2D *texture;
 
 	// Shader Resource View
 	if (_pShaderResourceView[GBUF_NORMAL]) _pShaderResourceView[GBUF_NORMAL]->Release();

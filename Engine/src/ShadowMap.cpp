@@ -29,10 +29,9 @@ Engine::ShadowMap::~ShadowMap(void)
 
 void Engine::ShadowMap::config(const UINT &width, const UINT &height)
 {
-	ID3D11Texture2D *texture;
+	FrameBuffer::config(width, height);
 
-	_width = width;
-	_height = height;
+	ID3D11Texture2D *texture;
 
 	// Shader Resource View
 	if (_pShaderResourceView) _pShaderResourceView->Release();

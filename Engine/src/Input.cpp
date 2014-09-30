@@ -1,26 +1,10 @@
 #include <Engine/Input.hpp>
 
-Engine::Input::Input(void)
-	: _pKeyBoard(NULL), _pMouse(NULL)
-{
-	ZeroMemory(_keyState, sizeof(_keyState));
-	ZeroMemory(&_mouseState, sizeof(_mouseState));
-}
-
-Engine::Input::~Input(void)
-{
-	if (_pKeyBoard)	_pKeyBoard->Release();
-	if (_pMouse) _pMouse->Release();
-}
-
-void Engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
+Engine::Input::Input(const HWND &hWnd)
 {
 	LPDIRECTINPUT8 directInputObject;
 
-	if (_pKeyBoard)	_pKeyBoard->Release();
-	if (_pMouse) _pMouse->Release();
-
-	DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&directInputObject, NULL);
+	DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&directInputObject, NULL);
 	directInputObject->CreateDevice(GUID_SysKeyboard, &_pKeyBoard, NULL);
 	directInputObject->CreateDevice(GUID_SysMouse, &_pMouse, NULL);
 
@@ -33,6 +17,15 @@ void Engine::Input::initInput(const HINSTANCE &hInstance, const HWND &hWnd)
 	_pKeyBoard->Acquire();
 	_pMouse->Acquire();
 	directInputObject->Release();
+
+	ZeroMemory(_keyState, sizeof(_keyState));
+	ZeroMemory(&_mouseState, sizeof(_mouseState));
+}
+
+Engine::Input::~Input(void)
+{
+	_pKeyBoard->Release();
+	_pMouse->Release();
 }
 
 BOOL Engine::Input::getKeyBoardState(const BYTE &button)

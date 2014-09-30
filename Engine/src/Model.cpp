@@ -21,7 +21,7 @@ Engine::Model::Model(void)
 	_normalMatrixBuffer = new Buffer;
 	_ModelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_ModelMatrix, 16);
 
-	this->matIdentity();
+	matIdentity();
 }
 
 Engine::Model::~Model(void)

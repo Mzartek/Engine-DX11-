@@ -8,6 +8,12 @@ Engine::FrameBuffer::~FrameBuffer(void)
 {
 }
 
+void Engine::FrameBuffer::config(const UINT &width, const UINT &height)
+{
+	_width = width;
+	_height = height;
+}
+
 UINT Engine::FrameBuffer::getWidth(void) const
 {
 	return _width;

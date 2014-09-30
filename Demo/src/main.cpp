@@ -3,25 +3,8 @@
 // Globales variables
 Engine::Renderer *renderer;
 Engine::Input *input;
-Engine::FreeCam *cam;
-Engine::DirLight *sun;
-Engine::SpotLight *torch;
-Engine::Model *sol;
-Engine::Model *heli;
-Engine::SkyBox *skybox;
-Engine::Screen *screen;
-Engine::GBuffer *gBuffer;
 
-Engine::ShaderProgram *objectProgram;
-Engine::ShaderProgram *dirLightProgram;
-Engine::ShaderProgram *spotLightProgram;
-Engine::ShaderProgram *vLightProgram;
-Engine::ShaderProgram *shadowMapProgram;
-Engine::ShaderProgram *skyboxProgram;
-Engine::ShaderProgram *backgroundProgram;
-Engine::ShaderProgram *screenProgram;
-
-void display(FLOAT state)
+void GameManager::display(FLOAT state)
 {
 	renderer->clear();
 	gBuffer->clear();
@@ -54,7 +37,7 @@ void display(FLOAT state)
 	screen->display(renderer, gBuffer, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void idle(void)
+void GameManager::idle(void)
 {
 	input->refresh();
 	if (input->getKeyBoardState(DIK_ESCAPE))
@@ -76,83 +59,24 @@ void idle(void)
 	torch->position();
 }
 
-void reshape(UINT width, UINT height)
+void GameManager::reshape(UINT width, UINT height)
 {
 	cam->setPerspective(90.0f, width, height, 0.1f, 1000.0f);
 }
 
-void init(void)
-{
-	cam = new Engine::FreeCam;
-	sun = new Engine::DirLight;
-	torch = new Engine::SpotLight;
-	sol = new Engine::Model;
-	heli = new Engine::Model;
-	skybox = new Engine::SkyBox;
-	screen = new Engine::Screen;
-	gBuffer = new Engine::GBuffer;
-
-	objectProgram = new Engine::ShaderProgram;
-	dirLightProgram = new Engine::ShaderProgram;
-	spotLightProgram = new Engine::ShaderProgram;
-	vLightProgram = new Engine::ShaderProgram;
-	shadowMapProgram = new Engine::ShaderProgram;
-	skyboxProgram = new Engine::ShaderProgram;
-	backgroundProgram = new Engine::ShaderProgram;
-	screenProgram = new Engine::ShaderProgram;
-
-	configShaders();
-	configBuffers();
-	configLights();
-	configScreen();
-	configModels();
-	configSkybox();
-
-	cam->setPositionCamera(XMFLOAT3(30, 10, 0));
-	cam->setInitialAngle(-90, 0);
-}
-
-void kill()
-{
-	delete screenProgram;
-	delete backgroundProgram;
-	delete skyboxProgram;
-	delete shadowMapProgram;
-	delete vLightProgram;
-	delete spotLightProgram;
-	delete dirLightProgram;
-	delete objectProgram;
-	
-	delete gBuffer;
-	delete screen;
-	delete skybox;
-	delete heli;
-	delete sol;
-	delete torch;
-	delete sun;
-	delete cam;
-}
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+	UNREFERENCED_PARAMETER(hInstance);
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
+	UNREFERENCED_PARAMETER(nCmdShow);
 
-	renderer = new Engine::Renderer;
-	input = new Engine::Input;
+	renderer = new Engine::Renderer(TEXT("Demo DirectX"), 800, 600, FALSE);
+	input = new Engine::Input(renderer->getWindow());
 
-	renderer->initWindow(hInstance, nCmdShow, TEXT("Demo DirectX"), 800, 600, FALSE);
-	renderer->setReshapeFunc(reshape);
-	renderer->setIdleFunc(idle);
-	renderer->setDisplayFunc(display);
-
-	input->initInput(hInstance, renderer->getHWND());
-
-	init();
-
-	renderer->mainLoop();
-
-	kill();
+	GameManager *game = new GameManager;
+	renderer->mainLoop(game);
+	delete game;
 
 	delete renderer;
 	delete input;

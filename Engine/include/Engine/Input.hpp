@@ -13,9 +13,8 @@ namespace Engine
 		BYTE _keyState[256];
 		DIMOUSESTATE _mouseState;
 	public:
-		Input(void);
+		Input(const HWND &hWnd);
 		~Input(void);
-		void initInput(const HINSTANCE &hInstance, const HWND &hWnd);
 		BOOL getKeyBoardState(const BYTE &button);
 		BOOL getMouseState(const BYTE &button);
 		LONG getMouseRelX(void);

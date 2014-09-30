@@ -14,7 +14,7 @@ namespace Engine
 	public:
 		FrameBuffer(void);
 		~FrameBuffer(void);
-		virtual void config(const UINT &width, const UINT &height) = 0;
+		virtual void config(const UINT &width, const UINT &height);
 		UINT getWidth(void) const;
 		UINT getHeight(void) const;
 		virtual void clear(void) const = 0;

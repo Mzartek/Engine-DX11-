@@ -2,8 +2,11 @@
 
 D3D_FEATURE_LEVEL FeatureLevel;
 std::string ShaderLevel;
-ID3D11Device1 *Device;
-ID3D11DeviceContext1 *DeviceContext;
+ID3D11Device1 *Device = NULL;
+ID3D11DeviceContext1 *DeviceContext = NULL;
+
+Engine::GameLoop::GameLoop(void){}
+Engine::GameLoop::~GameLoop(void){}
 
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -51,70 +54,35 @@ static std::string ShaderVersion(const D3D_FEATURE_LEVEL &featureLevel)
 	return shaderLevel;
 }
 
-Engine::Renderer::Renderer(void)
-	: _hWnd(NULL), _pSwapChain(NULL), 
-	_pRenderTargetView(NULL), _pDepthStencilView(NULL), 
-	_pDepthStencilState(NULL), _pBlendState(NULL), _pRasterizerState(NULL), 
-	_display(NULL), _idle(NULL), _reshape(NULL)
-{
-}
-
-Engine::Renderer::~Renderer(void)
-{
-	// Device
-	if (Device) Device->Release();
-	if (DeviceContext) DeviceContext->Release();
-	// SwapChain
-	if (_pSwapChain) _pSwapChain->Release();
-	// View
-	if (_pRenderTargetView) _pRenderTargetView->Release();
-	if (_pDepthStencilView) _pDepthStencilView->Release();
-	// State
-	if (_pDepthStencilState) _pDepthStencilState->Release();
-	if (_pBlendState) _pBlendState->Release();
-	if (_pRasterizerState) _pRasterizerState->Release();
-}
-
-void Engine::Renderer::initWindow(const HINSTANCE &hInstance, const INT &nCmdShow, const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
+Engine::Renderer::Renderer(const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
 {
 	ID3D11Texture2D *texture;
 
 	_width = width;
 	_height = height;
-	_hInst = hInstance;
 
-	// Device
 	if (Device) Device->Release();
 	if (DeviceContext) DeviceContext->Release();
-	// SwapChain
-	if (_pSwapChain) _pSwapChain->Release();
-	// View
-	if (_pRenderTargetView) _pRenderTargetView->Release();
-	if (_pDepthStencilView) _pDepthStencilView->Release();
-	// State
-	if (_pDepthStencilState) _pDepthStencilState->Release();
-	if (_pBlendState) _pBlendState->Release();
-	if (_pRasterizerState) _pRasterizerState->Release();
 
 	WNDCLASS wcex;
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc = WndProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
-	wcex.hInstance = _hInst;
-	wcex.hIcon = LoadIcon(_hInst, IDI_APPLICATION);
-	wcex.hCursor = LoadCursor(_hInst, IDC_ARROW);
+	wcex.hInstance = GetModuleHandle(NULL);
+	wcex.hIcon = LoadIcon(GetModuleHandle(NULL), IDI_APPLICATION);
+	wcex.hCursor = LoadCursor(GetModuleHandle(NULL), IDC_ARROW);
 	wcex.hbrBackground = NULL;
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = TEXT("EngineWindowClass");
 	RegisterClass(&wcex);
-	_hWnd = CreateWindow(wcex.lpszClassName, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, NULL, NULL, hInstance, NULL);
+	_hWnd = CreateWindow(wcex.lpszClassName, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, NULL, NULL, GetModuleHandle(NULL), NULL);
 	if (_hWnd == NULL)
 	{
 		MessageBox(NULL, TEXT("Failed to create Window"), TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
-	ShowWindow(_hWnd, nCmdShow);
+	ShowWindow(_hWnd, SW_SHOW);
 
 	// Create Device and SwapChain
 	ID3D11Device *pd3dDevice;
@@ -124,9 +92,9 @@ void Engine::Renderer::initWindow(const HINSTANCE &hInstance, const INT &nCmdSho
 	D3D_FEATURE_LEVEL featureLevels[]
 	{
 		D3D_FEATURE_LEVEL_11_1,
-		D3D_FEATURE_LEVEL_11_0,
-		D3D_FEATURE_LEVEL_10_1,
-		D3D_FEATURE_LEVEL_10_0,
+			D3D_FEATURE_LEVEL_11_0,
+			D3D_FEATURE_LEVEL_10_1,
+			D3D_FEATURE_LEVEL_10_0,
 	};
 	DXGI_SWAP_CHAIN_DESC1 sd;
 	sd.Width = _width;
@@ -235,19 +203,20 @@ void Engine::Renderer::initWindow(const HINSTANCE &hInstance, const INT &nCmdSho
 	_VP.MaxDepth = 1.0f;
 }
 
-void Engine::Renderer::setDisplayFunc(void(*f) (FLOAT))
+Engine::Renderer::~Renderer(void)
 {
-	_display = f;
-}
-
-void Engine::Renderer::setIdleFunc(void (*f) (void))
-{
-	_idle = f;
-}
-
-void Engine::Renderer::setReshapeFunc(void(*f) (UINT, UINT))
-{
-	_reshape = f;
+	// Device
+	if (Device) Device->Release();
+	if (DeviceContext) DeviceContext->Release();
+	// SwapChain
+	_pSwapChain->Release();
+	// View
+	_pRenderTargetView->Release();
+	_pDepthStencilView->Release();
+	// State
+	_pDepthStencilState->Release();
+	_pBlendState->Release();
+	_pRasterizerState->Release();
 }
 
 UINT Engine::Renderer::getWidth(void)
@@ -260,12 +229,7 @@ UINT Engine::Renderer::getHeight(void)
 	return _height;
 }
 
-HINSTANCE Engine::Renderer::getHINSTANCE(void)
-{
-	return _hInst;
-}
-
-HWND Engine::Renderer::getHWND(void)
+HWND Engine::Renderer::getWindow(void)
 {
 	return _hWnd;
 }
@@ -284,21 +248,21 @@ static long long milliseconds_now()
 		return GetTickCount();
 }
 
-void Engine::Renderer::mainLoop(void)
+void Engine::Renderer::mainLoop(GameLoop *gameLoop)
 {
 	MSG msg;
 	long long currentTime, newTime, frameTime;
 	long long accumulator = 0;
 	long long dt = 16;
 
-	if (!_reshape || !_idle || !_display)
+	if (gameLoop == NULL)
 	{
-		MessageBox(NULL, TEXT("You need to set the Reshape, Idle and Display Function before"), TEXT(__FILE__), MB_OK);
-		return;
+		MessageBox(NULL, TEXT("Wrong GameLoop"), TEXT(__FILE__), MB_OK);
+		exit(1);
 	}
 
 	_stopLoop = FALSE;
-	_reshape(_width, _height);
+	gameLoop->reshape(_width, _height);
 	currentTime = milliseconds_now();
 	while (!_stopLoop)
 	{
@@ -317,8 +281,8 @@ void Engine::Renderer::mainLoop(void)
 		frameTime = newTime - currentTime;
 		currentTime = newTime;
 		for (accumulator += frameTime; accumulator >= dt; accumulator -= dt)
-			_idle();
-		_display((FLOAT)accumulator / dt);
+			gameLoop->idle();
+		gameLoop->display((FLOAT)accumulator / dt);
 		_pSwapChain->Present(0, 0);
 	}
 }

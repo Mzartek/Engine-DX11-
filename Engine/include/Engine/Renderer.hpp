@@ -5,13 +5,22 @@
 
 namespace Engine
 {
+	class DLLAPI GameLoop : public Object
+	{
+	public:
+		GameLoop(void);
+		~GameLoop(void);
+		virtual void display(FLOAT state) = 0;
+		virtual void idle(void) = 0;
+		virtual void reshape(UINT w, UINT h) = 0;
+	};
+
 	class DLLAPI Renderer : public Object
 	{
 	private:
 		BOOL _stopLoop;
 		UINT _width;
 		UINT _height;
-		HINSTANCE _hInst;
 		HWND _hWnd;
 		// SwapChain
 		IDXGISwapChain1 *_pSwapChain;
@@ -24,22 +33,13 @@ namespace Engine
 		ID3D11RasterizerState *_pRasterizerState;
 		// ViewPort
 		D3D11_VIEWPORT _VP;
-		// Function Pointer
-		void(*_display) (FLOAT);
-		void(*_idle) (void);
-		void(*_reshape) (UINT, UINT);
 	public:
-		Renderer(void);
+		Renderer(const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen);
 		~Renderer(void);
-		void initWindow(const HINSTANCE &hInstance, const INT &nCmdShow, const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen);
-		void setDisplayFunc(void(*f) (FLOAT));
-		void setIdleFunc(void(*f) (void));
-		void setReshapeFunc(void(*f) (UINT, UINT));
 		UINT getWidth(void);
 		UINT getHeight(void);
-		HINSTANCE getHINSTANCE(void);
-		HWND getHWND(void);
-		void mainLoop(void);
+		HWND getWindow(void);
+		void mainLoop(GameLoop *gameLoop);
 		void stopLoop(void);
 		void setState(void) const;
 		void clear(void);

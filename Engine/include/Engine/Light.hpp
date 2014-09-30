@@ -27,6 +27,7 @@ namespace Engine
 	public:
 		Light(void);
 		~Light(void);
+		virtual void config(ShaderProgram *program);
 		void configShadowMap(const UINT &width, const UINT &height);
 		XMMATRIX getVPMatrix(void) const;
 		ShadowMap *getShadowMap(void);
