@@ -8,18 +8,22 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-Engine::SpotLight::SpotLight(void)
+Engine::SpotLight::SpotLight(ShaderProgram *program)
 {
+	_lightInfoBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _lightInfo, D3D11_USAGE_DYNAMIC);
+
+	_program = program;
+
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	Device->CreateInputLayout(layout, ARRAYSIZE(layout), _program->getEntryBufferPointer(), _program->getEntryBytecodeLength(), &_pInputLayout);
 }
 
 Engine::SpotLight::~SpotLight(void)
 {
-}
-
-void Engine::SpotLight::config(ShaderProgram *program)
-{
-	Light::config(program);
-	_lightInfoBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _lightInfo, D3D11_USAGE_DYNAMIC);
+	_pInputLayout->Release();
 }
 
 void Engine::SpotLight::setColor(const XMFLOAT3 &color)

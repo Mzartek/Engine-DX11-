@@ -34,7 +34,7 @@ namespace Engine
 		// ViewPort
 		D3D11_VIEWPORT _VP;
 	public:
-		Renderer(const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen);
+		Renderer(const LPCTSTR szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen);
 		~Renderer(void);
 		UINT getWidth(void);
 		UINT getHeight(void);
@@ -42,7 +42,7 @@ namespace Engine
 		void mainLoop(GameLoop *gameLoop);
 		void stopLoop(void);
 		void setState(void) const;
-		void clear(void);
+		void clear(void) const;
 	};
 }
 

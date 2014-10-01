@@ -8,8 +8,7 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-Engine::SkyBox::SkyBox(void)
-	: _pInputLayout(NULL)
+Engine::SkyBox::SkyBox(ShaderProgram *program)
 {
 	_cubeTexture = new Texture;
 	_vertexBuffer = new Buffer;
@@ -17,49 +16,19 @@ Engine::SkyBox::SkyBox(void)
 	_MVPMatrixBuffer = new Buffer;
 	_rotateMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_rotateMatrix, 16);
 
-	*_rotateMatrix = XMMatrixIdentity();
-}
-
-Engine::SkyBox::~SkyBox(void)
-{
-	if (_pInputLayout) _pInputLayout->Release();
-	delete _cubeTexture;
-	delete _vertexBuffer;
-	delete _indexBuffer;
-	delete _MVPMatrixBuffer;
-	_aligned_free(_rotateMatrix);
-}
-
-void Engine::SkyBox::load(const CHAR *posx, const CHAR *negx,
-	const CHAR *posy, const CHAR *negy,
-	const CHAR *posz, const CHAR *negz,
-	FLOAT dim, ShaderProgram *program)
-{
-	_program = program;
-
-	_cubeTexture->loadCubeTextureFromFiles(posx, negx, posy, negy, posz, negz);
-
-	if (_pInputLayout) _pInputLayout->Release();
-
-	// Create Input Layout
-	D3D11_INPUT_ELEMENT_DESC layout[] =
+	FLOAT vertexArray[] =
 	{
-		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		+SKYBOX_DIM, -SKYBOX_DIM, -SKYBOX_DIM,
+		-SKYBOX_DIM, -SKYBOX_DIM, -SKYBOX_DIM,
+		-SKYBOX_DIM, -SKYBOX_DIM, +SKYBOX_DIM,
+		+SKYBOX_DIM, -SKYBOX_DIM, +SKYBOX_DIM,
+		+SKYBOX_DIM, +SKYBOX_DIM, -SKYBOX_DIM,
+		-SKYBOX_DIM, +SKYBOX_DIM, -SKYBOX_DIM,
+		-SKYBOX_DIM, +SKYBOX_DIM, +SKYBOX_DIM,
+		+SKYBOX_DIM, +SKYBOX_DIM, +SKYBOX_DIM
 	};
-	Device->CreateInputLayout(layout, ARRAYSIZE(layout), _program->getEntryBufferPointer(), _program->getEntryBytecodeLength(), &_pInputLayout);
-
-	// Create the Cube
-	FLOAT vertexArray[] = {
-		+dim, -dim, -dim,
-		-dim, -dim, -dim,
-		-dim, -dim, +dim,
-		+dim, -dim, +dim,
-		+dim, +dim, -dim,
-		-dim, +dim, -dim,
-		-dim, +dim, +dim,
-		+dim, +dim, +dim
-	};
-	UINT indexArray[] = {
+	UINT indexArray[] =
+	{
 		0, 1, 2, 0, 2, 3,
 		4, 7, 6, 4, 6, 5,
 		0, 4, 5, 0, 5, 1,
@@ -67,11 +36,36 @@ void Engine::SkyBox::load(const CHAR *posx, const CHAR *negx,
 		1, 5, 6, 1, 6, 2,
 		0, 3, 7, 0, 7, 4
 	};
-	_numElement = sizeof(indexArray) / sizeof(UINT);
-
+	_numElement = sizeof indexArray / sizeof(UINT);
 	_vertexBuffer->createStore(D3D11_BIND_VERTEX_BUFFER, vertexArray, sizeof vertexArray, D3D11_USAGE_IMMUTABLE);
 	_indexBuffer->createStore(D3D11_BIND_INDEX_BUFFER, indexArray, sizeof indexArray, D3D11_USAGE_IMMUTABLE);
 	_MVPMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
+	*_rotateMatrix = XMMatrixIdentity();
+	
+	_program = program;
+
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	Device->CreateInputLayout(layout, ARRAYSIZE(layout), _program->getEntryBufferPointer(), _program->getEntryBytecodeLength(), &_pInputLayout);
+}
+
+Engine::SkyBox::~SkyBox(void)
+{
+	delete _cubeTexture;
+	delete _vertexBuffer;
+	delete _indexBuffer;
+	delete _MVPMatrixBuffer;
+	_aligned_free(_rotateMatrix);
+	_pInputLayout->Release();
+}
+
+void Engine::SkyBox::load(const CHAR *posx, const CHAR *negx,
+	const CHAR *posy, const CHAR *negy,
+	const CHAR *posz, const CHAR *negz)
+{
+	_cubeTexture->loadCubeTextureFromFiles(posx, negx, posy, negy, posz, negz);
 }
 
 void Engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)

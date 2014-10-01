@@ -14,14 +14,28 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-Engine::Model::Model(void)
-	: _tMesh(NULL), _pInputLayout(NULL)
+Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
+	: _tMesh(NULL)
 {
 	_MVPMatrixBuffer = new Buffer;
 	_normalMatrixBuffer = new Buffer;
 	_ModelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_ModelMatrix, 16);
 
+	_MVPMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
+	_normalMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
 	matIdentity();
+
+	_gProgram = gProgram;
+	_smProgram = smProgram;
+
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "IN_TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 3 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "IN_NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 5 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "IN_TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 8 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	Device->CreateInputLayout(layout, ARRAYSIZE(layout), gProgram->getEntryBufferPointer(), gProgram->getEntryBytecodeLength(), &_pInputLayout);
 }
 
 Engine::Model::~Model(void)
@@ -33,10 +47,10 @@ Engine::Model::~Model(void)
 			delete (*_tMesh)[i];
 		delete _tMesh;
 	}
-	if (_pInputLayout) _pInputLayout->Release();
 	delete _MVPMatrixBuffer;
 	delete _normalMatrixBuffer;
 	_aligned_free(_ModelMatrix);
+	_pInputLayout->Release();
 }
 
 void Engine::Model::initMeshArray(void)
@@ -63,30 +77,6 @@ void Engine::Model::initMeshMirror(Model *m)
 	}
 	isMirror = TRUE;
 	_tMesh = m->_tMesh;
-}
-
-void Engine::Model::config(ShaderProgram *gProgram, ShaderProgram *smProgram)
-{
-	_gProgram = gProgram;
-	_smProgram = smProgram;
-
-	if (_pInputLayout) _pInputLayout->Release();
-
-	// Create and set the input layout
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "IN_TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 3 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "IN_NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 5 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "IN_TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 8 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	Device->CreateInputLayout(layout, ARRAYSIZE(layout), gProgram->getEntryBufferPointer(), gProgram->getEntryBytecodeLength(), &_pInputLayout);
-
-	// MVPMatrix Buffer
-	_MVPMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
-
-	// NormalMatrix Buffer
-	_normalMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
 }
 
 void Engine::Model::addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArray,

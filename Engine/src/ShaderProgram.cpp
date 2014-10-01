@@ -24,56 +24,10 @@ static void CompileShaderFromFile(const LPCWSTR szFileName, const std::string sz
 	if (pErrorBlob) pErrorBlob->Release();
 }
 
-Engine::ShaderProgram::ShaderProgram(void)
-	: _pVertexShader(NULL), _pHullShader(NULL), _pDomainShader(NULL), _pGeometryShader(NULL), _pPixelShader(NULL),
-	_pBlob(NULL)
-{
-}
-
-Engine::ShaderProgram::~ShaderProgram(void)
-{
-	if (_pVertexShader) _pVertexShader->Release();
-	if (_pHullShader) _pHullShader->Release();
-	if (_pDomainShader) _pDomainShader->Release();
-	if (_pGeometryShader) _pGeometryShader->Release();
-	if (_pPixelShader) _pPixelShader->Release();
-	if (_pBlob) _pBlob->Release();
-}
-
-void Engine::ShaderProgram::loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps)
+Engine::ShaderProgram::ShaderProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps)
+	: _pVertexShader(NULL), _pHullShader(NULL), _pDomainShader(NULL), _pGeometryShader(NULL), _pPixelShader(NULL), _pBlob(NULL)
 {
 	ID3DBlob *pTmpBlob;
-
-	if (_pVertexShader)
-	{
-		_pVertexShader->Release();
-		_pVertexShader = NULL;
-	}
-	if (_pHullShader)
-	{
-		_pHullShader->Release();
-		_pHullShader = NULL;
-	}
-	if (_pDomainShader)
-	{
-		_pDomainShader->Release();
-		_pDomainShader = NULL;
-	}
-	if (_pGeometryShader)
-	{
-		_pGeometryShader->Release();
-		_pGeometryShader = NULL;
-	}
-	if (_pPixelShader)
-	{
-		_pPixelShader->Release();
-		_pPixelShader = NULL;
-	}
-	if (_pBlob)
-	{
-		_pBlob->Release();
-		_pBlob = NULL;
-	}
 
 	// Compile and create the Vertex Shader
 	if (vs == NULL)
@@ -115,6 +69,16 @@ void Engine::ShaderProgram::loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCW
 		Device->CreatePixelShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pPixelShader);
 		pTmpBlob->Release();
 	}
+}
+
+Engine::ShaderProgram::~ShaderProgram(void)
+{
+	if (_pVertexShader) _pVertexShader->Release();
+	if (_pHullShader) _pHullShader->Release();
+	if (_pDomainShader) _pDomainShader->Release();
+	if (_pGeometryShader) _pGeometryShader->Release();
+	if (_pPixelShader) _pPixelShader->Release();
+	if (_pBlob) _pBlob->Release();
 }
 
 ID3D11VertexShader *Engine::ShaderProgram::getVertexShader(void) const

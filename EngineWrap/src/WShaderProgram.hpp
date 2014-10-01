@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning(disable:4561)
 
 #include <Engine/ShaderProgram.hpp>
 
@@ -9,8 +10,7 @@ namespace WEngine
 	private:
 		Engine::ShaderProgram *pShaderProgram;
 	public:
-		WShaderProgram(void);
+		WShaderProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps);
 		~WShaderProgram(void);
-		void loadProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps);
 	};
 }

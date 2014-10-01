@@ -54,7 +54,7 @@ static std::string ShaderVersion(const D3D_FEATURE_LEVEL &featureLevel)
 	return shaderLevel;
 }
 
-Engine::Renderer::Renderer(const TCHAR *szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
+Engine::Renderer::Renderer(const LPCTSTR szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
 {
 	ID3D11Texture2D *texture;
 
@@ -301,7 +301,7 @@ void Engine::Renderer::setState(void) const
 	DeviceContext->RSSetViewports(1, &_VP);
 }
 
-void Engine::Renderer::clear(void)
+void Engine::Renderer::clear(void) const
 {
 	DeviceContext->ClearRenderTargetView(_pRenderTargetView, Colors::Transparent);
 	DeviceContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);

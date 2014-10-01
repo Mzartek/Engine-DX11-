@@ -1,9 +1,5 @@
 #include "config.hpp"
 
-// Globales variables
-Engine::Renderer *renderer;
-Engine::Input *input;
-
 void GameManager::display(FLOAT state)
 {
 	renderer->clear();
@@ -64,6 +60,11 @@ void GameManager::reshape(UINT width, UINT height)
 	cam->setPerspective(90.0f, width, height, 0.1f, 1000.0f);
 }
 
+void GameManager::launch(void)
+{
+	renderer->mainLoop(this);
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hInstance);
@@ -71,13 +72,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	UNREFERENCED_PARAMETER(nCmdShow);
 
-	renderer = new Engine::Renderer(TEXT("Demo DirectX"), 800, 600, FALSE);
-	input = new Engine::Input(renderer->getWindow());
-
-	GameManager *game = new GameManager;
-	renderer->mainLoop(game);
+	Engine::Renderer *renderer = new Engine::Renderer(TEXT("Demo DirectX"), 800, 600, FALSE);
+	Engine::Input *input = new Engine::Input(renderer->getWindow());
+	GameManager *game = new GameManager(renderer, input);
+	
+	game->launch();
+	
 	delete game;
-
 	delete renderer;
 	delete input;
 

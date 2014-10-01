@@ -17,19 +17,18 @@ namespace Engine
 	private:
 		BOOL isMirror;
 		std::vector<Mesh *> *_tMesh;
-		ID3D11InputLayout *_pInputLayout;
 		Buffer *_MVPMatrixBuffer;
 		Buffer *_normalMatrixBuffer;
 		XMMATRIX *_ModelMatrix;
 		// ShaderProgram
 		ShaderProgram *_gProgram;
 		ShaderProgram *_smProgram;
+		ID3D11InputLayout *_pInputLayout;
 	public:
-		Model(void);
+		Model(ShaderProgram *gProgram, ShaderProgram *smProgram);
 		~Model(void);
 		void initMeshArray(void);
 		void initMeshMirror(Model *m);
-		void config(ShaderProgram *gProgram, ShaderProgram *smProgram);
 		void addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 				  const UINT &sizeIndexArray, const UINT *indexArray,
 				  const CHAR *colorTexture, const CHAR *NMTexture,

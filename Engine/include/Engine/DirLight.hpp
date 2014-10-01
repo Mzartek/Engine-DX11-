@@ -15,9 +15,8 @@ namespace Engine
 			INT withShadowMapping;
 		} _lightInfo;
 	public:
-		DirLight(void);
+		DirLight(ShaderProgram *program);
 		~DirLight(void);
-		void config(ShaderProgram *program);
 		void setColor(const XMFLOAT3 &color);
 		void setDirection(const XMFLOAT3 &dir);
 		void setShadowMapping(const BOOL &shadow);

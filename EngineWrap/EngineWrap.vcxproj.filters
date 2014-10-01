@@ -14,9 +14,15 @@
     <ClInclude Include="src\WShaderProgram.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="src\WRenderer.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\WShaderProgram.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WRenderer.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>

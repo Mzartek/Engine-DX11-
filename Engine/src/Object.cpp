@@ -82,7 +82,7 @@ INT Engine::Object::getMemoryState(void)
 	return _memState;
 }
 
-void Engine::Object::saveMemoryInfo(const TCHAR *filename)
+void Engine::Object::saveMemoryInfo(const LPCTSTR filename)
 {
 	std::ofstream file(filename, std::ifstream::out);
 	unsigned int i;

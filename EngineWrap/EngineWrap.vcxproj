@@ -76,9 +76,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\WRenderer.cpp" />
     <ClCompile Include="src\WShaderProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\WRenderer.hpp" />
     <ClInclude Include="src\WShaderProgram.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

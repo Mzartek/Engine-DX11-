@@ -7,35 +7,11 @@
 extern ID3D11Device1 *Device;
 extern ID3D11DeviceContext1 *DeviceContext;
 
-Engine::Screen::Screen(void)
-	: _pInputLayout(NULL)
+Engine::Screen::Screen(ShaderProgram *backgroundProgram, ShaderProgram *directProgram)
 {
 	_vertexBuffer = new Buffer;
 	_screenColorBuffer = new Buffer;
-}
 
-Engine::Screen::~Screen(void)
-{
-	if (_pInputLayout) _pInputLayout->Release();
-	delete _vertexBuffer;
-	delete _screenColorBuffer;
-}
-
-void Engine::Screen::config(ShaderProgram *backgroundProgram, ShaderProgram *directProgram)
-{
-	_backgroundProgram = backgroundProgram;
-	_directProgram = directProgram;
-
-	if (_pInputLayout) _pInputLayout->Release();
-
-	// Create Input Layout
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	Device->CreateInputLayout(layout, ARRAYSIZE(layout), _directProgram->getEntryBufferPointer(), _directProgram->getEntryBytecodeLength(), &_pInputLayout);
-
-	// Create Vertex Buffer
 	FLOAT vertex[] = {
 		-1, -1,
 		1, -1,
@@ -43,9 +19,23 @@ void Engine::Screen::config(ShaderProgram *backgroundProgram, ShaderProgram *dir
 		1, 1,
 	};
 	_vertexBuffer->createStore(D3D11_BIND_VERTEX_BUFFER, vertex, sizeof vertex, D3D11_USAGE_IMMUTABLE);
-
-	// Create Color Buffer
 	_screenColorBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMFLOAT4, D3D11_USAGE_DYNAMIC);
+
+	_backgroundProgram = backgroundProgram;
+	_directProgram = directProgram;
+
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	Device->CreateInputLayout(layout, ARRAYSIZE(layout), _directProgram->getEntryBufferPointer(), _directProgram->getEntryBytecodeLength(), &_pInputLayout);
+}
+
+Engine::Screen::~Screen(void)
+{
+	delete _vertexBuffer;
+	delete _screenColorBuffer;
+	_pInputLayout->Release();
 }
 
 void Engine::Screen::background(GBuffer *gbuf)
