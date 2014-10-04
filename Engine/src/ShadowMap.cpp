@@ -1,9 +1,7 @@
 #include <Engine/ShadowMap.hpp>
 
-extern ID3D11Device1 *Device;
-extern ID3D11DeviceContext1 *DeviceContext;
-
-Engine::ShadowMap::ShadowMap(void)
+Engine::ShadowMap::ShadowMap(const EngineDevice &EngineDevice)
+	: FrameBuffer(EngineDevice)
 {
 	// Shader Resource View
 	_pShaderResourceView = NULL;
@@ -65,11 +63,11 @@ void Engine::ShadowMap::config(const UINT &width, const UINT &height)
 	descDepthView.Texture2D.MipSlice = 0;
 	
 	descTexture.Format = DXGI_FORMAT_R24G8_TYPELESS;
-	Device->CreateTexture2D(&descTexture, NULL, &texture);
+	_EngineDevice.Device->CreateTexture2D(&descTexture, NULL, &texture);
 	descShaderResourceView.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-	Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
+	_EngineDevice.Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
 	descDepthView.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	Device->CreateDepthStencilView(texture, &descDepthView, &_pDepthView);
+	_EngineDevice.Device->CreateDepthStencilView(texture, &descDepthView, &_pDepthView);
 	texture->Release();
 	
 	// State
@@ -78,7 +76,7 @@ void Engine::ShadowMap::config(const UINT &width, const UINT &height)
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
-	Device->CreateDepthStencilState(&descDepth, &_pDepthState);
+	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pDepthState);
 
 	D3D11_RASTERIZER_DESC descRasterizer;
 	descRasterizer.FillMode = D3D11_FILL_SOLID;
@@ -91,7 +89,7 @@ void Engine::ShadowMap::config(const UINT &width, const UINT &height)
 	descRasterizer.ScissorEnable = FALSE;
 	descRasterizer.MultisampleEnable = FALSE;
 	descRasterizer.AntialiasedLineEnable = FALSE;
-	Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
+	_EngineDevice.Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 
 	D3D11_SAMPLER_DESC descSampler;
 	descSampler.Filter = D3D11_FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR;
@@ -107,7 +105,7 @@ void Engine::ShadowMap::config(const UINT &width, const UINT &height)
 	descSampler.BorderColor[3] = 1.0f;
 	descSampler.MinLOD = 0;
 	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	Device->CreateSamplerState(&descSampler, &_pSamplerComparisonState);
+	_EngineDevice.Device->CreateSamplerState(&descSampler, &_pSamplerComparisonState);
 
 	// Create the Viewport
 	_VP.TopLeftX = 0.0f;
@@ -130,14 +128,14 @@ ID3D11SamplerState *Engine::ShadowMap::getSamplerComparisonState(void) const
 
 void Engine::ShadowMap::setState(void) const
 {
-	DeviceContext->OMSetRenderTargets(0, NULL, _pDepthView);
-	DeviceContext->OMSetDepthStencilState(_pDepthState, 0);
-	DeviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
-	DeviceContext->RSSetState(_pRasterizerState);
-	DeviceContext->RSSetViewports(1, &_VP);
+	_EngineDevice.DeviceContext->OMSetRenderTargets(0, NULL, _pDepthView);
+	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pDepthState, 0);
+	_EngineDevice.DeviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
+	_EngineDevice.DeviceContext->RSSetState(_pRasterizerState);
+	_EngineDevice.DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void Engine::ShadowMap::clear(void) const
 {
-	DeviceContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	_EngineDevice.DeviceContext->ClearDepthStencilView(_pDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

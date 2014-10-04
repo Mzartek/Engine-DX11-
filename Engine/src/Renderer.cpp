@@ -1,10 +1,5 @@
 #include <Engine/Renderer.hpp>
 
-D3D_FEATURE_LEVEL FeatureLevel;
-std::string ShaderLevel;
-ID3D11Device1 *Device = NULL;
-ID3D11DeviceContext1 *DeviceContext = NULL;
-
 Engine::GameLoop::GameLoop(void){}
 Engine::GameLoop::~GameLoop(void){}
 
@@ -61,9 +56,6 @@ Engine::Renderer::Renderer(const LPCTSTR szTitle, const UINT &width, const UINT 
 	_width = width;
 	_height = height;
 
-	if (Device) Device->Release();
-	if (DeviceContext) DeviceContext->Release();
-
 	WNDCLASS wcex;
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc = WndProc;
@@ -116,23 +108,23 @@ Engine::Renderer::Renderer(const LPCTSTR szTitle, const UINT &width, const UINT 
 	sfd.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	sfd.Windowed = !fullScreen;
 
-	D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &pd3dDevice, &FeatureLevel, &pd3dDeviceContext);
-	pd3dDevice->QueryInterface(__uuidof(ID3D11Device1), reinterpret_cast<void**>(&Device));
-	pd3dDeviceContext->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void**>(&DeviceContext));
+	D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &pd3dDevice, &_EngineDevice.FeatureLevel, &pd3dDeviceContext);
+	pd3dDevice->QueryInterface(__uuidof(ID3D11Device1), reinterpret_cast<void**>(&_EngineDevice.Device));
+	pd3dDeviceContext->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void**>(&_EngineDevice.DeviceContext));
 	CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pFactory1));
 	pFactory1->QueryInterface(__uuidof(IDXGIFactory2), reinterpret_cast<void**>(&pFactory2));
-	pFactory2->CreateSwapChainForHwnd(Device, _hWnd, &sd, &sfd, NULL, &_pSwapChain);
+	pFactory2->CreateSwapChainForHwnd(_EngineDevice.Device, _hWnd, &sd, &sfd, NULL, &_pSwapChain);
 
 	pd3dDevice->Release();
 	pd3dDeviceContext->Release();
 	pFactory1->Release();
 	pFactory2->Release();
 
-	ShaderLevel = ShaderVersion(FeatureLevel);
+	_EngineDevice.ShaderLevel = ShaderVersion(_EngineDevice.FeatureLevel);
 
 	// Create the RenderTargetView
 	_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&texture));
-	Device->CreateRenderTargetView(texture, NULL, &_pRenderTargetView);
+	_EngineDevice.Device->CreateRenderTargetView(texture, NULL, &_pRenderTargetView);
 	texture->Release();
 
 	// Create the DepthStencilTexture
@@ -148,7 +140,7 @@ Engine::Renderer::Renderer(const LPCTSTR szTitle, const UINT &width, const UINT 
 	descDepthStencilTexture.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	descDepthStencilTexture.CPUAccessFlags = 0;
 	descDepthStencilTexture.MiscFlags = 0;
-	Device->CreateTexture2D(&descDepthStencilTexture, NULL, &texture);
+	_EngineDevice.Device->CreateTexture2D(&descDepthStencilTexture, NULL, &texture);
 
 	// Create the DepthStencilView
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDepthStencilView;
@@ -156,7 +148,7 @@ Engine::Renderer::Renderer(const LPCTSTR szTitle, const UINT &width, const UINT 
 	descDepthStencilView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDepthStencilView.Flags = 0;
 	descDepthStencilView.Texture2D.MipSlice = 0;
-	Device->CreateDepthStencilView(texture, &descDepthStencilView, &_pDepthStencilView);
+	_EngineDevice.Device->CreateDepthStencilView(texture, &descDepthStencilView, &_pDepthStencilView);
 	texture->Release();
 
 	// Create the DepthStencilState
@@ -164,7 +156,7 @@ Engine::Renderer::Renderer(const LPCTSTR szTitle, const UINT &width, const UINT 
 	descDepth.DepthEnable = FALSE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	descDepth.StencilEnable = FALSE;
-	Device->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
 
 	// Create the BlendState
 	D3D11_BLEND_DESC descBlend;
@@ -178,7 +170,7 @@ Engine::Renderer::Renderer(const LPCTSTR szTitle, const UINT &width, const UINT 
 	descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	Device->CreateBlendState(&descBlend, &_pBlendState);
+	_EngineDevice.Device->CreateBlendState(&descBlend, &_pBlendState);
 
 	// Create the RasterizerState
 	D3D11_RASTERIZER_DESC descRasterizer;
@@ -192,7 +184,7 @@ Engine::Renderer::Renderer(const LPCTSTR szTitle, const UINT &width, const UINT 
 	descRasterizer.ScissorEnable = FALSE;
 	descRasterizer.MultisampleEnable = FALSE;
 	descRasterizer.AntialiasedLineEnable = FALSE;
-	Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
+	_EngineDevice.Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 
 	// Create the Viewport
 	_VP.TopLeftX = 0.0f;
@@ -206,8 +198,8 @@ Engine::Renderer::Renderer(const LPCTSTR szTitle, const UINT &width, const UINT 
 Engine::Renderer::~Renderer(void)
 {
 	// Device
-	if (Device) Device->Release();
-	if (DeviceContext) DeviceContext->Release();
+	_EngineDevice.Device->Release();
+	_EngineDevice.DeviceContext->Release();
 	// SwapChain
 	_pSwapChain->Release();
 	// View
@@ -232,6 +224,11 @@ UINT Engine::Renderer::getHeight(void)
 HWND Engine::Renderer::getWindow(void)
 {
 	return _hWnd;
+}
+
+Engine::EngineDevice Engine::Renderer::getEngineDevice(void)
+{
+	return _EngineDevice;
 }
 
 static long long milliseconds_now()
@@ -294,15 +291,15 @@ void Engine::Renderer::stopLoop(void)
 
 void Engine::Renderer::setState(void) const
 {
-	DeviceContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
-	DeviceContext->OMSetDepthStencilState(_pDepthStencilState, 0);
-	DeviceContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
-	DeviceContext->RSSetState(_pRasterizerState);
-	DeviceContext->RSSetViewports(1, &_VP);
+	_EngineDevice.DeviceContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
+	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pDepthStencilState, 0);
+	_EngineDevice.DeviceContext->OMSetBlendState(_pBlendState, NULL, 0xFFFFFFFF);
+	_EngineDevice.DeviceContext->RSSetState(_pRasterizerState);
+	_EngineDevice.DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void Engine::Renderer::clear(void) const
 {
-	DeviceContext->ClearRenderTargetView(_pRenderTargetView, Colors::Transparent);
-	DeviceContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	_EngineDevice.DeviceContext->ClearRenderTargetView(_pRenderTargetView, Colors::Transparent);
+	_EngineDevice.DeviceContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }

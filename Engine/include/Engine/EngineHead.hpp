@@ -25,4 +25,15 @@
 
 using namespace DirectX;
 
+namespace Engine
+{
+	struct EngineDevice
+	{
+		D3D_FEATURE_LEVEL FeatureLevel;
+		std::string ShaderLevel;
+		ID3D11Device1 *Device;
+		ID3D11DeviceContext1 *DeviceContext;
+	};
+}
+
 #endif

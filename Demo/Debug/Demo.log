@@ -1,4 +1,4 @@
-﻿La génération a démarré 01/10/2014 22:42:37.
+﻿La génération a démarré 05/10/2014 00:40:32.
      1>Projet "C:\Users\Mzartek\Desktop\Programmation\Engine-DX11-\Demo\Demo.vcxproj" sur le nœud 2 (Build cible(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W4 /WX- /sdl /Od /Oy- /D WIN32 /D DEBUG /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt src\config.cpp src\main.cpp
@@ -16,4 +16,4 @@
 
 La génération a réussi.
 
-Temps écoulé 00:00:07.19
+Temps écoulé 00:00:07.99

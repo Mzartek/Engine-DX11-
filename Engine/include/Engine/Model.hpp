@@ -15,6 +15,7 @@ namespace Engine
 	class DLLAPI Model : public Object
 	{
 	private:
+		EngineDevice _EngineDevice;
 		BOOL isMirror;
 		std::vector<Mesh *> *_tMesh;
 		Buffer *_MVPMatrixBuffer;
@@ -25,7 +26,7 @@ namespace Engine
 		ShaderProgram *_smProgram;
 		ID3D11InputLayout *_pInputLayout;
 	public:
-		Model(ShaderProgram *gProgram, ShaderProgram *smProgram);
+		Model(const EngineDevice &EngineDevice, ShaderProgram *gProgram, ShaderProgram *smProgram);
 		~Model(void);
 		void initMeshArray(void);
 		void initMeshMirror(Model *m);

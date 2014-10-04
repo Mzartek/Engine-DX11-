@@ -17,7 +17,7 @@ namespace Engine
 			INT __declspec(align(16)) withShadowMapping;
 		} _lightInfo;
 	public:
-		SpotLight(ShaderProgram *program);
+		SpotLight(const EngineDevice &EngineDevice, ShaderProgram *program);
 		~SpotLight(void);
 		void setColor(const XMFLOAT3 &color);
 		void setPosition(const XMFLOAT3 &position);

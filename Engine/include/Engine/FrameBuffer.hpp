@@ -8,11 +8,12 @@ namespace Engine
 	class DLLAPI FrameBuffer : public Object
 	{
 	protected:
+		EngineDevice _EngineDevice;
 		UINT _width;
 		UINT _height;
 		D3D11_VIEWPORT _VP;
 	public:
-		FrameBuffer(void);
+		FrameBuffer(const EngineDevice &EngineDevice);
 		~FrameBuffer(void);
 		virtual void config(const UINT &width, const UINT &height);
 		UINT getWidth(void) const;

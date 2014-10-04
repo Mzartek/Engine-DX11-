@@ -14,6 +14,7 @@ namespace Engine
 	class DLLAPI Light : public Object
 	{
 	protected:
+		EngineDevice _EngineDevice;
 		Buffer *_vertexBuffer;
 		Buffer *_shadowMatrixBuffer;
 		Buffer *_IVPMatrixBuffer;
@@ -25,7 +26,7 @@ namespace Engine
 		ShadowMap *_shadow;
 		XMMATRIX *_VPMatrix;
 	public:
-		Light(void);
+		Light(const EngineDevice &EngineDevice, ShaderProgram *program);
 		~Light(void);
 		void configShadowMap(const UINT &width, const UINT &height);
 		XMMATRIX getVPMatrix(void) const;

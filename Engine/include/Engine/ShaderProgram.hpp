@@ -15,7 +15,7 @@ namespace Engine
 		ID3D11PixelShader *_pPixelShader;
 		ID3DBlob *_pBlob;
 	public:
-		ShaderProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps);
+		ShaderProgram(const EngineDevice &EngineDevice, LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps);
 		~ShaderProgram(void);
 		ID3D11VertexShader *getVertexShader(void) const;
 		ID3D11HullShader *getHullShader(void) const;

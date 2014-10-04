@@ -5,15 +5,13 @@
 #include <Engine/GBuffer.hpp>
 #include <Engine/Camera.hpp>
 
-extern ID3D11Device1 *Device;
-extern ID3D11DeviceContext1 *DeviceContext;
-
-Engine::SkyBox::SkyBox(ShaderProgram *program)
+Engine::SkyBox::SkyBox(const EngineDevice &EngineDevice, ShaderProgram *program)
 {
-	_cubeTexture = new Texture;
-	_vertexBuffer = new Buffer;
-	_indexBuffer = new Buffer;
-	_MVPMatrixBuffer = new Buffer;
+	_EngineDevice = EngineDevice;
+	_cubeTexture = new Texture(_EngineDevice);
+	_vertexBuffer = new Buffer(_EngineDevice);
+	_indexBuffer = new Buffer(_EngineDevice);
+	_MVPMatrixBuffer = new Buffer(_EngineDevice);
 	_rotateMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_rotateMatrix, 16);
 
 	FLOAT vertexArray[] =
@@ -48,7 +46,7 @@ Engine::SkyBox::SkyBox(ShaderProgram *program)
 	{
 		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	Device->CreateInputLayout(layout, ARRAYSIZE(layout), _program->getEntryBufferPointer(), _program->getEntryBytecodeLength(), &_pInputLayout);
+	_EngineDevice.Device->CreateInputLayout(layout, ARRAYSIZE(layout), _program->getEntryBufferPointer(), _program->getEntryBytecodeLength(), &_pInputLayout);
 }
 
 Engine::SkyBox::~SkyBox(void)
@@ -81,11 +79,11 @@ void Engine::SkyBox::display(GBuffer *gbuf, Camera *cam)
 
 	gbuf->setSkyboxState();
 
-	DeviceContext->VSSetShader(_program->getVertexShader(), NULL, 0);
-	DeviceContext->HSSetShader(_program->getHullShader(), NULL, 0);
-	DeviceContext->DSSetShader(_program->getDomainShader(), NULL, 0);
-	DeviceContext->GSSetShader(_program->getGeometryShader(), NULL, 0);
-	DeviceContext->PSSetShader(_program->getPixelShader(), NULL, 0);
+	_EngineDevice.DeviceContext->VSSetShader(_program->getVertexShader(), NULL, 0);
+	_EngineDevice.DeviceContext->HSSetShader(_program->getHullShader(), NULL, 0);
+	_EngineDevice.DeviceContext->DSSetShader(_program->getDomainShader(), NULL, 0);
+	_EngineDevice.DeviceContext->GSSetShader(_program->getGeometryShader(), NULL, 0);
+	_EngineDevice.DeviceContext->PSSetShader(_program->getPixelShader(), NULL, 0);
 
 	_MVPMatrixBuffer->updateStoreMap(&pos);
 
@@ -93,18 +91,18 @@ void Engine::SkyBox::display(GBuffer *gbuf, Camera *cam)
 	{
 		_MVPMatrixBuffer->getBuffer(),
 	};
-	DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+	_EngineDevice.DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
 	ID3D11ShaderResourceView *pshr[] =
 	{
 		_cubeTexture->getShaderResourceView(),
 	};
-	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	_EngineDevice.DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
 	ID3D11SamplerState *psam[] =
 	{
 		_cubeTexture->getSamplerState(),
 	};
-	DeviceContext->PSSetSamplers(0, ARRAYSIZE(psam), psam);
+	_EngineDevice.DeviceContext->PSSetSamplers(0, ARRAYSIZE(psam), psam);
 
 	// Vertex And Index Buffer
 	UINT stride = 3 * sizeof(FLOAT), offset = 0;
@@ -113,9 +111,9 @@ void Engine::SkyBox::display(GBuffer *gbuf, Camera *cam)
 		_vertexBuffer->getBuffer(),
 		_indexBuffer->getBuffer(),
 	};
-	DeviceContext->IASetVertexBuffers(0, 1, &drawBuf[0], &stride, &offset);
-	DeviceContext->IASetIndexBuffer(drawBuf[1], DXGI_FORMAT_R32_UINT, offset);
-	DeviceContext->IASetInputLayout(_pInputLayout);
-	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	DeviceContext->DrawIndexed(_numElement, 0, 0);
+	_EngineDevice.DeviceContext->IASetVertexBuffers(0, 1, &drawBuf[0], &stride, &offset);
+	_EngineDevice.DeviceContext->IASetIndexBuffer(drawBuf[1], DXGI_FORMAT_R32_UINT, offset);
+	_EngineDevice.DeviceContext->IASetInputLayout(_pInputLayout);
+	_EngineDevice.DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	_EngineDevice.DeviceContext->DrawIndexed(_numElement, 0, 0);
 }

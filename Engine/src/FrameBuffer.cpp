@@ -1,7 +1,8 @@
 #include <Engine/FrameBuffer.hpp>
 
-Engine::FrameBuffer::FrameBuffer(void)
+Engine::FrameBuffer::FrameBuffer(const EngineDevice &EngineDevice)
 {
+	_EngineDevice = EngineDevice;
 }
 
 Engine::FrameBuffer::~FrameBuffer(void)

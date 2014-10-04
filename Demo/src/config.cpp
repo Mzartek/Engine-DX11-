@@ -1,29 +1,29 @@
 #include "config.hpp"
 
-GameManager::GameManager(Engine::Renderer *r, Engine::Input *i)
+GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 {
-	renderer = r;
-	input = i;
+	this->renderer = renderer;
+	this->input = input;
 
-	skyboxProgram = new Engine::ShaderProgram(TEXT("shader/skybox/skyboxVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/skybox/skyboxPixel.hlsl"));
-	objectProgram = new Engine::ShaderProgram(TEXT("shader/object/objectVertex.hlsl"), NULL, NULL, TEXT("shader/object/objectGeom.hlsl"), TEXT("shader/object/objectPixel.hlsl"));
-	dirLightProgram = new Engine::ShaderProgram(TEXT("shader/dirLight/dirLightVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/dirLight/dirLightPixel.hlsl"));
-	spotLightProgram = new Engine::ShaderProgram(TEXT("shader/spotLight/spotLightVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/spotLight/spotLightPixel.hlsl"));
-	shadowMapProgram = new Engine::ShaderProgram(TEXT("shader/shadowMap/shadowMapVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/shadowMap/shadowMapPixel.hlsl"));
-	backgroundProgram = new Engine::ShaderProgram(TEXT("shader/background/backgroundVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/background/backgroundPixel.hlsl"));
-	screenProgram = new Engine::ShaderProgram(TEXT("shader/screen/screenVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/screen/screenPixel.hlsl"));
+	skyboxProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/skybox/skyboxVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/skybox/skyboxPixel.hlsl"));
+	objectProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/object/objectVertex.hlsl"), NULL, NULL, TEXT("shader/object/objectGeom.hlsl"), TEXT("shader/object/objectPixel.hlsl"));
+	dirLightProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/dirLight/dirLightVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/dirLight/dirLightPixel.hlsl"));
+	spotLightProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/spotLight/spotLightVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/spotLight/spotLightPixel.hlsl"));
+	shadowMapProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/shadowMap/shadowMapVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/shadowMap/shadowMapPixel.hlsl"));
+	backgroundProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/background/backgroundVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/background/backgroundPixel.hlsl"));
+	screenProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/screen/screenVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/screen/screenPixel.hlsl"));
 
-	gBuffer = new Engine::GBuffer;
+	gBuffer = new Engine::GBuffer(this->renderer->getEngineDevice());
 	cam = new Engine::FreeCam;
-	skybox = new Engine::SkyBox(skyboxProgram);
-	sol = new Engine::Model(objectProgram, shadowMapProgram);
-	heli = new Engine::Model(objectProgram, shadowMapProgram);
-	sun = new Engine::DirLight(dirLightProgram);
-	torch = new Engine::SpotLight(spotLightProgram);
-	screen = new Engine::Screen(backgroundProgram, screenProgram);
+	skybox = new Engine::SkyBox(this->renderer->getEngineDevice(), skyboxProgram);
+	sol = new Engine::Model(this->renderer->getEngineDevice(), objectProgram, shadowMapProgram);
+	heli = new Engine::Model(this->renderer->getEngineDevice(), objectProgram, shadowMapProgram);
+	sun = new Engine::DirLight(this->renderer->getEngineDevice(), dirLightProgram);
+	torch = new Engine::SpotLight(this->renderer->getEngineDevice(), spotLightProgram);
+	screen = new Engine::Screen(this->renderer->getEngineDevice(), backgroundProgram, screenProgram);
 
 	// GBuffer config
-	gBuffer->config(renderer->getWidth(), renderer->getHeight());
+	gBuffer->config(this->renderer->getWidth(), this->renderer->getHeight());
 
 	// Camera config
 	cam->setPositionCamera(XMFLOAT3(30, 10, 0));

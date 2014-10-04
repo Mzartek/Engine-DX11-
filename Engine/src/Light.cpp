@@ -3,17 +3,18 @@
 #include <Engine/ShadowMap.hpp>
 #include <Engine/ShaderProgram.hpp>
 
-extern ID3D11Device1 *Device;
-
-Engine::Light::Light(void)
+Engine::Light::Light(const EngineDevice &EngineDevice, ShaderProgram *program)
 {
-	_vertexBuffer = new Buffer;
-	_shadowMatrixBuffer = new Buffer;
-	_IVPMatrixBuffer = new Buffer;
-	_screenBuffer = new Buffer;
-	_cameraBuffer = new Buffer;
-	_lightInfoBuffer = new Buffer;
-	_shadow = new ShadowMap;
+	_EngineDevice = EngineDevice;
+	_program = program;
+
+	_vertexBuffer = new Buffer(_EngineDevice);
+	_shadowMatrixBuffer = new Buffer(_EngineDevice);
+	_IVPMatrixBuffer = new Buffer(_EngineDevice);
+	_screenBuffer = new Buffer(_EngineDevice);
+	_cameraBuffer = new Buffer(_EngineDevice);
+	_lightInfoBuffer = new Buffer(_EngineDevice);
+	_shadow = new ShadowMap(_EngineDevice);
 	_VPMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_VPMatrix, 16);
 
 	FLOAT vertex[] = 

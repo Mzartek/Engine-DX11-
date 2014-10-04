@@ -16,6 +16,7 @@ namespace Engine
 	class DLLAPI SkyBox : public Object
 	{
 	private:
+		EngineDevice _EngineDevice;
 		Texture *_cubeTexture;
 		Buffer *_vertexBuffer;
 		Buffer *_indexBuffer;
@@ -25,7 +26,7 @@ namespace Engine
 		ID3D11InputLayout *_pInputLayout;
 		UINT _numElement;
 	public:
-		SkyBox(ShaderProgram *program);
+		SkyBox(const EngineDevice &EngineDevice, ShaderProgram *program);
 		~SkyBox(void);
 		void load(const CHAR *posx, const CHAR *negx,
 			const CHAR *posy, const CHAR *negy,

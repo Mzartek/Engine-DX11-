@@ -2,15 +2,14 @@
 #include <Engine/Texture.hpp>
 #include <Engine/Buffer.hpp>
 
-extern ID3D11DeviceContext1 *DeviceContext;
-
-Engine::Mesh::Mesh(void)
+Engine::Mesh::Mesh(const EngineDevice &EngineDevice)
 {
-	_colorTexture = new Texture;
-	_NMTexture = new Texture;
-	_vertexBuffer = new Buffer;
-	_indexBuffer = new Buffer;
-	_materialBuffer = new Buffer;
+	_EngineDevice = EngineDevice;
+	_colorTexture = new Texture(_EngineDevice);
+	_NMTexture = new Texture(_EngineDevice);
+	_vertexBuffer = new Buffer(_EngineDevice);
+	_indexBuffer = new Buffer(_EngineDevice);
+	_materialBuffer = new Buffer(_EngineDevice);
 
 	_materialBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _material, D3D11_USAGE_DYNAMIC);
 }
@@ -78,20 +77,20 @@ void Engine::Mesh::display(void) const
 		_colorTexture->getShaderResourceView(),
 		_NMTexture->getShaderResourceView(),
 	};
-	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	_EngineDevice.DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
 	ID3D11SamplerState *psam[] =
 	{
 		_colorTexture->getSamplerState(),
 		_NMTexture->getSamplerState(),
 	};
-	DeviceContext->PSSetSamplers(0, ARRAYSIZE(psam), psam);
+	_EngineDevice.DeviceContext->PSSetSamplers(0, ARRAYSIZE(psam), psam);
 
 	_materialBuffer->updateStoreMap(&_material);
 	ID3D11Buffer *buf[] =
 	{
 		_materialBuffer->getBuffer(),
 	};
-	DeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+	_EngineDevice.DeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
 	UINT stride = 11 * sizeof(FLOAT), offset = 0;
 	ID3D11Buffer *drawBuf[] =
@@ -99,9 +98,9 @@ void Engine::Mesh::display(void) const
 		_vertexBuffer->getBuffer(),
 		_indexBuffer->getBuffer(),
 	};
-	DeviceContext->IASetVertexBuffers(0, 1, &drawBuf[0], &stride, &offset);
-	DeviceContext->IASetIndexBuffer(drawBuf[1], DXGI_FORMAT_R32_UINT, offset);
-	DeviceContext->DrawIndexed(_numElement, 0, 0);
+	_EngineDevice.DeviceContext->IASetVertexBuffers(0, 1, &drawBuf[0], &stride, &offset);
+	_EngineDevice.DeviceContext->IASetIndexBuffer(drawBuf[1], DXGI_FORMAT_R32_UINT, offset);
+	_EngineDevice.DeviceContext->DrawIndexed(_numElement, 0, 0);
 }
 
 void Engine::Mesh::displayShadow(void) const
@@ -110,12 +109,12 @@ void Engine::Mesh::displayShadow(void) const
 	{
 		_colorTexture->getShaderResourceView(),
 	};
-	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	_EngineDevice.DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
 	ID3D11SamplerState *psam[] =
 	{
 		_colorTexture->getSamplerState(),
 	};
-	DeviceContext->PSSetSamplers(0, ARRAYSIZE(psam), psam);
+	_EngineDevice.DeviceContext->PSSetSamplers(0, ARRAYSIZE(psam), psam);
 
 	UINT stride = 11 * sizeof(FLOAT), offset = 0;
 	ID3D11Buffer *drawBuf[] =
@@ -123,9 +122,9 @@ void Engine::Mesh::displayShadow(void) const
 		_vertexBuffer->getBuffer(),
 		_indexBuffer->getBuffer(),
 	};
-	DeviceContext->IASetVertexBuffers(0, 1, &drawBuf[0], &stride, &offset);
-	DeviceContext->IASetIndexBuffer(drawBuf[1], DXGI_FORMAT_R32_UINT, offset);
-	DeviceContext->DrawIndexed(_numElement, 0, 0);
+	_EngineDevice.DeviceContext->IASetVertexBuffers(0, 1, &drawBuf[0], &stride, &offset);
+	_EngineDevice.DeviceContext->IASetIndexBuffer(drawBuf[1], DXGI_FORMAT_R32_UINT, offset);
+	_EngineDevice.DeviceContext->DrawIndexed(_numElement, 0, 0);
 }
 
 int Engine::comparMesh(const void *p1, const void *p2)

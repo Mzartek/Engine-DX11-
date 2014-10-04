@@ -1,11 +1,9 @@
 #include "Engine/Buffer.hpp"
 
-extern ID3D11Device1 *Device;
-extern ID3D11DeviceContext1 *DeviceContext;
-
-Engine::Buffer::Buffer(void)
+Engine::Buffer::Buffer(const EngineDevice &EngineDevice)
 	: _target(D3D11_BIND_VERTEX_BUFFER), _pBuffer(NULL), _size(0)
 {
+	_EngineDevice = EngineDevice;
 }
 
 Engine::Buffer::~Buffer(void)
@@ -47,15 +45,15 @@ void Engine::Buffer::createStore(const D3D11_BIND_FLAG &target, const void *data
 		dt.pSysMem = data;
 		dt.SysMemPitch = 0;
 		dt.SysMemSlicePitch = 0;
-		Device->CreateBuffer(&bd, &dt, &_pBuffer);
+		_EngineDevice.Device->CreateBuffer(&bd, &dt, &_pBuffer);
 	}
 	else
-		Device->CreateBuffer(&bd, NULL, &_pBuffer);
+		_EngineDevice.Device->CreateBuffer(&bd, NULL, &_pBuffer);
 }
 
 void Engine::Buffer::updateStoreSub(const void *data)
 {
-	DeviceContext->UpdateSubresource(_pBuffer, 0, NULL, data, 0, 0);
+	_EngineDevice.DeviceContext->UpdateSubresource(_pBuffer, 0, NULL, data, 0, 0);
 }
 
 void Engine::Buffer::updateStoreMap(const void *data)
@@ -63,7 +61,7 @@ void Engine::Buffer::updateStoreMap(const void *data)
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 
 	ZeroMemory(&mappedResource, sizeof mappedResource);
-	DeviceContext->Map(_pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	_EngineDevice.DeviceContext->Map(_pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	memcpy(mappedResource.pData, data, _size);
-	DeviceContext->Unmap(_pBuffer, 0);
+	_EngineDevice.DeviceContext->Unmap(_pBuffer, 0);
 }

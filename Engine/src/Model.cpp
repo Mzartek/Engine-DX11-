@@ -11,14 +11,12 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-extern ID3D11Device1 *Device;
-extern ID3D11DeviceContext1 *DeviceContext;
-
-Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
+Engine::Model::Model(const EngineDevice &EngineDevice, ShaderProgram *gProgram, ShaderProgram *smProgram)
 	: _tMesh(NULL)
 {
-	_MVPMatrixBuffer = new Buffer;
-	_normalMatrixBuffer = new Buffer;
+	_EngineDevice = EngineDevice;
+	_MVPMatrixBuffer = new Buffer(_EngineDevice);
+	_normalMatrixBuffer = new Buffer(_EngineDevice);
 	_ModelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_ModelMatrix, 16);
 
 	_MVPMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
@@ -35,7 +33,7 @@ Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
 		{ "IN_NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 5 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "IN_TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 8 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	Device->CreateInputLayout(layout, ARRAYSIZE(layout), gProgram->getEntryBufferPointer(), gProgram->getEntryBytecodeLength(), &_pInputLayout);
+	_EngineDevice.Device->CreateInputLayout(layout, ARRAYSIZE(layout), gProgram->getEntryBufferPointer(), gProgram->getEntryBytecodeLength(), &_pInputLayout);
 }
 
 Engine::Model::~Model(void)
@@ -84,7 +82,7 @@ void Engine::Model::addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArra
 	const CHAR *colorTexture, const CHAR *NMTexture,
 	const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess)
 {
-	Mesh *newone = new Mesh;
+	Mesh *newone = new Mesh(_EngineDevice);
 
 	newone->setColorTexture(colorTexture);
 	newone->setNMTexture(NMTexture);
@@ -257,11 +255,11 @@ void Engine::Model::display(GBuffer *gbuf, Camera *cam) const
 
 	gbuf->setGeometryState();
 
-	DeviceContext->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
-	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
-	DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
-	DeviceContext->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
-	DeviceContext->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
+	_EngineDevice.DeviceContext->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
+	_EngineDevice.DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
+	_EngineDevice.DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
+	_EngineDevice.DeviceContext->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
+	_EngineDevice.DeviceContext->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
 
 	_MVPMatrixBuffer->updateStoreMap(&MVPMatrix);
 	_normalMatrixBuffer->updateStoreMap(&NormalMatrix);
@@ -271,10 +269,10 @@ void Engine::Model::display(GBuffer *gbuf, Camera *cam) const
 		_MVPMatrixBuffer->getBuffer(),
 		_normalMatrixBuffer->getBuffer(),
 	};
-	DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+	_EngineDevice.DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
-	DeviceContext->IASetInputLayout(_pInputLayout);
-	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	_EngineDevice.DeviceContext->IASetInputLayout(_pInputLayout);
+	_EngineDevice.DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (i = 0; i<_tMesh->size(); i++)
 		if ((*_tMesh)[i]->getTransparency() == 1.0f)
 			(*_tMesh)[i]->display();
@@ -288,11 +286,11 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
 
 	gbuf->setGeometryState();
 
-	DeviceContext->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
-	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
-	DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
-	DeviceContext->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
-	DeviceContext->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
+	_EngineDevice.DeviceContext->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
+	_EngineDevice.DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
+	_EngineDevice.DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
+	_EngineDevice.DeviceContext->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
+	_EngineDevice.DeviceContext->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
 
 	_MVPMatrixBuffer->updateStoreMap(&MVPMatrix);
 	_normalMatrixBuffer->updateStoreMap(&NormalMatrix);
@@ -302,10 +300,10 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
 		_MVPMatrixBuffer->getBuffer(),
 		_normalMatrixBuffer->getBuffer(),
 	};
-	DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+	_EngineDevice.DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
-	DeviceContext->IASetInputLayout(_pInputLayout);
-	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	_EngineDevice.DeviceContext->IASetInputLayout(_pInputLayout);
+	_EngineDevice.DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (i = 0; i<_tMesh->size(); i++)
 		if ((*_tMesh)[i]->getTransparency() != 1.0f)
 			(*_tMesh)[i]->display();
@@ -318,11 +316,11 @@ void Engine::Model::displayShadowMap(Light *light) const
 
 	light->getShadowMap()->setState();
 
-	DeviceContext->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
-	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
-	DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
-	DeviceContext->GSSetShader(_smProgram->getGeometryShader(), NULL, 0);
-	DeviceContext->PSSetShader(_smProgram->getPixelShader(), NULL, 0);
+	_EngineDevice.DeviceContext->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
+	_EngineDevice.DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
+	_EngineDevice.DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
+	_EngineDevice.DeviceContext->GSSetShader(_smProgram->getGeometryShader(), NULL, 0);
+	_EngineDevice.DeviceContext->PSSetShader(_smProgram->getPixelShader(), NULL, 0);
 
 	_MVPMatrixBuffer->updateStoreMap(&MVPMatrix);
 
@@ -330,10 +328,10 @@ void Engine::Model::displayShadowMap(Light *light) const
 	{
 		_MVPMatrixBuffer->getBuffer(),
 	};
-	DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+	_EngineDevice.DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
-	DeviceContext->IASetInputLayout(_pInputLayout);
-	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	_EngineDevice.DeviceContext->IASetInputLayout(_pInputLayout);
+	_EngineDevice.DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (i = 0; i<_tMesh->size(); i++)
 		if ((*_tMesh)[i]->getTransparency() == 1.0f)
 			(*_tMesh)[i]->displayShadow();

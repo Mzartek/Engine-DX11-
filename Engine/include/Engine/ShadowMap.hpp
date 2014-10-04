@@ -17,7 +17,7 @@ namespace Engine
 		ID3D11RasterizerState *_pRasterizerState;
 		ID3D11SamplerState *_pSamplerComparisonState;
 	public:
-		ShadowMap(void);
+		ShadowMap(const EngineDevice &EngineDevice);
 		~ShadowMap(void);
 		void config(const UINT &width, const UINT &height);
 		ID3D11ShaderResourceView *getShaderResourceView(void) const;

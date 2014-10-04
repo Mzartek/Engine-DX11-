@@ -13,6 +13,7 @@ namespace Engine
 		friend int comparMesh(const void *p1, const void *p2);
 
 	private:
+		EngineDevice _EngineDevice;
 		Texture *_colorTexture;
 		Texture *_NMTexture;
 		Buffer *_vertexBuffer;
@@ -27,7 +28,7 @@ namespace Engine
 		} _material;
 		UINT _numElement;
 	public:
-		Mesh(void);
+		Mesh(const EngineDevice &EngineDevice);
 		~Mesh(void);
 		void setColorTexture(const CHAR *path);
 		void setNMTexture(const CHAR *path);

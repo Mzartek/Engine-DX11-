@@ -22,6 +22,8 @@ namespace Engine
 		UINT _width;
 		UINT _height;
 		HWND _hWnd;
+		// EngineDevice
+		EngineDevice _EngineDevice;
 		// SwapChain
 		IDXGISwapChain1 *_pSwapChain;
 		// View
@@ -39,6 +41,7 @@ namespace Engine
 		UINT getWidth(void);
 		UINT getHeight(void);
 		HWND getWindow(void);
+		EngineDevice getEngineDevice(void);
 		void mainLoop(GameLoop *gameLoop);
 		void stopLoop(void);
 		void setState(void) const;

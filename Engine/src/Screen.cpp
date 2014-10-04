@@ -4,13 +4,11 @@
 #include <Engine/GBuffer.hpp>
 #include <Engine/Renderer.hpp>
 
-extern ID3D11Device1 *Device;
-extern ID3D11DeviceContext1 *DeviceContext;
-
-Engine::Screen::Screen(ShaderProgram *backgroundProgram, ShaderProgram *directProgram)
+Engine::Screen::Screen(const EngineDevice &EngineDevice, ShaderProgram *backgroundProgram, ShaderProgram *directProgram)
 {
-	_vertexBuffer = new Buffer;
-	_screenColorBuffer = new Buffer;
+	_EngineDevice = EngineDevice;
+	_vertexBuffer = new Buffer(_EngineDevice);
+	_screenColorBuffer = new Buffer(_EngineDevice);
 
 	FLOAT vertex[] = {
 		-1, -1,
@@ -28,7 +26,7 @@ Engine::Screen::Screen(ShaderProgram *backgroundProgram, ShaderProgram *directPr
 	{
 		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	Device->CreateInputLayout(layout, ARRAYSIZE(layout), _directProgram->getEntryBufferPointer(), _directProgram->getEntryBytecodeLength(), &_pInputLayout);
+	_EngineDevice.Device->CreateInputLayout(layout, ARRAYSIZE(layout), _directProgram->getEntryBufferPointer(), _directProgram->getEntryBytecodeLength(), &_pInputLayout);
 }
 
 Engine::Screen::~Screen(void)
@@ -43,11 +41,11 @@ void Engine::Screen::background(GBuffer *gbuf)
 	gbuf->setBackgroundState();
 
 	// Shader
-	DeviceContext->VSSetShader(_backgroundProgram->getVertexShader(), NULL, 0);
-	DeviceContext->HSSetShader(_backgroundProgram->getHullShader(), NULL, 0);
-	DeviceContext->DSSetShader(_backgroundProgram->getDomainShader(), NULL, 0);
-	DeviceContext->GSSetShader(_backgroundProgram->getGeometryShader(), NULL, 0);
-	DeviceContext->PSSetShader(_backgroundProgram->getPixelShader(), NULL, 0);
+	_EngineDevice.DeviceContext->VSSetShader(_backgroundProgram->getVertexShader(), NULL, 0);
+	_EngineDevice.DeviceContext->HSSetShader(_backgroundProgram->getHullShader(), NULL, 0);
+	_EngineDevice.DeviceContext->DSSetShader(_backgroundProgram->getDomainShader(), NULL, 0);
+	_EngineDevice.DeviceContext->GSSetShader(_backgroundProgram->getGeometryShader(), NULL, 0);
+	_EngineDevice.DeviceContext->PSSetShader(_backgroundProgram->getPixelShader(), NULL, 0);
 
 	// Texture
 	ID3D11ShaderResourceView *pshr[] =
@@ -55,7 +53,7 @@ void Engine::Screen::background(GBuffer *gbuf)
 		gbuf->getShaderResourceView(GBUF_MATERIAL),
 		gbuf->getShaderResourceView(GBUF_LIGHT),
 	};
-	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	_EngineDevice.DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
 
 	// Vertex Buffer
 	UINT stride = 2 * sizeof(FLOAT), offset = 0;
@@ -63,10 +61,10 @@ void Engine::Screen::background(GBuffer *gbuf)
 	{
 		_vertexBuffer->getBuffer(),
 	};
-	DeviceContext->IASetVertexBuffers(0, ARRAYSIZE(drawBuf), drawBuf, &stride, &offset);
-	DeviceContext->IASetInputLayout(_pInputLayout);
-	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	DeviceContext->Draw(4, 0);
+	_EngineDevice.DeviceContext->IASetVertexBuffers(0, ARRAYSIZE(drawBuf), drawBuf, &stride, &offset);
+	_EngineDevice.DeviceContext->IASetInputLayout(_pInputLayout);
+	_EngineDevice.DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	_EngineDevice.DeviceContext->Draw(4, 0);
 
 	gbuf->clearLight();
 }
@@ -76,18 +74,18 @@ void Engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 	renderer->setState();
 
 	// Shader
-	DeviceContext->VSSetShader(_directProgram->getVertexShader(), NULL, 0);
-	DeviceContext->HSSetShader(_directProgram->getHullShader(), NULL, 0);
-	DeviceContext->DSSetShader(_directProgram->getDomainShader(), NULL, 0);
-	DeviceContext->GSSetShader(_directProgram->getGeometryShader(), NULL, 0);
-	DeviceContext->PSSetShader(_directProgram->getPixelShader(), NULL, 0);
+	_EngineDevice.DeviceContext->VSSetShader(_directProgram->getVertexShader(), NULL, 0);
+	_EngineDevice.DeviceContext->HSSetShader(_directProgram->getHullShader(), NULL, 0);
+	_EngineDevice.DeviceContext->DSSetShader(_directProgram->getDomainShader(), NULL, 0);
+	_EngineDevice.DeviceContext->GSSetShader(_directProgram->getGeometryShader(), NULL, 0);
+	_EngineDevice.DeviceContext->PSSetShader(_directProgram->getPixelShader(), NULL, 0);
 
 	// Texture
 	ID3D11ShaderResourceView *pshr[] =
 	{
 		gbuf->getShaderResourceView(GBUF_BACKGROUND),
 	};
-	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	_EngineDevice.DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
 
 	XMFLOAT4 color(r, g, b, a);
 	_screenColorBuffer->updateStoreMap(&color);
@@ -96,7 +94,7 @@ void Engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 	{
 		_screenColorBuffer->getBuffer(),
 	};
-	DeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+	_EngineDevice.DeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
 	// Vertex Buffer
 	UINT stride = 2 * sizeof(FLOAT), offset = 0;
@@ -104,8 +102,8 @@ void Engine::Screen::display(Renderer *renderer, GBuffer *gbuf, const FLOAT &r, 
 	{
 		_vertexBuffer->getBuffer(),
 	};
-	DeviceContext->IASetVertexBuffers(0, 1, &drawBuf[0], &stride, &offset);
-	DeviceContext->IASetInputLayout(_pInputLayout);
-	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	DeviceContext->Draw(4, 0);
+	_EngineDevice.DeviceContext->IASetVertexBuffers(0, 1, &drawBuf[0], &stride, &offset);
+	_EngineDevice.DeviceContext->IASetInputLayout(_pInputLayout);
+	_EngineDevice.DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	_EngineDevice.DeviceContext->Draw(4, 0);
 }

@@ -35,7 +35,7 @@ private:
 	Engine::SpotLight *torch;
 	Engine::Screen *screen;
 public:
-	GameManager(Engine::Renderer *r, Engine::Input *i);
+	GameManager(Engine::Renderer *renderer, Engine::Input *input);
 	~GameManager(void);
 	void display(FLOAT state);
 	void idle(void);
