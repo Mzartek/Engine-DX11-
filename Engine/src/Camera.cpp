@@ -18,12 +18,12 @@ Engine::Camera::~Camera(void)
 
 void Engine::Camera::setPositionCamera(const XMFLOAT3 &pos)
 {
-	*_pcamera = XMLoadFloat3(&pos);;
+	*_pcamera = XMLoadFloat3(&pos);
 }
 
 void Engine::Camera::setPositionTarget(const XMFLOAT3 &pos)
 {
-	*_ptarget = XMLoadFloat3(&pos);;
+	*_ptarget = XMLoadFloat3(&pos);
 }
 
 void Engine::Camera::setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f)
