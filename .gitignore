@@ -25,4 +25,4 @@ Debug
 memLost.txt
 
 *.sdf
-*.vao
+*.suo
