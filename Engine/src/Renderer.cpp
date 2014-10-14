@@ -49,7 +49,7 @@ static std::string ShaderVersion(const D3D_FEATURE_LEVEL &featureLevel)
 	return shaderLevel;
 }
 
-Engine::Renderer::Renderer(const LPCTSTR szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
+Engine::Renderer::Renderer(const LPCWSTR szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
 {
 	ID3D11Texture2D *texture;
 
@@ -84,9 +84,9 @@ Engine::Renderer::Renderer(const LPCTSTR szTitle, const UINT &width, const UINT 
 	D3D_FEATURE_LEVEL featureLevels[]
 	{
 		D3D_FEATURE_LEVEL_11_1,
-			D3D_FEATURE_LEVEL_11_0,
-			D3D_FEATURE_LEVEL_10_1,
-			D3D_FEATURE_LEVEL_10_0,
+		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_10_1,
+		D3D_FEATURE_LEVEL_10_0,
 	};
 	DXGI_SWAP_CHAIN_DESC1 sd;
 	sd.Width = _width;

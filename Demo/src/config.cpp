@@ -5,13 +5,13 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	this->renderer = renderer;
 	this->input = input;
 
-	skyboxProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/skybox/skyboxVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/skybox/skyboxPixel.hlsl"));
-	objectProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/object/objectVertex.hlsl"), NULL, NULL, TEXT("shader/object/objectGeom.hlsl"), TEXT("shader/object/objectPixel.hlsl"));
-	dirLightProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/dirLight/dirLightVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/dirLight/dirLightPixel.hlsl"));
-	spotLightProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/spotLight/spotLightVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/spotLight/spotLightPixel.hlsl"));
-	shadowMapProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/shadowMap/shadowMapVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/shadowMap/shadowMapPixel.hlsl"));
-	backgroundProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/background/backgroundVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/background/backgroundPixel.hlsl"));
-	screenProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), TEXT("shader/screen/screenVertex.hlsl"), NULL, NULL, NULL, TEXT("shader/screen/screenPixel.hlsl"));
+	skyboxProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/skybox/skyboxVertex.hlsl", NULL, NULL, NULL, L"shader/skybox/skyboxPixel.hlsl");
+	objectProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/object/objectVertex.hlsl", NULL, NULL, L"shader/object/objectGeom.hlsl", L"shader/object/objectPixel.hlsl");
+	dirLightProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/dirLight/dirLightVertex.hlsl", NULL, NULL, NULL, L"shader/dirLight/dirLightPixel.hlsl");
+	spotLightProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/spotLight/spotLightVertex.hlsl", NULL, NULL, NULL, L"shader/spotLight/spotLightPixel.hlsl");
+	shadowMapProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/shadowMap/shadowMapVertex.hlsl", NULL, NULL, NULL, L"shader/shadowMap/shadowMapPixel.hlsl");
+	backgroundProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/background/backgroundVertex.hlsl", NULL, NULL, NULL, L"shader/background/backgroundPixel.hlsl");
+	screenProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/screen/screenVertex.hlsl", NULL, NULL, NULL, L"shader/screen/screenPixel.hlsl");
 
 	gBuffer = new Engine::GBuffer(this->renderer->getEngineDevice());
 	cam = new Engine::FreeCam;

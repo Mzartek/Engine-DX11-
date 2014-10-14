@@ -72,7 +72,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	UNREFERENCED_PARAMETER(nCmdShow);
 
-	Engine::Renderer *renderer = new Engine::Renderer(TEXT("Demo DirectX"), 800, 600, FALSE);
+	Engine::Renderer *renderer = new Engine::Renderer(L"Demo DirectX", 800, 600, FALSE);
 	Engine::Input *input = new Engine::Input(renderer->getWindow());
 	GameManager *game = new GameManager(renderer, input);
 	
@@ -88,7 +88,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		text = std::to_string(Engine::Object::getMemoryState());
 		MessageBoxA(NULL, text.c_str(), __FILE__, MB_OK);
 	}
-	Engine::Object::saveMemoryInfo(TEXT("memLost.txt"));
+	Engine::Object::saveMemoryInfo("memLost.txt");
 
 	return 0;
 }
