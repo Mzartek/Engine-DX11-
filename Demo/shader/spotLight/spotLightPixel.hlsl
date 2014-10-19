@@ -23,7 +23,7 @@ cbuffer ScreenBuffer : register (b2)
 
 cbuffer CameraBuffer : register (b3)
 {
-	float3 camPosition;
+	vector camPosition;
 }
 
 cbuffer LightInfoBuffer : register (b4)
@@ -122,7 +122,7 @@ PS_OUTPUT main(PS_INPUT input)
 	float cos_inner_cone_angle = cos_outer_cone_angle + 0.01;
 	float cos_inner_minus_outer_angle = cos_inner_cone_angle - cos_outer_cone_angle;
 	float spot = clamp((cos_cur_angle - cos_outer_cone_angle) / cos_inner_minus_outer_angle, 0.0, 1.0);
-	output.light = calcLight(diffColor, specColor, normal.xyz, L, normalize(camPosition - position), normal.w) * shadow * spot;
+	output.light = calcLight(diffColor, specColor, normal.xyz, L, normalize(camPosition.xyz - position), normal.w) * shadow * spot;
 
 	return output;
 }

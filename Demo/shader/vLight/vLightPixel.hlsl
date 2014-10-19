@@ -15,7 +15,7 @@ cbuffer ScreenBuffer : register (b1)
 
 cbuffer CameraBuffer : register (b2)
 {
-	float3 camPosition;
+	vector camPosition;
 }
 
 cbuffer vDirLightInfo : register (b3)
@@ -83,7 +83,7 @@ PS_OUTPUT main(PS_INPUT input)
 	float4 diffColor = unpackUnorm4x8(material.z);
 	float4 specColor = unpackUnorm4x8(material.w);
 	
-	float3 L, V = normalize(camPosition - position);
+	float3 L, V = normalize(camPosition.xyz - position);
 	float cos_cur_angle, cos_outer_cone_angle, cos_inner_cone_angle, cos_inner_minus_outer_angle, spot;
 	
 	uint i;

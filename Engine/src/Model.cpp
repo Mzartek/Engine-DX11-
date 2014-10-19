@@ -80,7 +80,7 @@ void Engine::Model::initMeshMirror(Model *m)
 void Engine::Model::addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 	const UINT &sizeIndexArray, const UINT *indexArray,
 	const CHAR *colorTexture, const CHAR *NMTexture,
-	const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess)
+	const XMVECTOR &ambient, const XMVECTOR &diffuse, const XMVECTOR &specular, const FLOAT &shininess)
 {
 	Mesh *newone = new Mesh(_EngineDevice);
 
@@ -194,7 +194,7 @@ void Engine::Model::loadFromFile(const CHAR *szFileName)
 		addMesh(vertices.size() * sizeof(FLOAT), &vertices[0],
 			indices.size() * sizeof(UINT), &indices[0],
 			colorPath.c_str(), NMPath.c_str(),
-			XMFLOAT4(mat_ambient.r, mat_ambient.g, mat_ambient.b, mat_ambient.a), XMFLOAT4(mat_diffuse.r, mat_diffuse.g, mat_diffuse.b, mat_diffuse.a), XMFLOAT4(mat_specular.r, mat_specular.g, mat_specular.b, mat_specular.a),
+			XMVectorSet(mat_ambient.r, mat_ambient.g, mat_ambient.b, mat_ambient.a), XMVectorSet(mat_diffuse.r, mat_diffuse.g, mat_diffuse.b, mat_diffuse.a), XMVectorSet(mat_specular.r, mat_specular.g, mat_specular.b, mat_specular.a),
 			mat_shininess);
 
 		vertices.clear();
@@ -227,14 +227,9 @@ void Engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 	*_ModelMatrix = XMMatrixScaling(x, y, z) * *_ModelMatrix;
 }
 
-XMFLOAT3 Engine::Model::getPosition(void) const
+XMVECTOR Engine::Model::getPosition(void) const
 {
-	XMFLOAT3 tmp;
-	tmp.x = XMVectorGetW(_ModelMatrix->r[0]);
-	tmp.y = XMVectorGetW(_ModelMatrix->r[1]);
-	tmp.z = XMVectorGetW(_ModelMatrix->r[2]);
-
-	return tmp;
+	return XMVectorSet(XMVectorGetW(_ModelMatrix->r[0]), XMVectorGetW(_ModelMatrix->r[1]), XMVectorGetW(_ModelMatrix->r[2]), XMVectorGetW(_ModelMatrix->r[3]));
 }
 
 Engine::Mesh *Engine::Model::getMesh(UINT num) const

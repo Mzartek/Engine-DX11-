@@ -67,13 +67,11 @@ void GameManager::launch(void)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	UNREFERENCED_PARAMETER(hInstance);
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
-	UNREFERENCED_PARAMETER(nCmdShow);
 
-	Engine::Renderer *renderer = new Engine::Renderer(L"Demo DirectX", 800, 600, FALSE);
-	Engine::Input *input = new Engine::Input(renderer->getWindow());
+	Engine::Renderer *renderer = new Engine::Renderer(L"Demo DirectX", 800, 600, FALSE, hInstance, nCmdShow);
+	Engine::Input *input = new Engine::Input(renderer->getWindow(), hInstance);
 	GameManager *game = new GameManager(renderer, input);
 	
 	game->launch();

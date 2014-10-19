@@ -27,8 +27,8 @@ Engine::Light::Light(const EngineDevice &EngineDevice, ShaderProgram *program)
 	_vertexBuffer->createStore(D3D11_BIND_VERTEX_BUFFER, vertex, sizeof vertex, D3D11_USAGE_IMMUTABLE);
 	_shadowMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
 	_IVPMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
-	_screenBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, 16, D3D11_USAGE_DYNAMIC);
-	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, 16, D3D11_USAGE_DYNAMIC);
+	_screenBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMVECTOR, D3D11_USAGE_DYNAMIC);
+	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMVECTOR, D3D11_USAGE_DYNAMIC);
 }
 
 Engine::Light::~Light(void)

@@ -23,7 +23,7 @@ cbuffer ScreenBuffer : register (b2)
 
 cbuffer CameraBuffer : register (b3)
 {
-	float3 camPosition;
+	vector camPosition;
 }
 
 cbuffer LightInfoBuffer : register (b4)
@@ -114,7 +114,7 @@ PS_OUTPUT main(PS_INPUT input)
 	float shadow = 1.0;
 	if (withShadowMapping)
 		shadow = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 1.0);
-	output.light = calcLight(diffColor, specColor, normal.xyz, normalize(-lightDirection), normalize(camPosition - position), normal.w) * shadow;
+	output.light = calcLight(diffColor, specColor, normal.xyz, normalize(-lightDirection), normalize(camPosition.xyz - position), normal.w) * shadow;
 
 	return output;
 }

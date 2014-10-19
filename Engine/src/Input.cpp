@@ -1,10 +1,10 @@
 #include <Engine/Input.hpp>
 
-Engine::Input::Input(const HWND &hWnd)
+Engine::Input::Input(const HWND &hWnd, HINSTANCE hInstance)
 {
 	LPDIRECTINPUT8 directInputObject;
 
-	DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&directInputObject, NULL);
+	DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&directInputObject, NULL);
 	directInputObject->CreateDevice(GUID_SysKeyboard, &_pKeyBoard, NULL);
 	directInputObject->CreateDevice(GUID_SysMouse, &_pMouse, NULL);
 

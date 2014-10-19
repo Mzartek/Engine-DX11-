@@ -22,19 +22,19 @@ Engine::SpotLight::~SpotLight(void)
 	_pInputLayout->Release();
 }
 
-void Engine::SpotLight::setColor(const XMFLOAT3 &color)
+void Engine::SpotLight::setColor(const XMVECTOR &color)
 {
-	_lightInfo.color = color;
+	 XMStoreFloat3(&_lightInfo.color, color);
 }
 
-void Engine::SpotLight::setPosition(const XMFLOAT3 &position)
+void Engine::SpotLight::setPosition(const XMVECTOR &position)
 {
-	_lightInfo.position = position;
+	XMStoreFloat3(&_lightInfo.position, position);
 }
 
-void Engine::SpotLight::setDirection(const XMFLOAT3 &dir)
+void Engine::SpotLight::setDirection(const XMVECTOR &dir)
 {
-	_lightInfo.direction = dir;
+	XMStoreFloat3(&_lightInfo.direction, dir);
 }
 
 void Engine::SpotLight::setSpotCutOff(const FLOAT &spot)
@@ -47,19 +47,19 @@ void Engine::SpotLight::setShadowMapping(const BOOL &shadow)
 	_lightInfo.withShadowMapping = shadow;
 }
 
-XMFLOAT3 Engine::SpotLight::getColor(void) const
+XMVECTOR Engine::SpotLight::getColor(void) const
 {
-	return _lightInfo.color;
+	return XMLoadFloat3(&_lightInfo.color);
 }
 
-XMFLOAT3 Engine::SpotLight::getPosition(void) const
+XMVECTOR Engine::SpotLight::getPosition(void) const
 {
-	return _lightInfo.position;
+	return XMLoadFloat3(&_lightInfo.position);
 }
 
-XMFLOAT3 Engine::SpotLight::getDirection(void) const
+XMVECTOR Engine::SpotLight::getDirection(void) const
 {
-	return _lightInfo.direction;
+	return XMLoadFloat3(&_lightInfo.direction);
 }
 
 FLOAT Engine::SpotLight::getSpotCutOff(void) const
@@ -108,7 +108,7 @@ void Engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
 
 	XMMATRIX matrix = XMMatrixInverse(NULL, cam->getVPMatrix());
 	XMUINT2 screen(gbuf->getWidth(), gbuf->getHeight());
-	XMFLOAT3 pos = cam->getPositionCamera();
+	XMVECTOR pos = cam->getPositionCamera();
 
 	_IVPMatrixBuffer->updateStoreMap(&matrix);
 	_screenBuffer->updateStoreMap(&screen);

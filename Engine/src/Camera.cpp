@@ -16,14 +16,14 @@ Engine::Camera::~Camera(void)
 	_aligned_free(_VPMatrix);
 }
 
-void Engine::Camera::setPositionCamera(const XMFLOAT3 &pos)
+void Engine::Camera::setPositionCamera(const XMVECTOR &pos)
 {
-	*_pcamera = XMLoadFloat3(&pos);
+	*_pcamera = pos;
 }
 
-void Engine::Camera::setPositionTarget(const XMFLOAT3 &pos)
+void Engine::Camera::setPositionTarget(const XMVECTOR &pos)
 {
-	*_ptarget = XMLoadFloat3(&pos);
+	*_ptarget = pos;
 }
 
 void Engine::Camera::setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f)
@@ -31,20 +31,14 @@ void Engine::Camera::setPerspective(const FLOAT &fov, const UINT &width, const U
 	*_projectionMatrix = XMMatrixPerspectiveFovRH(fov*((FLOAT)XM_PI / 180), (FLOAT)width / height, n, f);
 }
 
-XMFLOAT3 Engine::Camera::getPositionCamera(void) const
+XMVECTOR Engine::Camera::getPositionCamera(void) const
 {
-	XMFLOAT3 pos;
-	XMStoreFloat3(&pos, *_pcamera);
-
-	return pos;
+	return *_pcamera;
 }
 
-XMFLOAT3 Engine::Camera::getPositionTarget(void) const
+XMVECTOR Engine::Camera::getPositionTarget(void) const
 {
-	XMFLOAT3 pos;
-	XMStoreFloat3(&pos, *_ptarget);
-
-	return pos;
+	return *_ptarget;
 }
 
 XMMATRIX  Engine::Camera::getProjectionMatrix(void) const

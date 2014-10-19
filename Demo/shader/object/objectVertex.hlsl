@@ -27,8 +27,8 @@ VS_OUTPUT main(VS_INPUT input)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 
-	float3 N = mul(normalMatrix, input.normal);
-	float3 T = mul(normalMatrix, input.tangent);
+	float3 N = mul(normalMatrix, float4(input.normal, 0.0)).xyz;
+	float3 T = mul(normalMatrix, float4(input.tangent, 0.0)).xyz;
 	float3 B = cross(N, T);
 
 	output.position = mul(MVP, float4(input.position, 1.0));

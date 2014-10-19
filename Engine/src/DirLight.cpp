@@ -22,14 +22,14 @@ Engine::DirLight::~DirLight(void)
 	_pInputLayout->Release();
 }
 
-void Engine::DirLight::setColor(const XMFLOAT3 &color)
+void Engine::DirLight::setColor(const XMVECTOR &color)
 {
-	_lightInfo.color = color;
+	XMStoreFloat3(&_lightInfo.color, color);
 }
 
-void Engine::DirLight::setDirection(const XMFLOAT3 &dir)
+void Engine::DirLight::setDirection(const XMVECTOR &dir)
 {
-	_lightInfo.direction = dir;
+	XMStoreFloat3(&_lightInfo.direction, dir);
 }
 
 void Engine::DirLight::setShadowMapping(const BOOL &shadow)
@@ -37,22 +37,21 @@ void Engine::DirLight::setShadowMapping(const BOOL &shadow)
 	_lightInfo.withShadowMapping = shadow;
 }
 
-XMFLOAT3 Engine::DirLight::getColor(void) const
+XMVECTOR Engine::DirLight::getColor(void) const
 {
-	return _lightInfo.color;
+	return XMLoadFloat3(&_lightInfo.color);
 }
 
-XMFLOAT3 Engine::DirLight::getDirection(void) const
+XMVECTOR Engine::DirLight::getDirection(void) const
 {
-	return _lightInfo.direction;
+	return XMLoadFloat3(&_lightInfo.direction);
 }
 
-void Engine::DirLight::position(const XMFLOAT3 &position, const FLOAT &dim)
+void Engine::DirLight::position(const XMVECTOR &position, const FLOAT &dim)
 {
-	XMVECTOR pos = XMVectorSet(position.x, position.y, position.z, 0.0f);
 	XMVECTOR dir = XMVectorSet(_lightInfo.direction.x, _lightInfo.direction.y, _lightInfo.direction.z, 0.0f);
 
-	*_VPMatrix = XMMatrixLookAtRH(pos - dir, pos, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) *
+	*_VPMatrix = XMMatrixLookAtRH(position - dir, position, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) *
 		XMMatrixOrthographicOffCenterRH(-dim, dim, -dim, dim, -dim, dim);
 }
 
@@ -88,7 +87,7 @@ void Engine::DirLight::display(GBuffer *gbuf, Camera *cam)
 
 	XMMATRIX matrix = XMMatrixInverse(NULL, cam->getVPMatrix());
 	XMUINT2 screen(gbuf->getWidth(), gbuf->getHeight());
-	XMFLOAT3 pos = cam->getPositionCamera();
+	XMVECTOR pos = cam->getPositionCamera();
 
 	_IVPMatrixBuffer->updateStoreMap(&matrix);
 	_screenBuffer->updateStoreMap(&screen);

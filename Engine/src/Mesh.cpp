@@ -33,19 +33,19 @@ void Engine::Mesh::setNMTexture(const CHAR *path)
 	_NMTexture->load2DTextureFromFile(path);
 }
 
-void Engine::Mesh::setAmbient(const XMFLOAT4 &ambient)
+void Engine::Mesh::setAmbient(const XMVECTOR &ambient)
 {
-	_material.ambient = ambient;
+	XMStoreFloat4(&_material.ambient, ambient);
 }
 
-void Engine::Mesh::setDiffuse(const XMFLOAT4 &diffuse)
+void Engine::Mesh::setDiffuse(const XMVECTOR &diffuse)
 {
-	_material.diffuse = diffuse;
+	XMStoreFloat4(&_material.diffuse, diffuse);
 }
 
-void Engine::Mesh::setSpecular(const XMFLOAT4 &specular)
+void Engine::Mesh::setSpecular(const XMVECTOR &specular)
 {
-	_material.specular = specular;
+	XMStoreFloat4(&_material.specular, specular);
 }
 
 void Engine::Mesh::setShininess(const FLOAT &shininess)

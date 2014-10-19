@@ -19,14 +19,14 @@ namespace Engine
 	public:
 		SpotLight(const EngineDevice &EngineDevice, ShaderProgram *program);
 		~SpotLight(void);
-		void setColor(const XMFLOAT3 &color);
-		void setPosition(const XMFLOAT3 &position);
-		void setDirection(const XMFLOAT3 &dir);
+		void setColor(const XMVECTOR &color);
+		void setPosition(const XMVECTOR &position);
+		void setDirection(const XMVECTOR &dir);
 		void setSpotCutOff(const FLOAT &spot);
 		void setShadowMapping(const BOOL &shadow);
-		XMFLOAT3 getColor(void) const;
-		XMFLOAT3 getPosition(void) const;
-		XMFLOAT3 getDirection(void) const;
+		XMVECTOR getColor(void) const;
+		XMVECTOR getPosition(void) const;
+		XMVECTOR getDirection(void) const;
 		FLOAT getSpotCutOff(void) const;
 		void position(void);
 		void display(GBuffer *gbuf, Camera *cam);

@@ -26,7 +26,7 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	gBuffer->config(this->renderer->getWidth(), this->renderer->getHeight());
 
 	// Camera config
-	cam->setPositionCamera(XMFLOAT3(30, 10, 0));
+	cam->setPositionCamera(XMVectorSet(30, 10, 0, 1));
 	cam->setInitialAngle(-90, 0);
 
 	// Skybox config
@@ -44,9 +44,9 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 		500, 0, -500, 1, 0, 0, 1, 0, 1, 0, 0
 	};
 	UINT index[] = { 2, 0, 1, 0, 2, 3 };
-	XMFLOAT4 mat_ambient(0.5f, 0.5f, 0.5f, 1.0f);
-	XMFLOAT4 mat_diffuse(0.9f, 0.9f, 0.9f, 1.0f);
-	XMFLOAT4 mat_specular(1.0f, 1.0f, 1.0f, 1.0f);
+	XMVECTOR mat_ambient = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
+	XMVECTOR mat_diffuse = XMVectorSet(0.9f, 0.9f, 0.9f, 1.0f);
+	XMVECTOR mat_specular = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
 	FLOAT mat_shininess = 20.0f;
 
 	sol->initMeshArray();
@@ -62,14 +62,14 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	heli->matScale(2, 2, 2);
 
 	// Light config
-	sun->setColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
-	sun->setDirection(XMFLOAT3(1.0f, -1.0f, 0.0f));
+	sun->setColor(XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
+	sun->setDirection(XMVectorSet(1.0f, -1.0f, 0.0f, 1.0f));
 	sun->setShadowMapping(TRUE);
 	sun->configShadowMap(1024, 1024);
 
-	torch->setColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
-	torch->setPosition(XMFLOAT3(20.0f, 40.0f, 0.0f));
-	torch->setDirection(XMFLOAT3(-0.5f, -1.0f, 0.0f));
+	torch->setColor(XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
+	torch->setPosition(XMVectorSet(20.0f, 40.0f, 0.0f, 1.0f));
+	torch->setDirection(XMVectorSet(-0.5f, -1.0f, 0.0f, 1.0f));
 	torch->setSpotCutOff(45.0f);
 	torch->setShadowMapping(TRUE);
 	torch->configShadowMap(1024, 1024);

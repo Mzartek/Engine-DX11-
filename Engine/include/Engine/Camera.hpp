@@ -15,11 +15,11 @@ namespace Engine
 	public:
 		Camera(void);
 		~Camera(void);
-		void setPositionCamera(const XMFLOAT3 &pos);
-		void setPositionTarget(const XMFLOAT3 &pos);
+		void setPositionCamera(const XMVECTOR &pos);
+		void setPositionTarget(const XMVECTOR &pos);
 		void setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f);
-		XMFLOAT3 getPositionCamera(void) const;
-		XMFLOAT3 getPositionTarget(void) const;
+		XMVECTOR getPositionCamera(void) const;
+		XMVECTOR getPositionTarget(void) const;
 		XMMATRIX getProjectionMatrix(void) const;
 		XMMATRIX getVPMatrix(void) const;
 		void position(void);

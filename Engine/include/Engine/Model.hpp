@@ -33,14 +33,14 @@ namespace Engine
 		void addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArray,
 				  const UINT &sizeIndexArray, const UINT *indexArray,
 				  const CHAR *colorTexture, const CHAR *NMTexture,
-				  const XMFLOAT4 &ambient, const XMFLOAT4 &diffuse, const XMFLOAT4 &specular, const FLOAT &shininess);
+				  const XMVECTOR &ambient, const XMVECTOR &diffuse, const XMVECTOR &specular, const FLOAT &shininess);
 		void loadFromFile(const CHAR *szFileName);
 		void sortMesh(void);
 		void matIdentity(void);
 		void matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void matRotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z);
-		XMFLOAT3 getPosition(void) const;
+		XMVECTOR getPosition(void) const;
 		Mesh *getMesh(UINT num) const;
 		void display(GBuffer *gbuf, Camera *cam) const;
 		void displayTransparent(GBuffer *gbuf, Camera *cam) const;

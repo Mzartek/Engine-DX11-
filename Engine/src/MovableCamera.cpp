@@ -45,20 +45,14 @@ void Engine::MovableCamera::setSpeed(const FLOAT &v)
 	_speed = v;
 }
 
-XMFLOAT3 Engine::MovableCamera::getForward(void) const
+XMVECTOR Engine::MovableCamera::getForward(void) const
 {
-	XMFLOAT3 forward;
-	XMStoreFloat3(&forward, *_vforward);
-
-	return forward;
+	return *_vforward;
 }
 
-XMFLOAT3 Engine::MovableCamera::getLeft(void) const
+XMVECTOR Engine::MovableCamera::getLeft(void) const
 {
-	XMFLOAT3 left;
-	XMStoreFloat3(&left, *_vleft);
-
-	return left;
+	return *_vleft;
 }
 
 void Engine::MovableCamera::mouseMove(const INT &xrel, const INT &yrel)

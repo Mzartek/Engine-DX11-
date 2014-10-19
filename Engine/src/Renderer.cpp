@@ -49,7 +49,7 @@ static std::string ShaderVersion(const D3D_FEATURE_LEVEL &featureLevel)
 	return shaderLevel;
 }
 
-Engine::Renderer::Renderer(const LPCWSTR szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen)
+Engine::Renderer::Renderer(const LPCWSTR szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen, HINSTANCE hInstance, int nCmdShow)
 {
 	ID3D11Texture2D *texture;
 
@@ -61,20 +61,20 @@ Engine::Renderer::Renderer(const LPCWSTR szTitle, const UINT &width, const UINT 
 	wcex.lpfnWndProc = WndProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
-	wcex.hInstance = GetModuleHandle(NULL);
-	wcex.hIcon = LoadIcon(GetModuleHandle(NULL), IDI_APPLICATION);
-	wcex.hCursor = LoadCursor(GetModuleHandle(NULL), IDC_ARROW);
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIcon(hInstance, IDI_APPLICATION);
+	wcex.hCursor = LoadCursor(hInstance, IDC_ARROW);
 	wcex.hbrBackground = NULL;
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = TEXT("EngineWindowClass");
 	RegisterClass(&wcex);
-	_hWnd = CreateWindow(wcex.lpszClassName, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, NULL, NULL, GetModuleHandle(NULL), NULL);
+	_hWnd = CreateWindow(wcex.lpszClassName, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, NULL, NULL, hInstance, NULL);
 	if (_hWnd == NULL)
 	{
 		MessageBox(NULL, TEXT("Failed to create Window"), TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
-	ShowWindow(_hWnd, SW_SHOW);
+	ShowWindow(_hWnd, nCmdShow);
 
 	// Create Device and SwapChain
 	ID3D11Device *pd3dDevice;

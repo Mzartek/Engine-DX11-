@@ -36,7 +36,7 @@ namespace Engine
 		// ViewPort
 		D3D11_VIEWPORT _VP;
 	public:
-		Renderer(const LPCWSTR szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen);
+		Renderer(const LPCWSTR szTitle, const UINT &width, const UINT &height, const BOOL &fullScreen, HINSTANCE hInstance, int nCmdShow);
 		~Renderer(void);
 		UINT getWidth(void);
 		UINT getHeight(void);

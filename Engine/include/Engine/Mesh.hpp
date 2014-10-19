@@ -32,9 +32,9 @@ namespace Engine
 		~Mesh(void);
 		void setColorTexture(const CHAR *path);
 		void setNMTexture(const CHAR *path);
-		void setAmbient(const XMFLOAT4 &ambient);
-		void setDiffuse(const XMFLOAT4 &diffuse);
-		void setSpecular(const XMFLOAT4 &specular);
+		void setAmbient(const XMVECTOR &ambient);
+		void setDiffuse(const XMVECTOR &diffuse);
+		void setSpecular(const XMVECTOR &specular);
 		void setShininess(const FLOAT &shininess);
 		FLOAT getTransparency(void);
 		void load(const UINT &sizeVertexArray, const FLOAT *vertexArray,

@@ -17,12 +17,12 @@ namespace Engine
 	public:
 		DirLight(const EngineDevice &EngineDevice, ShaderProgram *program);
 		~DirLight(void);
-		void setColor(const XMFLOAT3 &color);
-		void setDirection(const XMFLOAT3 &dir);
+		void setColor(const XMVECTOR &color);
+		void setDirection(const XMVECTOR &dir);
 		void setShadowMapping(const BOOL &shadow);
-		XMFLOAT3 getColor(void) const;
-		XMFLOAT3 getDirection(void) const;
-		void position(const XMFLOAT3 &position, const FLOAT &dim);
+		XMVECTOR getColor(void) const;
+		XMVECTOR getDirection(void) const;
+		void position(const XMVECTOR &position, const FLOAT &dim);
 		void display(GBuffer *gbuf, Camera *cam);
 	};
 }
