@@ -18,8 +18,7 @@ namespace Engine
 		EngineDevice _EngineDevice;
 		BOOL isMirror;
 		std::vector<Mesh *> *_tMesh;
-		Buffer *_MVPMatrixBuffer;
-		Buffer *_normalMatrixBuffer;
+		Buffer *_matrixBuffer;
 		XMMATRIX *_ModelMatrix;
 		// ShaderProgram
 		ShaderProgram *_gProgram;

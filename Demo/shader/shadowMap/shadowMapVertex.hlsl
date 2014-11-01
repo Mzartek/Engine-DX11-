@@ -1,6 +1,7 @@
 cbuffer MVPMatrixBuffer : register(b0)
 {
 	matrix MVP;
+	matrix normalMatrix;
 }
 
 struct VS_INPUT

@@ -1,10 +1,6 @@
 cbuffer MVPMatrixBuffer : register(b0)
 {
 	matrix MVP;
-}
-
-cbuffer NormalMatrixBuffer : register(b1)
-{
 	matrix normalMatrix;
 }
 
