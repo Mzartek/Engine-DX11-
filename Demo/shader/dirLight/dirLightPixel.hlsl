@@ -6,27 +6,15 @@ Texture2D<uint4> stencilTex : register(t3);
 Texture2D shadowMap : register(t4);
 SamplerComparisonState shadowMapSamplerComparisonState : register(s0);
 
-cbuffer ShadowMatrixBuffer : register (b0)
+cbuffer mainInfoBuffer : register (b0)
 {
 	matrix shadowMatrix;
-}
-
-cbuffer IVPMatrixBuffer : register (b1)
-{
 	matrix IVPMatrix;
-}
-
-cbuffer ScreenBuffer : register (b2)
-{
 	uint2 screen;
-}
-
-cbuffer CameraBuffer : register (b3)
-{
 	vector camPosition;
 }
 
-cbuffer LightInfoBuffer : register (b4)
+cbuffer LightInfoBuffer : register (b1)
 {
 	float3 lightColor;
 	float3 lightDirection;

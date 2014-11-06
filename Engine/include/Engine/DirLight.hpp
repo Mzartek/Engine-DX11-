@@ -8,7 +8,7 @@ namespace Engine
 	class DLLAPI DirLight : public Light
 	{
 	private:
-		struct lightInfo
+		struct
 		{
 			XMFLOAT3 __declspec(align(16)) color;
 			XMFLOAT3 __declspec(align(16)) direction;

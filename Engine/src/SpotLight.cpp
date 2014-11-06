@@ -95,6 +95,14 @@ void Engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
 	};
 	_EngineDevice.DeviceContext->PSSetShaderResources(0, ARRAYSIZE(gshr), gshr);
 
+	struct
+	{
+		XMMATRIX shadowMatrix;
+		XMMATRIX IVPMatrix;
+		XMUINT2 __declspec(align(16)) screen;
+		XMVECTOR __declspec(align(16)) camPosition;
+	} mainInfo;
+
 	// ShadowMap
 	if (_lightInfo.withShadowMapping == TRUE)
 	{
@@ -103,24 +111,18 @@ void Engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
 		_EngineDevice.DeviceContext->PSSetShaderResources(ARRAYSIZE(gshr), 1, &shadowResourceView);
 		_EngineDevice.DeviceContext->PSSetSamplers(0, 1, &shadowSampler);
 
-		_shadowMatrixBuffer->updateStoreMap(_VPMatrix);
+		mainInfo.shadowMatrix = *_VPMatrix;
 	}
+	mainInfo.IVPMatrix = XMMatrixInverse(NULL, cam->getVPMatrix());
+	mainInfo.screen.x = gbuf->getWidth(), mainInfo.screen.y = gbuf->getHeight();
+	mainInfo.camPosition = cam->getPositionCamera();
 
-	XMMATRIX matrix = XMMatrixInverse(NULL, cam->getVPMatrix());
-	XMUINT2 screen(gbuf->getWidth(), gbuf->getHeight());
-	XMVECTOR pos = cam->getPositionCamera();
-
-	_IVPMatrixBuffer->updateStoreMap(&matrix);
-	_screenBuffer->updateStoreMap(&screen);
-	_cameraBuffer->updateStoreMap(&pos);
+	_mainInfoBuffer->updateStoreMap(&mainInfo);
 	_lightInfoBuffer->updateStoreMap(&_lightInfo);
 
 	ID3D11Buffer *buf[] =
 	{
-		_shadowMatrixBuffer->getBuffer(),
-		_IVPMatrixBuffer->getBuffer(),
-		_screenBuffer->getBuffer(),
-		_cameraBuffer->getBuffer(),
+		_mainInfoBuffer->getBuffer(),
 		_lightInfoBuffer->getBuffer(),
 	};
 	_EngineDevice.DeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
