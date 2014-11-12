@@ -5,7 +5,6 @@ Texture2D<uint4> stencilTex : register(t3);
 
 cbuffer mainInfoBuffer : register (b0)
 {
-	matrix shadowMatrix;
 	matrix IVPMatrix;
 	uint2 screen;
 	vector camPosition;
