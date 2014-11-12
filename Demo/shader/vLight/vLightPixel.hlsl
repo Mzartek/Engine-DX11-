@@ -3,29 +3,22 @@ Texture2D<uint4> materialTex : register(t1);
 Texture2D<float> depthTex : register(t2);
 Texture2D<uint4> stencilTex : register(t3);
 
-cbuffer IVPMatrixBuffer : register (b0)
+cbuffer mainInfoBuffer : register (b0)
 {
+	matrix shadowMatrix;
 	matrix IVPMatrix;
-}
-
-cbuffer ScreenBuffer : register (b1)
-{
 	uint2 screen;
-}
-
-cbuffer CameraBuffer : register (b2)
-{
 	vector camPosition;
 }
 
-cbuffer vDirLightInfo : register (b3)
+cbuffer vDirLightInfo : register (b1)
 {
 	float3 dlColor[20];
 	float3 dlDirection[20];
 	uint numDirLight;
 }
 
-cbuffer vSpotLightInfo : register (b4)
+cbuffer vSpotLightInfo : register (b2)
 {
 	float3 slColor[20];
 	float3 slPosition[20];
