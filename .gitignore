@@ -20,6 +20,9 @@
 *.out
 *.app
 
+# Compiled Shader
+*.cso
+
 memLost.txt
 
 *.log
