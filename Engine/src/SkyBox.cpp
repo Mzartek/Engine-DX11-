@@ -68,7 +68,7 @@ void Engine::SkyBox::load(const CHAR *posx, const CHAR *negx,
 
 void Engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	*_rotateMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)XM_PI / 180)) * *_rotateMatrix;
+	*_rotateMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle) * *_rotateMatrix;
 }
 
 void Engine::SkyBox::display(GBuffer *gbuf, Camera *cam)

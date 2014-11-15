@@ -72,7 +72,7 @@ void Engine::SpotLight::position(void)
 	XMVECTOR pos = XMVectorSet(_lightInfo.position.x, _lightInfo.position.y, _lightInfo.position.z, 0.0f);
 	XMVECTOR dir = XMVectorSet(_lightInfo.direction.x, _lightInfo.direction.y, _lightInfo.direction.z, 0.0f);
 
-	*_projectionMatrix = XMMatrixPerspectiveFovRH(_lightInfo.spotCutOff * 2 * ((FLOAT)XM_PI / 180), (FLOAT)_shadow->getWidth() / _shadow->getHeight(), 0.1f, 1000.0f);
+	*_projectionMatrix = XMMatrixPerspectiveFovRH(_lightInfo.spotCutOff * 2, (FLOAT)_shadow->getWidth() / _shadow->getHeight(), 0.1f, 1000.0f);
 	*_viewMatrix = XMMatrixLookAtRH(pos, pos + dir, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 	*_VPMatrix = *_viewMatrix * *_projectionMatrix;
 }

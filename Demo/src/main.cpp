@@ -48,7 +48,7 @@ void GameManager::idle(void)
 	if (input->getMouseState(0))
 		cam->setSpeed(5.0f);
 
-	heli->matRotate(0.1f, 0, 1, 0);
+	heli->matRotate(0.0025f, 0, 1, 0);
 
 	cam->position();
 	sun->position(heli->getPosition(), 25);
@@ -57,7 +57,7 @@ void GameManager::idle(void)
 
 void GameManager::reshape(UINT width, UINT height)
 {
-	cam->setPerspective(90.0f, width, height, 0.1f, 1000.0f);
+	cam->setPerspective(XM_PI / 2, width, height, 0.1f, 1000.0f);
 }
 
 void GameManager::launch(void)

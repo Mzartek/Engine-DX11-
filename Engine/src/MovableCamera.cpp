@@ -18,19 +18,10 @@ void Engine::MovableCamera::setInitialAngle(const FLOAT &t, const FLOAT &p)
 	_atheta = t;
 	_aphi = p;
 
-	if (_atheta > 360)
-		_atheta -= 360;
-	else if (_atheta < -360)
-		_atheta += 360;
-	if (_aphi > 89)
-		_aphi = 89;
-	else if (_aphi < -89)
-		_aphi = -89;
-
-	FLOAT tmp = (FLOAT)cos(_aphi*XM_PI / 180);
-	*_vforward = XMVectorSetX(*_vforward, tmp*(FLOAT)sin(_atheta*XM_PI / 180));
-	*_vforward = XMVectorSetY(*_vforward, (FLOAT)sin(_aphi*XM_PI / 180));
-	*_vforward = XMVectorSetZ(*_vforward, tmp*(FLOAT)cos(_atheta*XM_PI / 180));
+	FLOAT tmp = cos(_aphi);
+	*_vforward = XMVectorSetX(*_vforward, tmp * sin(_atheta));
+	*_vforward = XMVectorSetY(*_vforward, sin(_aphi));
+	*_vforward = XMVectorSetZ(*_vforward, tmp * cos(_atheta));
 
 	*_vleft = XMVectorSetX(*_vleft, 1 * XMVectorGetZ(*_vforward));
 	*_vleft = XMVectorSetY(*_vleft, 0);
@@ -57,22 +48,13 @@ XMVECTOR Engine::MovableCamera::getVectorLeft(void) const
 
 void Engine::MovableCamera::mouseMove(const INT &xrel, const INT &yrel)
 {
-	_atheta -= (FLOAT)xrel;
-	_aphi -= (FLOAT)yrel;
+	_atheta -= (FLOAT)xrel * XM_PI / 180;
+	_aphi -= (FLOAT)yrel * XM_PI / 180;
 
-	if (_atheta > 360)
-		_atheta -= 360;
-	else if (_atheta < -360)
-		_atheta += 360;
-	if (_aphi > 89)
-		_aphi = 89;
-	else if (_aphi < -89)
-		_aphi = -89;
-
-	FLOAT tmp = (FLOAT)cos(_aphi*XM_PI / 180);
-	*_vforward = XMVectorSetX(*_vforward, tmp*(FLOAT)sin(_atheta*XM_PI / 180));
-	*_vforward = XMVectorSetY(*_vforward, (FLOAT)sin(_aphi*XM_PI / 180));
-	*_vforward = XMVectorSetZ(*_vforward, tmp*(FLOAT)cos(_atheta*XM_PI / 180));
+	FLOAT tmp = cos(_aphi);
+	*_vforward = XMVectorSetX(*_vforward, tmp * sin(_atheta));
+	*_vforward = XMVectorSetY(*_vforward, sin(_aphi));
+	*_vforward = XMVectorSetZ(*_vforward, tmp * cos(_atheta));
 
 	*_vleft = XMVectorSetX(*_vleft, 1 * XMVectorGetZ(*_vforward));
 	*_vleft = XMVectorSetY(*_vleft, 0);

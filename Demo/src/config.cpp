@@ -27,13 +27,13 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 
 	// Camera config
 	cam->setPositionCamera(XMVectorSet(30, 10, 0, 1));
-	cam->setInitialAngle(-90, 0);
+	cam->setInitialAngle(-XM_PI / 2, 0);
 
 	// Skybox config
 	skybox->load("resources/Skybox/rightred2.jpg", "resources/Skybox/leftred2.jpg",
 		"resources/Skybox/topred2.jpg", "resources/Skybox/botred2.jpg",
 		"resources/Skybox/frontred2.jpg", "resources/Skybox/backred2.jpg");
-	skybox->rotate(180, 1, 0, 0);
+	skybox->rotate(XM_PI, 1, 0, 0);
 
 	// Model config
 	FLOAT vertexArray[] =
@@ -70,10 +70,9 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	torch->setColor(XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
 	torch->setPosition(XMVectorSet(20.0f, 40.0f, 0.0f, 1.0f));
 	torch->setDirection(XMVectorSet(-0.5f, -1.0f, 0.0f, 1.0f));
-	torch->setSpotCutOff(45.0f);
+	torch->setSpotCutOff(XM_PI / 4);
 	torch->setShadowMapping(TRUE);
 	torch->configShadowMap(1024, 1024);
-
 }
 
 GameManager::~GameManager(void)

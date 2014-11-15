@@ -220,7 +220,7 @@ void Engine::Model::matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 
 void Engine::Model::matRotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	*_ModelMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle * ((FLOAT)XM_PI / 180)) * *_ModelMatrix;
+	*_ModelMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle) * *_ModelMatrix;
 }
 
 void Engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)

@@ -30,7 +30,7 @@ void Engine::Camera::setPositionTarget(const XMVECTOR &pos)
 
 void Engine::Camera::setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f)
 {
-	*_projectionMatrix = XMMatrixPerspectiveFovRH(fov*((FLOAT)XM_PI / 180), (FLOAT)width / height, n, f);
+	*_projectionMatrix = XMMatrixPerspectiveFovRH(fov, (FLOAT)width / height, n, f);
 }
 
 XMVECTOR Engine::Camera::getPositionCamera(void) const

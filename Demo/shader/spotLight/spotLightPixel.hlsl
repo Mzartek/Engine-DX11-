@@ -106,7 +106,7 @@ PS_OUTPUT main(PS_INPUT input)
 		shadow = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 1.0);
 	float3 L = normalize(lightPosition - position);
 	float cos_cur_angle = dot(-L, normalize(lightDirection));
-	float cos_outer_cone_angle = cos(radians(lightSpotCutOff));
+	float cos_outer_cone_angle = cos(lightSpotCutOff);
 	float cos_inner_cone_angle = cos_outer_cone_angle + 0.01;
 	float cos_inner_minus_outer_angle = cos_inner_cone_angle - cos_outer_cone_angle;
 	float spot = clamp((cos_cur_angle - cos_outer_cone_angle) / cos_inner_minus_outer_angle, 0.0, 1.0);
