@@ -12,6 +12,8 @@ Engine::Light::Light(const EngineDevice &EngineDevice, ShaderProgram *program)
 	_mainInfoBuffer = new Buffer(_EngineDevice);
 	_lightInfoBuffer = new Buffer(_EngineDevice);
 	_shadow = new ShadowMap(_EngineDevice);
+	_projectionMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_projectionMatrix, 16);
+	_viewMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_viewMatrix, 16);
 	_VPMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_VPMatrix, 16);
 
 	FLOAT vertex[] = 
@@ -31,12 +33,24 @@ Engine::Light::~Light(void)
 	delete _mainInfoBuffer;
 	delete _lightInfoBuffer;
 	delete _shadow;
+	_aligned_free(_projectionMatrix);
+	_aligned_free(_viewMatrix);
 	_aligned_free(_VPMatrix);
 }
 
 void Engine::Light::configShadowMap(const UINT &width, const UINT &height)
 {
 	_shadow->config(width, height);
+}
+
+XMMATRIX Engine::Light::getProjectionMatrix(void) const
+{
+	return *_projectionMatrix;
+}
+
+XMMATRIX Engine::Light::getViewMatrix(void) const
+{
+	return *_viewMatrix;
 }
 
 XMMATRIX Engine::Light::getVPMatrix(void) const

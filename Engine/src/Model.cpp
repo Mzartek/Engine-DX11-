@@ -16,9 +16,12 @@ Engine::Model::Model(const EngineDevice &EngineDevice, ShaderProgram *gProgram, 
 {
 	_EngineDevice = EngineDevice;
 	_matrixBuffer = new Buffer(_EngineDevice);
+	_cameraBuffer = new Buffer(_EngineDevice);
 	_ModelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_ModelMatrix, 16);
 
-	_matrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, 2 * sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
+	_matrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, 5 * sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
+	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, 2 * sizeof XMVECTOR, D3D11_USAGE_DYNAMIC);
+
 	matIdentity();
 
 	_gProgram = gProgram;
@@ -44,6 +47,7 @@ Engine::Model::~Model(void)
 		delete _tMesh;
 	}
 	delete _matrixBuffer;
+	delete _cameraBuffer;
 	_aligned_free(_ModelMatrix);
 	_pInputLayout->Release();
 }
@@ -254,15 +258,31 @@ void Engine::Model::display(GBuffer *gbuf, Camera *cam) const
 	struct
 	{
 		XMMATRIX MVP;
+		XMMATRIX projection;
+		XMMATRIX view;
+		XMMATRIX model;
 		XMMATRIX normal;
 	} matrix;
 	matrix.MVP = *_ModelMatrix * cam->getVPMatrix();
+	matrix.projection = cam->getProjectionMatrix();
+	matrix.view = cam->getViewMatrix();
+	matrix.model = *_ModelMatrix;
 	matrix.normal = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
 	_matrixBuffer->updateStoreMap(&matrix);
+
+	struct
+	{
+		XMVECTOR position;
+		XMVECTOR target;
+	} camera;
+	camera.position = cam->getPositionCamera();
+	camera.target = cam->getPositionTarget();
+	_cameraBuffer->updateStoreMap(&camera);
 
 	ID3D11Buffer *buf[] =
 	{
 		_matrixBuffer->getBuffer(),
+		_cameraBuffer->getBuffer(),
 	};
 	_EngineDevice.DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
@@ -290,15 +310,31 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
 	struct
 	{
 		XMMATRIX MVP;
+		XMMATRIX projection;
+		XMMATRIX view;
+		XMMATRIX model;
 		XMMATRIX normal;
 	} matrix;
 	matrix.MVP = *_ModelMatrix * cam->getVPMatrix();
+	matrix.projection = cam->getProjectionMatrix();
+	matrix.view = cam->getViewMatrix();
+	matrix.model = *_ModelMatrix;
 	matrix.normal = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
 	_matrixBuffer->updateStoreMap(&matrix);
+
+	struct
+	{
+		XMVECTOR position;
+		XMVECTOR target;
+	} camera;
+	camera.position = cam->getPositionCamera();
+	camera.target = cam->getPositionTarget();
+	_cameraBuffer->updateStoreMap(&camera);
 
 	ID3D11Buffer *buf[] =
 	{
 		_matrixBuffer->getBuffer(),
+		_cameraBuffer->getBuffer(),
 	};
 	_EngineDevice.DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
@@ -325,9 +361,15 @@ void Engine::Model::displayShadowMap(Light *light) const
 	struct
 	{
 		XMMATRIX MVP;
+		XMMATRIX projection;
+		XMMATRIX view;
+		XMMATRIX model;
 		XMMATRIX normal;
 	} matrix;
 	matrix.MVP = *_ModelMatrix * light->getVPMatrix();
+	matrix.projection = light->getProjectionMatrix();
+	matrix.view = light->getViewMatrix();
+	matrix.model = *_ModelMatrix;
 	matrix.normal = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
 	_matrixBuffer->updateStoreMap(&matrix);
 

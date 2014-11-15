@@ -45,12 +45,12 @@ void Engine::MovableCamera::setSpeed(const FLOAT &v)
 	_speed = v;
 }
 
-XMVECTOR Engine::MovableCamera::getForward(void) const
+XMVECTOR Engine::MovableCamera::getVectorForward(void) const
 {
 	return *_vforward;
 }
 
-XMVECTOR Engine::MovableCamera::getLeft(void) const
+XMVECTOR Engine::MovableCamera::getVectorLeft(void) const
 {
 	return *_vleft;
 }

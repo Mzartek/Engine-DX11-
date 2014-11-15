@@ -21,11 +21,15 @@ namespace Engine
 		ShaderProgram *_program;
 		ID3D11InputLayout *_pInputLayout;
 		ShadowMap *_shadow;
+		XMMATRIX *_projectionMatrix;
+		XMMATRIX *_viewMatrix;
 		XMMATRIX *_VPMatrix;
 	public:
 		Light(const EngineDevice &EngineDevice, ShaderProgram *program);
 		~Light(void);
 		void configShadowMap(const UINT &width, const UINT &height);
+		XMMATRIX getProjectionMatrix(void) const;
+		XMMATRIX getViewMatrix(void) const;
 		XMMATRIX getVPMatrix(void) const;
 		ShadowMap *getShadowMap(void);
 		void clear(void) const;

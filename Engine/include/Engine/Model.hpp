@@ -19,6 +19,7 @@ namespace Engine
 		BOOL isMirror;
 		std::vector<Mesh *> *_tMesh;
 		Buffer *_matrixBuffer;
+		Buffer *_cameraBuffer;
 		XMMATRIX *_ModelMatrix;
 		// ShaderProgram
 		ShaderProgram *_gProgram;

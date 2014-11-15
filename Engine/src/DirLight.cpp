@@ -51,8 +51,9 @@ void Engine::DirLight::position(const XMVECTOR &position, const FLOAT &dim)
 {
 	XMVECTOR dir = XMVectorSet(_lightInfo.direction.x, _lightInfo.direction.y, _lightInfo.direction.z, 0.0f);
 
-	*_VPMatrix = XMMatrixLookAtRH(position - dir, position, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) *
-		XMMatrixOrthographicOffCenterRH(-dim, dim, -dim, dim, -dim, dim);
+	*_projectionMatrix = XMMatrixOrthographicOffCenterRH(-dim, dim, -dim, dim, -dim, dim);
+	*_viewMatrix = XMMatrixLookAtRH(position - dir, position, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+	*_VPMatrix = *_viewMatrix * *_projectionMatrix;
 }
 
 void Engine::DirLight::display(GBuffer *gbuf, Camera *cam)

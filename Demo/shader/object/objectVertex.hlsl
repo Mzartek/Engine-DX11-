@@ -1,7 +1,16 @@
-cbuffer MVPMatrixBuffer : register(b0)
+cbuffer matrixBuffer : register(b0)
 {
 	matrix MVP;
+	matrix projectionMatrix;
+	matrix viewMatrix;
+	matrix modelMatrix;
 	matrix normalMatrix;
+}
+
+cbuffer cameraBuffer : register(b1)
+{
+	vector camPosition;
+	vector camTarget;
 }
 
 struct VS_INPUT
