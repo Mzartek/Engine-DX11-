@@ -1,5 +1,5 @@
-#ifndef TEXTURE
-#define TEXTURE
+#ifndef TEXTURE_HEADER
+#define TEXTURE_HEADER
 
 #include "Object.hpp"
 

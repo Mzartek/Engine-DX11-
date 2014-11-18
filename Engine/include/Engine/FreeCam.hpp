@@ -1,5 +1,5 @@
-#ifndef FREE_CAM
-#define FREE_CAM
+#ifndef FREECAM_HEADER
+#define FREECAM_HEADER
 
 #include "MovableCamera.hpp"
 

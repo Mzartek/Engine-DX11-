@@ -1,5 +1,5 @@
-#ifndef SHADER_PROGRAM
-#define SHADER_PROGRAM
+#ifndef SHADERPROGRAM_HEADER
+#define SHADERPROGRAM_HEADER
 
 #include "Renderer.hpp"
 

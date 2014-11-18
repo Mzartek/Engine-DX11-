@@ -1,5 +1,5 @@
-#ifndef FRAMEBUFFER
-#define FRAMEBUFFER
+#ifndef FRAMEBUFFER_HEADER
+#define FRAMEBUFFER_HEADER
 
 #include "Object.hpp"
 

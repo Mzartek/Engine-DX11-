@@ -1,5 +1,5 @@
-#ifndef OBJECT
-#define OBJECT
+#ifndef OBJECT_HEADER
+#define OBJECT_HEADER
 
 #include "EngineHead.hpp"
 

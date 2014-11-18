@@ -1,0 +1,4 @@
+#ifndef PARTICLES_HEADER
+#define PARTICLES_HEADER
+
+#endif

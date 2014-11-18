@@ -1,5 +1,5 @@
-#ifndef LIGHT
-#define LIGHT
+#ifndef LIGHT_HEADER
+#define LIGHT_HEADER
 
 #include "Object.hpp"
 

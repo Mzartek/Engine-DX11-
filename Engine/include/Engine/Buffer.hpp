@@ -1,5 +1,5 @@
-#ifndef BUFFER
-#define BUFFER
+#ifndef BUFFER_HEADER
+#define BUFFER_HEADER
 
 #include "Object.hpp"
 

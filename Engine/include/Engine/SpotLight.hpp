@@ -1,5 +1,5 @@
-#ifndef SPOT_LIGHT
-#define SPOT_LIGHT
+#ifndef SPOTLIGHT_HEADER
+#define SPOTLIGHT_HEADER
 
 #include "Light.hpp"
 

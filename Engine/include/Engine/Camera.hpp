@@ -1,5 +1,5 @@
-#ifndef CAMERA
-#define CAMERA
+#ifndef CAMERA_HEADER
+#define CAMERA_HEADER
 
 #include "ShaderProgram.hpp"
 

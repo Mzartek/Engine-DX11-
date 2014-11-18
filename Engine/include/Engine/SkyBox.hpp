@@ -1,5 +1,5 @@
-#ifndef SKYBOX
-#define SKYBOX
+#ifndef SKYBOX_HEADER
+#define SKYBOX_HEADER
 
 #define SKYBOX_DIM 10
 

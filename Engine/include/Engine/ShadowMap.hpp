@@ -1,5 +1,5 @@
-#ifndef SHADOW_MAP
-#define SHADOW_MAP
+#ifndef SHADOWMAP_HEADER
+#define SHADOWMAP_HEADER
 
 #include "FrameBuffer.hpp"
 

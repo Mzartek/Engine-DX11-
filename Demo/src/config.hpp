@@ -1,5 +1,5 @@
-#ifndef CONFIG
-#define CONFIG
+#ifndef CONFIG_HEADER
+#define CONFIG_HEADER
 
 #include <Engine/Renderer.hpp>
 #include <Engine/Input.hpp>

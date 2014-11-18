@@ -1,5 +1,5 @@
-#ifndef INPUT_MANAGER
-#define INPUT_MANAGER
+#ifndef INPUT_HEADER
+#define INPUT_HEADER
 
 #include "Object.hpp"
 

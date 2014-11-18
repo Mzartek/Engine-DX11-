@@ -1,5 +1,5 @@
-#ifndef DIR_LIGHT
-#define DIR_LIGHT
+#ifndef DIRLIGHT_HEADER
+#define DIRLIGHT_HEADER
 
 #include "Light.hpp"
 

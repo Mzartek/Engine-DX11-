@@ -1,5 +1,5 @@
-#ifndef MESH
-#define MESH
+#ifndef MESH_HEADER
+#define MESH_HEADER
 
 #include "Object.hpp"
 

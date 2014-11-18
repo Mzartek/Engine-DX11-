@@ -1,5 +1,5 @@
-#ifndef ENGINE_HEAD
-#define ENGINE_HEAD
+#ifndef ENGINE_HEADER
+#define ENGINE_HEADER
 
 #pragma warning(disable:4324)
 

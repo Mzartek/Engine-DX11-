@@ -1,5 +1,5 @@
-#ifndef MODEL
-#define MODEL
+#ifndef MODEL_HEADER
+#define MODEL_HEADER
 
 #include "Object.hpp"
 

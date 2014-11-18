@@ -1,5 +1,5 @@
-#ifndef RENDERER
-#define RENDERER
+#ifndef RENDERER_HEADER
+#define RENDERER_HEADER
 
 #include "Object.hpp"
 

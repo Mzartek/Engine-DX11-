@@ -1,5 +1,5 @@
-#ifndef PLAYER_CAM
-#define PLAYER_CAM
+#ifndef PLAYERCAM_HEADER
+#define PLAYERCAM_HEADER
 
 #include "MovableCamera.hpp"
 

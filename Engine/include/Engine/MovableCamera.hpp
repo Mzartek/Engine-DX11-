@@ -1,5 +1,5 @@
-#ifndef MOVABLE_CAMERA
-#define MOVABLE_CAMERA
+#ifndef MOVABLECAMERA_HEADER
+#define MOVABLECAMERA_HEADER
 
 #include "Camera.hpp"
 

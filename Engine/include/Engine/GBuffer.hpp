@@ -1,5 +1,5 @@
-#ifndef GBUFFER
-#define GBUFFER
+#ifndef GBUFFER_HEADER
+#define GBUFFER_HEADER
 
 #include "FrameBuffer.hpp"
 

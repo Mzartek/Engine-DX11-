@@ -1,5 +1,5 @@
-#ifndef SCREEN
-#define SCREEN
+#ifndef SCREEN_HEADER
+#define SCREEN_HEADER
 
 #include "Object.hpp"
 
