@@ -5,8 +5,8 @@
 #include <Engine/Renderer.hpp>
 
 Engine::Screen::Screen(const EngineDevice &EngineDevice, ShaderProgram *backgroundProgram, ShaderProgram *directProgram)
+	: _EngineDevice(EngineDevice), _backgroundProgram(backgroundProgram), _directProgram(directProgram)
 {
-	_EngineDevice = EngineDevice;
 	_vertexBuffer = new Buffer(_EngineDevice);
 	_screenColorBuffer = new Buffer(_EngineDevice);
 
@@ -18,9 +18,6 @@ Engine::Screen::Screen(const EngineDevice &EngineDevice, ShaderProgram *backgrou
 	};
 	_vertexBuffer->createStore(D3D11_BIND_VERTEX_BUFFER, vertex, sizeof vertex, D3D11_USAGE_IMMUTABLE);
 	_screenColorBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMFLOAT4, D3D11_USAGE_DYNAMIC);
-
-	_backgroundProgram = backgroundProgram;
-	_directProgram = directProgram;
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{

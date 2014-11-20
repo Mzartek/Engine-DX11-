@@ -4,10 +4,8 @@
 #include <Engine/ShaderProgram.hpp>
 
 Engine::Light::Light(const EngineDevice &EngineDevice, ShaderProgram *program)
+	: _EngineDevice(EngineDevice), _program(program)
 {
-	_EngineDevice = EngineDevice;
-	_program = program;
-
 	_vertexBuffer = new Buffer(_EngineDevice);
 	_mainInfoBuffer = new Buffer(_EngineDevice);
 	_lightInfoBuffer = new Buffer(_EngineDevice);

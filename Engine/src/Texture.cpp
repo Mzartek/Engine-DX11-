@@ -2,9 +2,8 @@
 #include <FreeImage.h>
 
 Engine::Texture::Texture(const EngineDevice &EngineDevice)
-	: _pShaderResourceView(NULL), _pSamplerState(NULL)
+	: _EngineDevice(EngineDevice), _pShaderResourceView(NULL), _pSamplerState(NULL)
 {
-	_EngineDevice = EngineDevice;
 }
 
 Engine::Texture::~Texture(void)

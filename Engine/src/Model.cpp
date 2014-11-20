@@ -12,9 +12,8 @@
 #include <assimp/scene.h>
 
 Engine::Model::Model(const EngineDevice &EngineDevice, ShaderProgram *gProgram, ShaderProgram *smProgram)
-	: _tMesh(NULL)
+	: _EngineDevice(EngineDevice), _tMesh(NULL), _gProgram(gProgram), _smProgram(smProgram)
 {
-	_EngineDevice = EngineDevice;
 	_matrixBuffer = new Buffer(_EngineDevice);
 	_cameraBuffer = new Buffer(_EngineDevice);
 	_ModelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_ModelMatrix, 16);
@@ -23,9 +22,6 @@ Engine::Model::Model(const EngineDevice &EngineDevice, ShaderProgram *gProgram, 
 	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, 2 * sizeof XMVECTOR, D3D11_USAGE_DYNAMIC);
 
 	matIdentity();
-
-	_gProgram = gProgram;
-	_smProgram = smProgram;
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{

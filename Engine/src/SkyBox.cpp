@@ -6,8 +6,8 @@
 #include <Engine/Camera.hpp>
 
 Engine::SkyBox::SkyBox(const EngineDevice &EngineDevice, ShaderProgram *program)
+	: _EngineDevice(EngineDevice), _program(program)
 {
-	_EngineDevice = EngineDevice;
 	_cubeTexture = new Texture(_EngineDevice);
 	_vertexBuffer = new Buffer(_EngineDevice);
 	_indexBuffer = new Buffer(_EngineDevice);
@@ -39,8 +39,6 @@ Engine::SkyBox::SkyBox(const EngineDevice &EngineDevice, ShaderProgram *program)
 	_indexBuffer->createStore(D3D11_BIND_INDEX_BUFFER, indexArray, sizeof indexArray, D3D11_USAGE_IMMUTABLE);
 	_MVPMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
 	*_rotateMatrix = XMMatrixIdentity();
-	
-	_program = program;
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{

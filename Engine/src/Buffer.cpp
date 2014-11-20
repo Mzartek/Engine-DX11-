@@ -1,9 +1,8 @@
 #include "Engine/Buffer.hpp"
 
 Engine::Buffer::Buffer(const EngineDevice &EngineDevice)
-	: _target(D3D11_BIND_VERTEX_BUFFER), _pBuffer(NULL), _size(0)
+	: _EngineDevice(EngineDevice), _target(D3D11_BIND_VERTEX_BUFFER), _pBuffer(NULL), _size(0)
 {
-	_EngineDevice = EngineDevice;
 }
 
 Engine::Buffer::~Buffer(void)

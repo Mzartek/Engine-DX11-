@@ -91,7 +91,7 @@
     <ClInclude Include="include\Engine\MovableCamera.hpp" />
     <ClInclude Include="include\Engine\Mesh.hpp" />
     <ClInclude Include="include\Engine\Object.hpp" />
-    <ClInclude Include="include\Engine\Particles.hpp" />
+    <ClInclude Include="include\Engine\ParticlesManager.hpp" />
     <ClInclude Include="include\Engine\PlayerCam.hpp" />
     <ClInclude Include="include\Engine\Screen.hpp" />
     <ClInclude Include="include\Engine\ShaderProgram.hpp" />
@@ -114,7 +114,7 @@
     <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\MovableCamera.cpp" />
     <ClCompile Include="src\Object.cpp" />
-    <ClCompile Include="src\Particles.cpp" />
+    <ClCompile Include="src\ParticlesManager.cpp" />
     <ClCompile Include="src\PlayerCam.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Screen.cpp" />

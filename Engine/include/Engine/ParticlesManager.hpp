@@ -1,5 +1,5 @@
-#ifndef PARTICLES_HEADER
-#define PARTICLES_HEADER
+#ifndef PARTICLESMANAGER_HEADER
+#define PARTICLESMANAGER_HEADER
 
 #include "Object.hpp"
 
@@ -8,7 +8,7 @@ namespace Engine
 	class ShaderProgram;
 	class Buffer;
 
-	class DLLAPI Particles : public Object
+	class DLLAPI ParticlesManager : public Object
 	{
 	protected:
 		EngineDevice _EngineDevice;
@@ -17,8 +17,8 @@ namespace Engine
 		Buffer *_vertexBuffer;
 		UINT _numElement;
 	public:
-		Particles(EngineDevice EngineDevice, ShaderProgram *program);
-		~Particles(void);
+		ParticlesManager(EngineDevice EngineDevice, ShaderProgram *program);
+		~ParticlesManager(void);
 	};
 }
 
