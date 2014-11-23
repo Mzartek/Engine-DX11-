@@ -13,6 +13,7 @@ namespace Engine
 		XMMATRIX *_projectionMatrix;
 		XMMATRIX *_viewMatrix;
 		XMMATRIX *_VPMatrix;
+		XMMATRIX *_IVPMatrix;
 	public:
 		Camera(void);
 		~Camera(void);
@@ -24,6 +25,7 @@ namespace Engine
 		XMMATRIX getProjectionMatrix(void) const;
 		XMMATRIX getViewMatrix(void) const;
 		XMMATRIX getVPMatrix(void) const;
+		XMMATRIX getIVPMatrix(void) const;
 		void position(void);
 	};
 }

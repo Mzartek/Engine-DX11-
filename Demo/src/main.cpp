@@ -49,6 +49,7 @@ void GameManager::idle(void)
 		cam->setSpeed(5.0f);
 
 	heli->matRotate(0.0025f, 0, 1, 0);
+	heli->genMatNormal();
 
 	cam->position();
 	sun->position(heli->getPosition(), 25);

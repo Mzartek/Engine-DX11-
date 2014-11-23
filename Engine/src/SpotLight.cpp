@@ -114,7 +114,7 @@ void Engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
 
 		mainInfo.shadowMatrix = *_VPMatrix;
 	}
-	mainInfo.IVPMatrix = XMMatrixInverse(NULL, cam->getVPMatrix());
+	mainInfo.IVPMatrix = cam->getIVPMatrix();
 	mainInfo.screen.x = gbuf->getWidth(), mainInfo.screen.y = gbuf->getHeight();
 	mainInfo.camPosition = cam->getPositionCamera();
 

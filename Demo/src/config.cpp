@@ -54,12 +54,14 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 		sizeof index, index,
 		"resources/ornaments.jpg", "resources/NM_none.png",
 		mat_ambient, mat_diffuse, mat_specular, mat_shininess);
+	sol->genMatNormal();
 
 	heli->initMeshArray();
 	heli->loadFromFile("resources/heli/corps.mobj");
 	heli->sortMesh();
 	heli->matTranslate(0.0f, 6.0f, 0.0f);
 	heli->matScale(2, 2, 2);
+	heli->genMatNormal();
 
 	// Light config
 	sun->setColor(XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));

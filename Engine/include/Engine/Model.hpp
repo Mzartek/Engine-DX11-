@@ -21,6 +21,7 @@ namespace Engine
 		Buffer *_matrixBuffer;
 		Buffer *_cameraBuffer;
 		XMMATRIX *_ModelMatrix;
+		XMMATRIX *_NormalMatrix;
 		// ShaderProgram
 		ShaderProgram *_gProgram;
 		ShaderProgram *_smProgram;
@@ -40,6 +41,7 @@ namespace Engine
 		void matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void matRotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z);
 		void matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z);
+		void genMatNormal(void);
 		XMVECTOR getPosition(void) const;
 		Mesh *getMesh(UINT num) const;
 		void display(GBuffer *gbuf, Camera *cam) const;

@@ -17,6 +17,7 @@ Engine::Model::Model(const EngineDevice &EngineDevice, ShaderProgram *gProgram, 
 	_matrixBuffer = new Buffer(_EngineDevice);
 	_cameraBuffer = new Buffer(_EngineDevice);
 	_ModelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_ModelMatrix, 16);
+	_NormalMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_NormalMatrix, 16);
 
 	_matrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, 5 * sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
 	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, 2 * sizeof XMVECTOR, D3D11_USAGE_DYNAMIC);
@@ -45,6 +46,7 @@ Engine::Model::~Model(void)
 	delete _matrixBuffer;
 	delete _cameraBuffer;
 	_aligned_free(_ModelMatrix);
+	_aligned_free(_NormalMatrix);
 	_pInputLayout->Release();
 }
 
@@ -224,6 +226,11 @@ void Engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 	*_ModelMatrix = XMMatrixScaling(x, y, z) * *_ModelMatrix;
 }
 
+void Engine::Model::genMatNormal(void)
+{
+	*_NormalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
+}
+
 XMVECTOR Engine::Model::getPosition(void) const
 {
 	return XMVectorSet(XMVectorGetW(_ModelMatrix->r[0]), XMVectorGetW(_ModelMatrix->r[1]), XMVectorGetW(_ModelMatrix->r[2]), XMVectorGetW(_ModelMatrix->r[3]));
@@ -263,7 +270,7 @@ void Engine::Model::display(GBuffer *gbuf, Camera *cam) const
 	matrix.projection = cam->getProjectionMatrix();
 	matrix.view = cam->getViewMatrix();
 	matrix.model = *_ModelMatrix;
-	matrix.normal = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
+	matrix.normal = *_NormalMatrix;
 	_matrixBuffer->updateStoreMap(&matrix);
 
 	struct
@@ -313,7 +320,7 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
 	matrix.projection = cam->getProjectionMatrix();
 	matrix.view = cam->getViewMatrix();
 	matrix.model = *_ModelMatrix;
-	matrix.normal = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
+	matrix.normal = *_NormalMatrix;
 	_matrixBuffer->updateStoreMap(&matrix);
 
 	struct
@@ -363,7 +370,7 @@ void Engine::Model::displayShadowMap(Light *light) const
 	matrix.projection = light->getProjectionMatrix();
 	matrix.view = light->getViewMatrix();
 	matrix.model = *_ModelMatrix;
-	matrix.normal = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
+	matrix.normal = *_NormalMatrix;
 	_matrixBuffer->updateStoreMap(&matrix);
 
 	ID3D11Buffer *buf[] =
