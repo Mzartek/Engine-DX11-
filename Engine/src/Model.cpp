@@ -292,8 +292,6 @@ void Engine::Model::display(GBuffer *gbuf, Camera *cam) const
 void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
 {
 	UINT i;
-	XMMATRIX MVPMatrix = *_ModelMatrix * cam->getVPMatrix();
-	XMMATRIX NormalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
 
 	gbuf->setGeometryState();
 
@@ -344,7 +342,6 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
 void Engine::Model::displayShadowMap(Light *light) const
 {
 	UINT i;
-	XMMATRIX MVPMatrix = *_ModelMatrix * light->getVPMatrix();
 
 	light->getShadowMap()->setState();
 
