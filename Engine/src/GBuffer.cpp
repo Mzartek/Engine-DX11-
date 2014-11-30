@@ -18,15 +18,14 @@ Engine::GBuffer::GBuffer(const EngineDevice &EngineDevice)
 	// Depth Stencil View
 	_pDepthStencilView = NULL;
 	// Depth Stencil State;
-	_pSkyboxDepthStencilState = NULL;
-	_pGeometryDepthStencilState = NULL;
-	_pLightDepthStencilState = NULL;
-	_pBackgroundDepthStencilState = NULL;
+	_pDepthNoWriteState = NULL;
+	_pDepthStencilState = NULL;
+	_pNoDepthStencilState = NULL;
+	_pStencilState = NULL;
 	// Blend State
-	_pSkyboxBlendState = NULL;
-	_pGeometryBlendState = NULL;
-	_pLightBlendState = NULL;
-	_pBackgroundBlendState = NULL;
+	_pNoBlendState = NULL;
+	_pAdditiveBlendState = NULL;
+	_pAlphaBlendState = NULL;
 	// Rasterizer State
 	_pRasterizerState = NULL;
 }
@@ -48,13 +47,14 @@ Engine::GBuffer::~GBuffer(void)
 	// Depth View
 	if (_pDepthStencilView) _pDepthStencilView->Release();
 	// Depth Stencil State
-	if (_pGeometryDepthStencilState) _pGeometryDepthStencilState->Release();
-	if (_pLightDepthStencilState) _pLightDepthStencilState->Release();
-	if (_pBackgroundDepthStencilState) _pBackgroundDepthStencilState->Release();
+	if (_pDepthNoWriteState) _pDepthNoWriteState->Release();
+	if (_pDepthStencilState) _pDepthStencilState->Release();
+	if (_pNoDepthStencilState) _pNoDepthStencilState->Release();
+	if (_pStencilState) _pStencilState->Release();
 	// Blend State
-	if (_pGeometryBlendState) _pGeometryBlendState->Release();
-	if (_pLightBlendState) _pLightBlendState->Release();
-	if (_pBackgroundBlendState) _pBackgroundBlendState->Release();
+	if (_pNoBlendState) _pNoBlendState->Release();
+	if (_pAdditiveBlendState) _pAdditiveBlendState->Release();
+	if (_pAlphaBlendState) _pAlphaBlendState->Release();
 	// Rasterizer State
 	if (_pRasterizerState) _pRasterizerState->Release();
 
@@ -81,13 +81,14 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	// Depth View
 	if (_pDepthStencilView) _pDepthStencilView->Release();
 	// Depth Stencil State
-	if (_pGeometryDepthStencilState) _pGeometryDepthStencilState->Release();
-	if (_pLightDepthStencilState) _pLightDepthStencilState->Release();
-	if (_pBackgroundDepthStencilState) _pBackgroundDepthStencilState->Release();
+	if (_pDepthNoWriteState) _pDepthNoWriteState->Release();
+	if (_pDepthStencilState) _pDepthStencilState->Release();
+	if (_pNoDepthStencilState) _pNoDepthStencilState->Release();
+	if (_pStencilState) _pStencilState->Release();
 	// Blend State
-	if (_pGeometryBlendState) _pGeometryBlendState->Release();
-	if (_pLightBlendState) _pLightBlendState->Release();
-	if (_pBackgroundBlendState) _pBackgroundBlendState->Release();
+	if (_pNoBlendState) _pNoBlendState->Release();
+	if (_pAdditiveBlendState) _pAdditiveBlendState->Release();
+	if (_pAlphaBlendState) _pAlphaBlendState->Release();
 	// Rasterizer State
 	if (_pRasterizerState) _pRasterizerState->Release();
 
@@ -167,13 +168,13 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 
 	// Depth Stencil State
 	D3D11_DEPTH_STENCIL_DESC descDepth;
-	// Skybox Depth Stencil
+	// DepthNoWrite
 	descDepth.DepthEnable = TRUE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
-	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pSkyboxDepthStencilState);
-	// Geometry Depth Stencil
+	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pDepthNoWriteState);
+	// DepthStencil
 	descDepth.DepthEnable = TRUE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
@@ -188,13 +189,13 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descDepth.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 	descDepth.BackFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
 	descDepth.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pGeometryDepthStencilState);
-	// Light Depth Stencil
+	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+	// NoDepthStencil
 	descDepth.DepthEnable = FALSE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	descDepth.StencilEnable = FALSE;
-	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pLightDepthStencilState);
-	// Background Depth Stencil
+	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pNoDepthStencilState);
+	// Stencil
 	descDepth.DepthEnable = FALSE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	descDepth.StencilEnable = TRUE;
@@ -206,21 +207,17 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descDepth.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 	descDepth.BackFace.StencilPassOp = D3D11_STENCIL_OP_ZERO;
 	descDepth.BackFace.StencilFunc = D3D11_COMPARISON_EQUAL;
-	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pBackgroundDepthStencilState);
+	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pStencilState);
 
 	// Blending State
 	D3D11_BLEND_DESC descBlend;
 	descBlend.AlphaToCoverageEnable = FALSE;
 	descBlend.IndependentBlendEnable = FALSE;
-	// Skybox Blending
+	// No Blending
 	descBlend.RenderTarget[0].BlendEnable = FALSE;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	_EngineDevice.Device->CreateBlendState(&descBlend, &_pSkyboxBlendState);
-	// Geometry Blending
-	descBlend.RenderTarget[0].BlendEnable = FALSE;
-	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	_EngineDevice.Device->CreateBlendState(&descBlend, &_pGeometryBlendState);
-	// Light Blending
+	_EngineDevice.Device->CreateBlendState(&descBlend, &_pNoBlendState);
+	// Additive Blending
 	descBlend.RenderTarget[0].BlendEnable = TRUE;
 	descBlend.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
 	descBlend.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
@@ -229,8 +226,8 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
 	descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	_EngineDevice.Device->CreateBlendState(&descBlend, &_pLightBlendState);
-	// Background Blending
+	_EngineDevice.Device->CreateBlendState(&descBlend, &_pAdditiveBlendState);
+	// Alpha Blending
 	descBlend.RenderTarget[0].BlendEnable = TRUE;
 	descBlend.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	descBlend.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
@@ -239,7 +236,7 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	_EngineDevice.Device->CreateBlendState(&descBlend, &_pBackgroundBlendState);
+	_EngineDevice.Device->CreateBlendState(&descBlend, &_pAlphaBlendState);
 	
 	// Rasterizer
 	D3D11_RASTERIZER_DESC descRasterizer;
@@ -276,8 +273,8 @@ void Engine::GBuffer::setSkyboxState(void) const
 		_pRenderTargetView[GBUF_BACKGROUND],
 	};
 	_EngineDevice.DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pSkyboxDepthStencilState, 1);
-	_EngineDevice.DeviceContext->OMSetBlendState(_pSkyboxBlendState, NULL, 0xFFFFFFFF);
+	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pDepthNoWriteState, 1);
+	_EngineDevice.DeviceContext->OMSetBlendState(_pNoBlendState, NULL, 0xFFFFFFFF);
 	_EngineDevice.DeviceContext->RSSetState(_pRasterizerState);
 	_EngineDevice.DeviceContext->RSSetViewports(1, &_VP);
 }
@@ -290,8 +287,8 @@ void Engine::GBuffer::setGeometryState(void) const
 		_pRenderTargetView[GBUF_MATERIAL],
 	};
 	_EngineDevice.DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pGeometryDepthStencilState, 1);
-	_EngineDevice.DeviceContext->OMSetBlendState(_pGeometryBlendState, NULL, 0xFFFFFFFF);
+	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pDepthStencilState, 1);
+	_EngineDevice.DeviceContext->OMSetBlendState(_pNoBlendState, NULL, 0xFFFFFFFF);
 	_EngineDevice.DeviceContext->RSSetState(_pRasterizerState);
 	_EngineDevice.DeviceContext->RSSetViewports(1, &_VP);
 }
@@ -303,8 +300,21 @@ void Engine::GBuffer::setLightState(void) const
 		_pRenderTargetView[GBUF_LIGHT],
 	};
 	_EngineDevice.DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, NULL);
-	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pLightDepthStencilState, 1);
-	_EngineDevice.DeviceContext->OMSetBlendState(_pLightBlendState, NULL, 0xFFFFFFFF);
+	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pNoDepthStencilState, 1);
+	_EngineDevice.DeviceContext->OMSetBlendState(_pAdditiveBlendState, NULL, 0xFFFFFFFF);
+	_EngineDevice.DeviceContext->RSSetState(_pRasterizerState);
+	_EngineDevice.DeviceContext->RSSetViewports(1, &_VP);
+}
+
+void Engine::GBuffer::setParticlesState(void) const
+{
+	ID3D11RenderTargetView *render[]
+	{
+		_pRenderTargetView[GBUF_BACKGROUND],
+	};
+	_EngineDevice.DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
+	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pNoDepthStencilState, 1);
+	_EngineDevice.DeviceContext->OMSetBlendState(_pAlphaBlendState, NULL, 0xFFFFFFFF);
 	_EngineDevice.DeviceContext->RSSetState(_pRasterizerState);
 	_EngineDevice.DeviceContext->RSSetViewports(1, &_VP);
 }
@@ -316,8 +326,8 @@ void Engine::GBuffer::setBackgroundState(void) const
 		_pRenderTargetView[GBUF_BACKGROUND],
 	};
 	_EngineDevice.DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pBackgroundDepthStencilState, 1);
-	_EngineDevice.DeviceContext->OMSetBlendState(_pBackgroundBlendState, NULL, 0xFFFFFFFF);
+	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pStencilState, 1);
+	_EngineDevice.DeviceContext->OMSetBlendState(_pAlphaBlendState, NULL, 0xFFFFFFFF);
 	_EngineDevice.DeviceContext->RSSetState(_pRasterizerState);
 	_EngineDevice.DeviceContext->RSSetViewports(1, &_VP);
 }

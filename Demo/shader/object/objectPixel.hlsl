@@ -57,7 +57,7 @@ PS_OUTPUT main(PS_INPUT input)
 		output.depth = input.position.z;
 	}
 	else
-		output.depth = 1.0;
+		discard;
 
 	return output;
 }

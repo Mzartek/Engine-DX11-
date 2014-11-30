@@ -23,15 +23,14 @@ namespace Engine
 		// Depth View
 		ID3D11DepthStencilView *_pDepthStencilView;
 		// Depth Stencil State
-		ID3D11DepthStencilState *_pSkyboxDepthStencilState;
-		ID3D11DepthStencilState *_pGeometryDepthStencilState;
-		ID3D11DepthStencilState *_pLightDepthStencilState;
-		ID3D11DepthStencilState *_pBackgroundDepthStencilState;
+		ID3D11DepthStencilState *_pDepthNoWriteState;
+		ID3D11DepthStencilState *_pDepthStencilState;
+		ID3D11DepthStencilState *_pNoDepthStencilState;
+		ID3D11DepthStencilState *_pStencilState;
 		// Blend State
-		ID3D11BlendState *_pSkyboxBlendState;
-		ID3D11BlendState *_pGeometryBlendState;
-		ID3D11BlendState *_pLightBlendState;
-		ID3D11BlendState *_pBackgroundBlendState;
+		ID3D11BlendState *_pNoBlendState;
+		ID3D11BlendState *_pAdditiveBlendState;
+		ID3D11BlendState *_pAlphaBlendState;
 		// Rasterizer State
 		ID3D11RasterizerState *_pRasterizerState;
 	public:
@@ -42,6 +41,7 @@ namespace Engine
 		void setSkyboxState(void) const;
 		void setGeometryState(void) const;
 		void setLightState(void) const;
+		void setParticlesState(void) const;
 		void setBackgroundState(void) const;
 		void clear(void) const;
 		void clearLight(void) const;

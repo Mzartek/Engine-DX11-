@@ -20,7 +20,7 @@ PS_OUTPUT main(PS_INPUT input)
 	if (transparency > 0.5)
 		output.depth = input.position.z;
 	else
-		output.depth = 1.0;
+		discard;
 
 	return output;
 }

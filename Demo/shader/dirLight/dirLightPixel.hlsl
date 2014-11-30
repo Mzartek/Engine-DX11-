@@ -90,7 +90,8 @@ PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
-	if (stencilTex[input.position.xy].y != 1) return output;
+	if (stencilTex[input.position.xy].y != 1) 
+		discard;
 
 	float3 position = getPosition(input.position.xy);
 	float4 normal = normalTex[input.position.xy];
