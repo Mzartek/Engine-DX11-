@@ -8,6 +8,14 @@ namespace Engine
 	class Texture;
 	class Buffer;
 
+	struct Vertex
+	{
+		XMFLOAT3 position;
+		XMFLOAT2 texCoord;
+		XMFLOAT3 normal;
+		XMFLOAT3 tangent;
+	};
+
 	class DLLAPI Mesh : public Object
 	{
 		friend int comparMesh(const void *p1, const void *p2);
@@ -37,8 +45,8 @@ namespace Engine
 		void setSpecular(const XMVECTOR &specular);
 		void setShininess(const FLOAT &shininess);
 		FLOAT getTransparency(void);
-		void load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
-			const UINT &sizeIndexArray, const UINT *indexArray);
+		void load(const UINT &numVertex, const Vertex *vertexArray,
+			const UINT &numIndex, const UINT *indexArray);
 		void display(void) const;
 		void displayShadow(void) const;
 	};

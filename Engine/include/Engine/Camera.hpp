@@ -1,7 +1,7 @@
 #ifndef CAMERA_HEADER
 #define CAMERA_HEADER
 
-#include "ShaderProgram.hpp"
+#include "Object.hpp"
 
 namespace Engine
 {

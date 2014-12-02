@@ -58,16 +58,16 @@ FLOAT Engine::Mesh::getTransparency(void)
 	return _material.diffuse.w;
 }
 
-void Engine::Mesh::load(const UINT &sizeVertexArray, const FLOAT *vertexArray,
-	const UINT &sizeIndexArray, const UINT *indexArray)
+void Engine::Mesh::load(const UINT &numVertex, const Vertex *vertexArray,
+	const UINT &numIndex, const UINT *indexArray)
 {
-	_numElement = sizeIndexArray / (UINT)sizeof(UINT);
+	_numElement = numIndex;
 
 	// Create vertex buffer
-	_vertexBuffer->createStore(D3D11_BIND_VERTEX_BUFFER, vertexArray, sizeVertexArray, D3D11_USAGE_IMMUTABLE);
+	_vertexBuffer->createStore(D3D11_BIND_VERTEX_BUFFER, vertexArray, numVertex * sizeof *vertexArray, D3D11_USAGE_IMMUTABLE);
 
 	// Create index buffer
-	_indexBuffer->createStore(D3D11_BIND_INDEX_BUFFER, indexArray, sizeIndexArray, D3D11_USAGE_IMMUTABLE);
+	_indexBuffer->createStore(D3D11_BIND_INDEX_BUFFER, indexArray, numIndex * sizeof *indexArray, D3D11_USAGE_IMMUTABLE);
 }
 
 void Engine::Mesh::display(void) const

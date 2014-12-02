@@ -1,7 +1,7 @@
 #ifndef SHADERPROGRAM_HEADER
 #define SHADERPROGRAM_HEADER
 
-#include "Renderer.hpp"
+#include "Object.hpp"
 
 namespace Engine
 {

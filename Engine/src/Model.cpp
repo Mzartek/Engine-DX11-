@@ -76,8 +76,8 @@ void Engine::Model::initMeshMirror(Model *m)
 	_tMesh = m->_tMesh;
 }
 
-void Engine::Model::addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArray,
-	const UINT &sizeIndexArray, const UINT *indexArray,
+void Engine::Model::addMesh(const UINT &numVertex, const Vertex *vertexArray,
+	const UINT &numIndex, const UINT *indexArray,
 	const CHAR *colorTexture, const CHAR *NMTexture,
 	const XMVECTOR &ambient, const XMVECTOR &diffuse, const XMVECTOR &specular, const FLOAT &shininess)
 {
@@ -89,8 +89,8 @@ void Engine::Model::addMesh(const UINT &sizeVertexArray, const FLOAT *vertexArra
 	newone->setDiffuse(diffuse);
 	newone->setSpecular(specular);
 	newone->setShininess(shininess);
-	newone->load(sizeVertexArray, vertexArray,
-		sizeIndexArray, indexArray);
+	newone->load(numVertex, vertexArray,
+		numIndex, indexArray);
   
 	_tMesh->push_back(newone);
 }
@@ -132,7 +132,8 @@ void Engine::Model::loadFromFile(const CHAR *szFileName)
 		exit(1);
 	}
 
-	std::vector<FLOAT> vertices;
+	Vertex tmpVertex;
+	std::vector<Vertex> vertices;
 	std::vector<UINT> indices;
 	const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
 	const aiVector3D *pPos;
@@ -149,10 +150,12 @@ void Engine::Model::loadFromFile(const CHAR *szFileName)
 			pNormal = pScene->mMeshes[i]->HasNormals() ? &(pScene->mMeshes[i]->mNormals[j]) : &Zero3D;
 			pTangent = pScene->mMeshes[i]->HasTangentsAndBitangents() ? &(pScene->mMeshes[i]->mTangents[j]) : &Zero3D;
 
-			vertices.push_back(pPos->x), vertices.push_back(pPos->y), vertices.push_back(pPos->z);
-			vertices.push_back(pTexCoord->x), vertices.push_back(pTexCoord->y);
-			vertices.push_back(pNormal->x), vertices.push_back(pNormal->y), vertices.push_back(pNormal->z);
-			vertices.push_back(pTangent->x), vertices.push_back(pTangent->y), vertices.push_back(pTangent->z);
+			tmpVertex.position.x = pPos->x,      tmpVertex.position.y = pPos->y,      tmpVertex.position.z = pPos->z;
+			tmpVertex.texCoord.x = pTexCoord->x, tmpVertex.texCoord.y = pTexCoord->y;
+			tmpVertex.normal.x = pNormal->x,     tmpVertex.normal.y = pNormal->y,     tmpVertex.normal.z = pNormal->z;
+			tmpVertex.tangent.x = pTangent->x,   tmpVertex.tangent.y = pTangent->y,   tmpVertex.tangent.z = pTangent->z;
+
+			vertices.push_back(tmpVertex);
 		}
 
 		// Index Buffer
@@ -190,8 +193,8 @@ void Engine::Model::loadFromFile(const CHAR *szFileName)
 		mat_diffuse.a = opacity;
 		mat_specular.a = opacity;
 
-		addMesh(vertices.size() * sizeof(FLOAT), &vertices[0],
-			indices.size() * sizeof(UINT), &indices[0],
+		addMesh(vertices.size(), vertices.data(),
+			indices.size(), indices.data(),
 			colorPath.c_str(), NMPath.c_str(),
 			XMVectorSet(mat_ambient.r, mat_ambient.g, mat_ambient.b, mat_ambient.a), XMVectorSet(mat_diffuse.r, mat_diffuse.g, mat_diffuse.b, mat_diffuse.a), XMVectorSet(mat_specular.r, mat_specular.g, mat_specular.b, mat_specular.a),
 			mat_shininess);

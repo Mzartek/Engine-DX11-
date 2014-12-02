@@ -36,12 +36,12 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	skybox->rotate(XM_PI, 1, 0, 0);
 
 	// Model config
-	FLOAT vertexArray[] =
+	Engine::Vertex vertexArray[] =
 	{
-		-500, 0, -500, 0, 0, 0, 1, 0, 1, 0, 0,
-		-500, 0, 500, 0, 1, 0, 1, 0, 1, 0, 0,
-		500, 0, 500, 1, 1, 0, 1, 0, 1, 0, 0,
-		500, 0, -500, 1, 0, 0, 1, 0, 1, 0, 0
+		XMFLOAT3( -500, 0, -500 ), XMFLOAT2( 0, 0 ), XMFLOAT3( 0, 1, 0 ), XMFLOAT3( 1, 0, 0 ),
+		XMFLOAT3( -500, 0, 500 ), XMFLOAT2( 0, 1 ), XMFLOAT3( 0, 1, 0 ), XMFLOAT3( 1, 0, 0 ),
+		XMFLOAT3( 500, 0, 500 ), XMFLOAT2( 1, 1 ), XMFLOAT3( 0, 1, 0 ), XMFLOAT3( 1, 0, 0 ),
+		XMFLOAT3( 500, 0, -500 ), XMFLOAT2( 1, 0 ), XMFLOAT3( 0, 1, 0 ), XMFLOAT3( 1, 0, 0 ),
 	};
 	UINT index[] = { 2, 0, 1, 0, 2, 3 };
 	XMVECTOR mat_ambient = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
@@ -50,8 +50,8 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	FLOAT mat_shininess = 20.0f;
 
 	sol->initMeshArray();
-	sol->addMesh(sizeof vertexArray, vertexArray,
-		sizeof index, index,
+	sol->addMesh(sizeof vertexArray / sizeof(Engine::Vertex), vertexArray,
+		sizeof index / sizeof(UINT), index,
 		"resources/ornaments.jpg", "resources/NM_none.png",
 		mat_ambient, mat_diffuse, mat_specular, mat_shininess);
 	sol->genMatNormal();
