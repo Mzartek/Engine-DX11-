@@ -10,22 +10,29 @@ namespace Engine
 	protected:
 		XMVECTOR *_pcamera;
 		XMVECTOR *_ptarget;
+		XMVECTOR *_vview;
 		XMMATRIX *_projectionMatrix;
 		XMMATRIX *_viewMatrix;
 		XMMATRIX *_VPMatrix;
 		XMMATRIX *_IVPMatrix;
+		FLOAT _fov;
+		FLOAT _viewLen;
+		FLOAT _frusSphereRadian;
 	public:
 		Camera(void);
 		~Camera(void);
-		void setPositionCamera(const XMVECTOR &pos);
-		void setPositionTarget(const XMVECTOR &pos);
+		void setCameraPosition(const XMVECTOR &pos);
+		void setTargetPosition(const XMVECTOR &pos);
 		void setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f);
-		XMVECTOR getPositionCamera(void) const;
-		XMVECTOR getPositionTarget(void) const;
+		XMVECTOR getCameraPosition(void) const;
+		XMVECTOR getTargetPosition(void) const;
+		XMVECTOR getViewVector(void) const;
 		XMMATRIX getProjectionMatrix(void) const;
 		XMMATRIX getViewMatrix(void) const;
 		XMMATRIX getVPMatrix(void) const;
 		XMMATRIX getIVPMatrix(void) const;
+		FLOAT getFOV(void) const;
+		FLOAT getFrusSphereRadian(void) const;
 		void position(void);
 	};
 }

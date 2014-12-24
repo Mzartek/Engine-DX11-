@@ -26,7 +26,7 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	gBuffer->config(this->renderer->getWidth(), this->renderer->getHeight());
 
 	// Camera config
-	cam->setPositionCamera(XMVectorSet(30, 10, 0, 1));
+	cam->setCameraPosition(XMVectorSet(30, 10, 0, 1));
 	cam->setInitialAngle(-XM_PI / 2, 0);
 
 	// Skybox config

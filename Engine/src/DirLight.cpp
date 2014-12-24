@@ -95,7 +95,7 @@ void Engine::DirLight::display(GBuffer *gbuf, Camera *cam)
 	}
 	mainInfo.IVPMatrix = cam->getIVPMatrix();
 	mainInfo.screen.x = gbuf->getWidth(), mainInfo.screen.y = gbuf->getHeight();
-	mainInfo.camPosition = cam->getPositionCamera();
+	mainInfo.camPosition = cam->getCameraPosition();
 
 	_mainInfoBuffer->updateStoreMap(&mainInfo);
 	_lightInfoBuffer->updateStoreMap(&_lightInfo);

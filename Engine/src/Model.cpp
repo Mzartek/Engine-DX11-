@@ -281,8 +281,8 @@ void Engine::Model::display(GBuffer *gbuf, Camera *cam) const
 		XMVECTOR position;
 		XMVECTOR target;
 	} camera;
-	camera.position = cam->getPositionCamera();
-	camera.target = cam->getPositionTarget();
+	camera.position = cam->getCameraPosition();
+	camera.target = cam->getTargetPosition();
 	_cameraBuffer->updateStoreMap(&camera);
 
 	ID3D11Buffer *buf[] =
@@ -331,8 +331,8 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
 		XMVECTOR position;
 		XMVECTOR target;
 	} camera;
-	camera.position = cam->getPositionCamera();
-	camera.target = cam->getPositionTarget();
+	camera.position = cam->getCameraPosition();
+	camera.target = cam->getTargetPosition();
 	_cameraBuffer->updateStoreMap(&camera);
 
 	ID3D11Buffer *buf[] =

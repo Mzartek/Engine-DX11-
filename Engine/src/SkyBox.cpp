@@ -72,7 +72,7 @@ void Engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, 
 void Engine::SkyBox::display(GBuffer *gbuf, Camera *cam)
 {
 	XMMATRIX pos = *_rotateMatrix * 
-		XMMatrixTranslation(XMVectorGetX(cam->getPositionCamera()), XMVectorGetY(cam->getPositionCamera()), XMVectorGetZ(cam->getPositionCamera())) * 
+		XMMatrixTranslation(XMVectorGetX(cam->getCameraPosition()), XMVectorGetY(cam->getCameraPosition()), XMVectorGetZ(cam->getCameraPosition())) * 
 		cam->getVPMatrix();
 
 	gbuf->setSkyboxState();
