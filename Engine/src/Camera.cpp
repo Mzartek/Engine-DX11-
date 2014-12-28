@@ -36,9 +36,9 @@ void Engine::Camera::setPerspective(const FLOAT &fov, const UINT &width, const U
 {
 	*_projectionMatrix = XMMatrixPerspectiveFovRH(fov, (FLOAT)width / height, n, f);
 
-	_fov = fov;
+	_fov = fov * width / height;
 	_viewLen = f - n;
-	_frusSphereRadian = XMVectorGetX(XMVector3Length(XMVectorSet(0.0f, 0.0f, n + _viewLen * 0.5f, 0.0f) - XMVectorSet((FLOAT)width, (FLOAT)height, _viewLen, 0.0f)));
+	_frusSphereRadian = _viewLen;
 }
 
 XMVECTOR Engine::Camera::getCameraPosition(void) const
