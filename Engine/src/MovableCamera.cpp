@@ -21,10 +21,10 @@ void Engine::MovableCamera::setInitialAngle(const FLOAT &t, const FLOAT &p)
 	if (_aphi >= XM_PI / 2) _aphi = 89.0f * XM_PI / 180;
 	else if (_aphi <= -XM_PI / 2) _aphi = -89.0f * XM_PI / 180;
 
-	FLOAT tmp = cos(_aphi);
-	*_vforward = XMVectorSetX(*_vforward, tmp * sin(_atheta));
-	*_vforward = XMVectorSetY(*_vforward, sin(_aphi));
-	*_vforward = XMVectorSetZ(*_vforward, tmp * cos(_atheta));
+	FLOAT tmp = cosf(_aphi);
+	*_vforward = XMVectorSetX(*_vforward, tmp * sinf(_atheta));
+	*_vforward = XMVectorSetY(*_vforward, sinf(_aphi));
+	*_vforward = XMVectorSetZ(*_vforward, tmp * cosf(_atheta));
 
 	*_vleft = XMVectorSetX(*_vleft, 1 * XMVectorGetZ(*_vforward));
 	*_vleft = XMVectorSetY(*_vleft, 0);
@@ -57,10 +57,10 @@ void Engine::MovableCamera::mouseMove(const INT &xrel, const INT &yrel)
 	if (_aphi >= XM_PI / 2) _aphi = 89.0f * XM_PI / 180;
 	else if (_aphi <= -XM_PI / 2) _aphi = -89.0f * XM_PI / 180;
 
-	FLOAT tmp = cos(_aphi);
-	*_vforward = XMVectorSetX(*_vforward, tmp * sin(_atheta));
-	*_vforward = XMVectorSetY(*_vforward, sin(_aphi));
-	*_vforward = XMVectorSetZ(*_vforward, tmp * cos(_atheta));
+	FLOAT tmp = cosf(_aphi);
+	*_vforward = XMVectorSetX(*_vforward, tmp * sinf(_atheta));
+	*_vforward = XMVectorSetY(*_vforward, sinf(_aphi));
+	*_vforward = XMVectorSetZ(*_vforward, tmp * cosf(_atheta));
 
 	*_vleft = XMVectorSetX(*_vleft, 1 * XMVectorGetZ(*_vforward));
 	*_vleft = XMVectorSetY(*_vleft, 0);

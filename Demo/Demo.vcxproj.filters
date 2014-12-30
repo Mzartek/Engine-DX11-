@@ -53,12 +53,6 @@
     <FxCompile Include="shader\background\backgroundVertex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shader\vLight\vLightPixel.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\vLight\vLightVertex.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shader\screen\screenPixel.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
