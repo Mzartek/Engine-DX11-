@@ -193,8 +193,8 @@ void Engine::Model::loadFromFile(const CHAR *szFileName)
 		mat_diffuse.a = opacity;
 		mat_specular.a = opacity;
 
-		addMesh(vertices.size(), vertices.data(),
-			indices.size(), indices.data(),
+		addMesh((UINT)vertices.size(), vertices.data(),
+			(UINT)indices.size(), indices.data(),
 			colorPath.c_str(), NMPath.c_str(),
 			XMVectorSet(mat_ambient.r, mat_ambient.g, mat_ambient.b, mat_ambient.a), XMVectorSet(mat_diffuse.r, mat_diffuse.g, mat_diffuse.b, mat_diffuse.a), XMVectorSet(mat_specular.r, mat_specular.g, mat_specular.b, mat_specular.a),
 			mat_shininess);
