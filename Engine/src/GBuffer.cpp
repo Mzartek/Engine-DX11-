@@ -1,7 +1,6 @@
 #include <Engine/GBuffer.hpp>
 
-Engine::GBuffer::GBuffer(const EngineDevice &EngineDevice)
-	: FrameBuffer(EngineDevice)
+Engine::GBuffer::GBuffer(void)
 {
 	// Shader Resouce View
 	_pShaderResourceView[GBUF_NORMAL] = NULL;
@@ -120,50 +119,50 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 
 	// Normal
 	descTexture.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	_EngineDevice.Device->CreateTexture2D(&descTexture, NULL, &texture);
+	Device->CreateTexture2D(&descTexture, NULL, &texture);
 	descShaderResourceView.Format = descTexture.Format;
-	_EngineDevice.Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_NORMAL]);
+	Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_NORMAL]);
 	descRenderTargetView.Format = descTexture.Format;
-	_EngineDevice.Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_NORMAL]);
+	Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_NORMAL]);
 	texture->Release();
 
 	// Material
 	descTexture.Format = DXGI_FORMAT_R32G32B32A32_UINT;
-	_EngineDevice.Device->CreateTexture2D(&descTexture, NULL, &texture);
+	Device->CreateTexture2D(&descTexture, NULL, &texture);
 	descShaderResourceView.Format = descTexture.Format;
-	_EngineDevice.Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_MATERIAL]);
+	Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_MATERIAL]);
 	descRenderTargetView.Format = descTexture.Format;
-	_EngineDevice.Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_MATERIAL]);
+	Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_MATERIAL]);
 	texture->Release();
 
 	// Light
 	descTexture.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	_EngineDevice.Device->CreateTexture2D(&descTexture, NULL, &texture);
+	Device->CreateTexture2D(&descTexture, NULL, &texture);
 	descShaderResourceView.Format = descTexture.Format;
-	_EngineDevice.Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_LIGHT]);
+	Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_LIGHT]);
 	descRenderTargetView.Format = descTexture.Format;
-	_EngineDevice.Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_LIGHT]);
+	Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_LIGHT]);
 	texture->Release();
 
 	// Background
 	descTexture.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	_EngineDevice.Device->CreateTexture2D(&descTexture, NULL, &texture);
+	Device->CreateTexture2D(&descTexture, NULL, &texture);
 	descShaderResourceView.Format = descTexture.Format;
-	_EngineDevice.Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_BACKGROUND]);
+	Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_BACKGROUND]);
 	descRenderTargetView.Format = descTexture.Format;
-	_EngineDevice.Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_BACKGROUND]);
+	Device->CreateRenderTargetView(texture, &descRenderTargetView, &_pRenderTargetView[GBUF_BACKGROUND]);
 	texture->Release();
 
 	// Depth
 	descTexture.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
 	descTexture.Format = DXGI_FORMAT_R24G8_TYPELESS;
-	_EngineDevice.Device->CreateTexture2D(&descTexture, NULL, &texture);
+	Device->CreateTexture2D(&descTexture, NULL, &texture);
 	descShaderResourceView.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-	_EngineDevice.Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_DEPTH]);
+	Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_DEPTH]);
 	descShaderResourceView.Format = DXGI_FORMAT_X24_TYPELESS_G8_UINT;
-	_EngineDevice.Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_STENCIL]);
+	Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView[GBUF_STENCIL]);
 	descDepthView.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	_EngineDevice.Device->CreateDepthStencilView(texture, &descDepthView, &_pDepthStencilView);
+	Device->CreateDepthStencilView(texture, &descDepthView, &_pDepthStencilView);
 	texture->Release();
 
 	// Depth Stencil State
@@ -173,7 +172,7 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
-	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pDepthNoWriteState);
+	Device->CreateDepthStencilState(&descDepth, &_pDepthNoWriteState);
 	// DepthStencil
 	descDepth.DepthEnable = TRUE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -189,12 +188,12 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descDepth.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 	descDepth.BackFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
 	descDepth.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+	Device->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
 	// NoDepthStencil
 	descDepth.DepthEnable = FALSE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	descDepth.StencilEnable = FALSE;
-	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pNoDepthStencilState);
+	Device->CreateDepthStencilState(&descDepth, &_pNoDepthStencilState);
 	// Stencil
 	descDepth.DepthEnable = FALSE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
@@ -207,7 +206,7 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descDepth.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 	descDepth.BackFace.StencilPassOp = D3D11_STENCIL_OP_ZERO;
 	descDepth.BackFace.StencilFunc = D3D11_COMPARISON_EQUAL;
-	_EngineDevice.Device->CreateDepthStencilState(&descDepth, &_pStencilState);
+	Device->CreateDepthStencilState(&descDepth, &_pStencilState);
 
 	// Blending State
 	D3D11_BLEND_DESC descBlend;
@@ -216,7 +215,7 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	// No Blending
 	descBlend.RenderTarget[0].BlendEnable = FALSE;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	_EngineDevice.Device->CreateBlendState(&descBlend, &_pNoBlendState);
+	Device->CreateBlendState(&descBlend, &_pNoBlendState);
 	// Additive Blending
 	descBlend.RenderTarget[0].BlendEnable = TRUE;
 	descBlend.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
@@ -226,7 +225,7 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
 	descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	_EngineDevice.Device->CreateBlendState(&descBlend, &_pAdditiveBlendState);
+	Device->CreateBlendState(&descBlend, &_pAdditiveBlendState);
 	// Alpha Blending
 	descBlend.RenderTarget[0].BlendEnable = TRUE;
 	descBlend.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
@@ -236,7 +235,7 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descBlend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	_EngineDevice.Device->CreateBlendState(&descBlend, &_pAlphaBlendState);
+	Device->CreateBlendState(&descBlend, &_pAlphaBlendState);
 	
 	// Rasterizer
 	D3D11_RASTERIZER_DESC descRasterizer;
@@ -250,7 +249,7 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descRasterizer.ScissorEnable = FALSE;
 	descRasterizer.MultisampleEnable = FALSE;
 	descRasterizer.AntialiasedLineEnable = FALSE;
-	_EngineDevice.Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
+	Device->CreateRasterizerState(&descRasterizer, &_pRasterizerState);
 
 	// Create the Viewport
 	_VP.TopLeftX = 0.0f;
@@ -272,11 +271,11 @@ void Engine::GBuffer::setSkyboxState(void) const
 	{
 		_pRenderTargetView[GBUF_BACKGROUND],
 	};
-	_EngineDevice.DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pDepthNoWriteState, 1);
-	_EngineDevice.DeviceContext->OMSetBlendState(_pNoBlendState, NULL, 0xFFFFFFFF);
-	_EngineDevice.DeviceContext->RSSetState(_pRasterizerState);
-	_EngineDevice.DeviceContext->RSSetViewports(1, &_VP);
+	DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
+	DeviceContext->OMSetDepthStencilState(_pDepthNoWriteState, 1);
+	DeviceContext->OMSetBlendState(_pNoBlendState, NULL, 0xFFFFFFFF);
+	DeviceContext->RSSetState(_pRasterizerState);
+	DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void Engine::GBuffer::setGeometryState(void) const
@@ -286,11 +285,11 @@ void Engine::GBuffer::setGeometryState(void) const
 		_pRenderTargetView[GBUF_NORMAL],
 		_pRenderTargetView[GBUF_MATERIAL],
 	};
-	_EngineDevice.DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pDepthStencilState, 1);
-	_EngineDevice.DeviceContext->OMSetBlendState(_pNoBlendState, NULL, 0xFFFFFFFF);
-	_EngineDevice.DeviceContext->RSSetState(_pRasterizerState);
-	_EngineDevice.DeviceContext->RSSetViewports(1, &_VP);
+	DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
+	DeviceContext->OMSetDepthStencilState(_pDepthStencilState, 1);
+	DeviceContext->OMSetBlendState(_pNoBlendState, NULL, 0xFFFFFFFF);
+	DeviceContext->RSSetState(_pRasterizerState);
+	DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void Engine::GBuffer::setLightState(void) const
@@ -299,11 +298,11 @@ void Engine::GBuffer::setLightState(void) const
 	{
 		_pRenderTargetView[GBUF_LIGHT],
 	};
-	_EngineDevice.DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, NULL);
-	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pNoDepthStencilState, 1);
-	_EngineDevice.DeviceContext->OMSetBlendState(_pAdditiveBlendState, NULL, 0xFFFFFFFF);
-	_EngineDevice.DeviceContext->RSSetState(_pRasterizerState);
-	_EngineDevice.DeviceContext->RSSetViewports(1, &_VP);
+	DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, NULL);
+	DeviceContext->OMSetDepthStencilState(_pNoDepthStencilState, 1);
+	DeviceContext->OMSetBlendState(_pAdditiveBlendState, NULL, 0xFFFFFFFF);
+	DeviceContext->RSSetState(_pRasterizerState);
+	DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void Engine::GBuffer::setParticlesState(void) const
@@ -312,11 +311,11 @@ void Engine::GBuffer::setParticlesState(void) const
 	{
 		_pRenderTargetView[GBUF_BACKGROUND],
 	};
-	_EngineDevice.DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pNoDepthStencilState, 1);
-	_EngineDevice.DeviceContext->OMSetBlendState(_pAlphaBlendState, NULL, 0xFFFFFFFF);
-	_EngineDevice.DeviceContext->RSSetState(_pRasterizerState);
-	_EngineDevice.DeviceContext->RSSetViewports(1, &_VP);
+	DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
+	DeviceContext->OMSetDepthStencilState(_pNoDepthStencilState, 1);
+	DeviceContext->OMSetBlendState(_pAlphaBlendState, NULL, 0xFFFFFFFF);
+	DeviceContext->RSSetState(_pRasterizerState);
+	DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void Engine::GBuffer::setBackgroundState(void) const
@@ -325,23 +324,23 @@ void Engine::GBuffer::setBackgroundState(void) const
 	{
 		_pRenderTargetView[GBUF_BACKGROUND],
 	};
-	_EngineDevice.DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
-	_EngineDevice.DeviceContext->OMSetDepthStencilState(_pStencilState, 1);
-	_EngineDevice.DeviceContext->OMSetBlendState(_pAlphaBlendState, NULL, 0xFFFFFFFF);
-	_EngineDevice.DeviceContext->RSSetState(_pRasterizerState);
-	_EngineDevice.DeviceContext->RSSetViewports(1, &_VP);
+	DeviceContext->OMSetRenderTargets(ARRAYSIZE(render), render, _pDepthStencilView);
+	DeviceContext->OMSetDepthStencilState(_pStencilState, 1);
+	DeviceContext->OMSetBlendState(_pAlphaBlendState, NULL, 0xFFFFFFFF);
+	DeviceContext->RSSetState(_pRasterizerState);
+	DeviceContext->RSSetViewports(1, &_VP);
 }
 
 void Engine::GBuffer::clear(void) const
 {
-	_EngineDevice.DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], Colors::Transparent);
-	_EngineDevice.DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], Colors::Transparent);
-	_EngineDevice.DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_LIGHT], Colors::Transparent);
-	_EngineDevice.DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_BACKGROUND], Colors::Transparent);
-	_EngineDevice.DeviceContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_NORMAL], Colors::Transparent);
+	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_MATERIAL], Colors::Transparent);
+	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_LIGHT], Colors::Transparent);
+	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_BACKGROUND], Colors::Transparent);
+	DeviceContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void Engine::GBuffer::clearLight(void) const
 {
-	_EngineDevice.DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_LIGHT], Colors::Transparent);
+	DeviceContext->ClearRenderTargetView(_pRenderTargetView[GBUF_LIGHT], Colors::Transparent);
 }

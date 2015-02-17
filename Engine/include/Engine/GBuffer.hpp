@@ -34,7 +34,7 @@ namespace Engine
 		// Rasterizer State
 		ID3D11RasterizerState *_pRasterizerState;
 	public:
-		GBuffer(const EngineDevice &EngineDevice);
+		GBuffer(void);
 		~GBuffer(void);
 		void config(const UINT &width, const UINT &height);
 		ID3D11ShaderResourceView *getShaderResourceView(const UINT &num) const;

@@ -14,7 +14,13 @@ namespace Engine
 	class DLLAPI Light : public Object
 	{
 	protected:
-		EngineDevice _EngineDevice;
+		struct
+		{
+			XMMATRIX IVPMatrix;
+			XMUINT2 __declspec(align(16)) screen;
+			XMVECTOR __declspec(align(16)) camPosition;
+		} _mainInfo;
+
 		Buffer *_vertexBuffer;
 		Buffer *_mainInfoBuffer;
 		Buffer *_lightInfoBuffer;
@@ -25,14 +31,10 @@ namespace Engine
 		XMMATRIX *_viewMatrix;
 		XMMATRIX *_VPMatrix;
 	public:
-		Light(const EngineDevice &EngineDevice, ShaderProgram *program);
+		Light(ShaderProgram *program);
 		~Light(void);
-		void configShadowMap(const UINT &width, const UINT &height);
-		XMMATRIX getProjectionMatrix(void) const;
-		XMMATRIX getViewMatrix(void) const;
-		XMMATRIX getVPMatrix(void) const;
-		ShadowMap *getShadowMap(void);
-		void clear(void) const;
+		virtual void configShadowMap(const UINT &width, const UINT &height) const = 0;
+		virtual void clear(void) const = 0;
 		virtual void display(GBuffer *gbuf, Camera *cam) = 0;
 	};
 }

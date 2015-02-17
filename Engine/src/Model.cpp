@@ -4,23 +4,39 @@
 #include <Engine/ShaderProgram.hpp>
 #include <Engine/GBuffer.hpp>
 #include <Engine/Camera.hpp>
-#include <Engine/Light.hpp>
+#include <Engine/DirLight.hpp>
+#include <Engine/SpotLight.hpp>
 #include <Engine/ShadowMap.hpp>
 
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-Engine::Model::Model(const EngineDevice &EngineDevice, ShaderProgram *gProgram, ShaderProgram *smProgram)
-	: _EngineDevice(EngineDevice), _tMesh(NULL), _gProgram(gProgram), _smProgram(smProgram)
+static struct
 {
-	_matrixBuffer = new Buffer(_EngineDevice);
-	_cameraBuffer = new Buffer(_EngineDevice);
-	_ModelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_ModelMatrix, 16);
-	_NormalMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_NormalMatrix, 16);
+	XMMATRIX MVP;
+	XMMATRIX projection;
+	XMMATRIX view;
+	XMMATRIX model;
+	XMMATRIX normal;
+} _matrix;
 
-	_matrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, 5 * sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
-	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, 2 * sizeof XMVECTOR, D3D11_USAGE_DYNAMIC);
+static struct
+{
+	XMVECTOR __declspec(align(16)) position;
+	XMVECTOR __declspec(align(16)) target;
+} _camera;
+
+Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
+	: _tMesh(NULL), _gProgram(gProgram), _smProgram(smProgram)
+{
+	_matrixBuffer = new Buffer;
+	_cameraBuffer = new Buffer;
+	_modelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_modelMatrix, 16);
+	_normalMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_normalMatrix, 16);
+
+	_matrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _matrix, D3D11_USAGE_DYNAMIC);
+	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _camera, D3D11_USAGE_DYNAMIC);
 
 	matIdentity();
 
@@ -31,7 +47,7 @@ Engine::Model::Model(const EngineDevice &EngineDevice, ShaderProgram *gProgram, 
 		{ "IN_NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 5 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "IN_TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 8 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	_EngineDevice.Device->CreateInputLayout(layout, ARRAYSIZE(layout), gProgram->getEntryBufferPointer(), gProgram->getEntryBytecodeLength(), &_pInputLayout);
+	Device->CreateInputLayout(layout, ARRAYSIZE(layout), gProgram->getEntryBufferPointer(), gProgram->getEntryBytecodeLength(), &_pInputLayout);
 }
 
 Engine::Model::~Model(void)
@@ -45,8 +61,8 @@ Engine::Model::~Model(void)
 	}
 	delete _matrixBuffer;
 	delete _cameraBuffer;
-	_aligned_free(_ModelMatrix);
-	_aligned_free(_NormalMatrix);
+	_aligned_free(_modelMatrix);
+	_aligned_free(_normalMatrix);
 	_pInputLayout->Release();
 }
 
@@ -81,7 +97,7 @@ void Engine::Model::addMesh(const UINT &numVertex, const Vertex *vertexArray,
 	const CHAR *colorTexture, const CHAR *NMTexture,
 	const XMVECTOR &ambient, const XMVECTOR &diffuse, const XMVECTOR &specular, const FLOAT &shininess)
 {
-	Mesh *newone = new Mesh(_EngineDevice);
+	Mesh *newone = new Mesh;
 
 	newone->setColorTexture(colorTexture);
 	newone->setNMTexture(NMTexture);
@@ -211,32 +227,32 @@ void Engine::Model::sortMesh(void)
 
 void Engine::Model::matIdentity(void)
 {
-	*_ModelMatrix = XMMatrixIdentity();
+	*_modelMatrix = XMMatrixIdentity();
 }
 
 void Engine::Model::matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	*_ModelMatrix = XMMatrixTranslation(x, y, z) * *_ModelMatrix;
+	*_modelMatrix = XMMatrixTranslation(x, y, z) * *_modelMatrix;
 }
 
 void Engine::Model::matRotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	*_ModelMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle) * *_ModelMatrix;
+	*_modelMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle) * *_modelMatrix;
 }
 
 void Engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)
 {
-	*_ModelMatrix = XMMatrixScaling(x, y, z) * *_ModelMatrix;
+	*_modelMatrix = XMMatrixScaling(x, y, z) * *_modelMatrix;
 }
 
 void Engine::Model::genMatNormal(void)
 {
-	*_NormalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_ModelMatrix));
+	*_normalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_modelMatrix));
 }
 
 XMVECTOR Engine::Model::getPosition(void) const
 {
-	return XMVectorSet(XMVectorGetW(_ModelMatrix->r[0]), XMVectorGetW(_ModelMatrix->r[1]), XMVectorGetW(_ModelMatrix->r[2]), XMVectorGetW(_ModelMatrix->r[3]));
+	return XMVectorSet(XMVectorGetW(_modelMatrix->r[0]), XMVectorGetW(_modelMatrix->r[1]), XMVectorGetW(_modelMatrix->r[2]), XMVectorGetW(_modelMatrix->r[3]));
 }
 
 Engine::Mesh *Engine::Model::getMesh(UINT num) const
@@ -249,141 +265,144 @@ Engine::Mesh *Engine::Model::getMesh(UINT num) const
 	return (*_tMesh)[num];
 }
   
-void Engine::Model::display(GBuffer *gbuf, Camera *cam) const
+void Engine::Model::display(GBuffer *gbuf, Camera *cam)
 {
 	UINT i;
 
 	gbuf->setGeometryState();
 
-	_EngineDevice.DeviceContext->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
-	_EngineDevice.DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
-	_EngineDevice.DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
-	_EngineDevice.DeviceContext->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
-	_EngineDevice.DeviceContext->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
+	DeviceContext->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
+	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
+	DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
+	DeviceContext->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
+	DeviceContext->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
 
-	struct
-	{
-		XMMATRIX MVP;
-		XMMATRIX projection;
-		XMMATRIX view;
-		XMMATRIX model;
-		XMMATRIX normal;
-	} matrix;
-	matrix.MVP = *_ModelMatrix * cam->getVPMatrix();
-	matrix.projection = cam->getProjectionMatrix();
-	matrix.view = cam->getViewMatrix();
-	matrix.model = *_ModelMatrix;
-	matrix.normal = *_NormalMatrix;
-	_matrixBuffer->updateStoreMap(&matrix);
+	_matrix.MVP = *_modelMatrix * cam->getVPMatrix();
+	_matrix.projection = cam->getProjectionMatrix();
+	_matrix.view = cam->getViewMatrix();
+	_matrix.model = *_modelMatrix;
+	_matrix.normal = *_normalMatrix;
+	_matrixBuffer->updateStoreMap(&_matrix);
 
-	struct
-	{
-		XMVECTOR position;
-		XMVECTOR target;
-	} camera;
-	camera.position = cam->getCameraPosition();
-	camera.target = cam->getTargetPosition();
-	_cameraBuffer->updateStoreMap(&camera);
+	_camera.position = cam->getCameraPosition();
+	_camera.target = cam->getTargetPosition();
+	_cameraBuffer->updateStoreMap(&_camera);
 
 	ID3D11Buffer *buf[] =
 	{
 		_matrixBuffer->getBuffer(),
 		_cameraBuffer->getBuffer(),
 	};
-	_EngineDevice.DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+	DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
-	_EngineDevice.DeviceContext->IASetInputLayout(_pInputLayout);
-	_EngineDevice.DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DeviceContext->IASetInputLayout(_pInputLayout);
+	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (i = 0; i<_tMesh->size(); i++)
 		if ((*_tMesh)[i]->getTransparency() == 1.0f)
 			(*_tMesh)[i]->display();
 }
 
-void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam) const
+void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam)
 {
 	UINT i;
 
 	gbuf->setGeometryState();
 
-	_EngineDevice.DeviceContext->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
-	_EngineDevice.DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
-	_EngineDevice.DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
-	_EngineDevice.DeviceContext->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
-	_EngineDevice.DeviceContext->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
+	DeviceContext->VSSetShader(_gProgram->getVertexShader(), NULL, 0);
+	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
+	DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
+	DeviceContext->GSSetShader(_gProgram->getGeometryShader(), NULL, 0);
+	DeviceContext->PSSetShader(_gProgram->getPixelShader(), NULL, 0);
 
-	struct
-	{
-		XMMATRIX MVP;
-		XMMATRIX projection;
-		XMMATRIX view;
-		XMMATRIX model;
-		XMMATRIX normal;
-	} matrix;
-	matrix.MVP = *_ModelMatrix * cam->getVPMatrix();
-	matrix.projection = cam->getProjectionMatrix();
-	matrix.view = cam->getViewMatrix();
-	matrix.model = *_ModelMatrix;
-	matrix.normal = *_NormalMatrix;
-	_matrixBuffer->updateStoreMap(&matrix);
+	_matrix.MVP = *_modelMatrix * cam->getVPMatrix();
+	_matrix.projection = cam->getProjectionMatrix();
+	_matrix.view = cam->getViewMatrix();
+	_matrix.model = *_modelMatrix;
+	_matrix.normal = *_normalMatrix;
+	_matrixBuffer->updateStoreMap(&_matrix);
 
-	struct
-	{
-		XMVECTOR position;
-		XMVECTOR target;
-	} camera;
-	camera.position = cam->getCameraPosition();
-	camera.target = cam->getTargetPosition();
-	_cameraBuffer->updateStoreMap(&camera);
+	_camera.position = cam->getCameraPosition();
+	_camera.target = cam->getTargetPosition();
+	_cameraBuffer->updateStoreMap(&_camera);
 
 	ID3D11Buffer *buf[] =
 	{
 		_matrixBuffer->getBuffer(),
 		_cameraBuffer->getBuffer(),
 	};
-	_EngineDevice.DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+	DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
-	_EngineDevice.DeviceContext->IASetInputLayout(_pInputLayout);
-	_EngineDevice.DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DeviceContext->IASetInputLayout(_pInputLayout);
+	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (i = 0; i<_tMesh->size(); i++)
 		if ((*_tMesh)[i]->getTransparency() != 1.0f)
 			(*_tMesh)[i]->display();
 }
 
-void Engine::Model::displayShadowMap(Light *light) const
+void Engine::Model::displayShadowMap(DirLight *light)
+{
+	UINT i, j;
+
+	DeviceContext->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
+	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
+	DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
+	DeviceContext->GSSetShader(_smProgram->getGeometryShader(), NULL, 0);
+	DeviceContext->PSSetShader(_smProgram->getPixelShader(), NULL, 0);
+
+	DeviceContext->IASetInputLayout(_pInputLayout);
+	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	_matrix.model = *_modelMatrix;
+	_matrix.normal = *_normalMatrix;
+
+	for (i = 0; i < CSM_NUM; i++)
+	{
+		light->getShadowMap(i)->setState();
+
+		_matrix.MVP = *_modelMatrix * light->getVPMatrix(i);
+		_matrix.projection = light->getProjectionMatrix(i);
+		_matrix.view = light->getViewMatrix(i);
+		_matrixBuffer->updateStoreMap(&_matrix);
+
+		ID3D11Buffer *buf[] =
+		{
+			_matrixBuffer->getBuffer(),
+		};
+		DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+
+		for (j = 0; j < _tMesh->size(); j++)
+			if ((*_tMesh)[j]->getTransparency() == 1.0f)
+				(*_tMesh)[j]->displayShadow();
+	}
+}
+
+void Engine::Model::displayShadowMap(SpotLight *light)
 {
 	UINT i;
 
 	light->getShadowMap()->setState();
 
-	_EngineDevice.DeviceContext->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
-	_EngineDevice.DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
-	_EngineDevice.DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
-	_EngineDevice.DeviceContext->GSSetShader(_smProgram->getGeometryShader(), NULL, 0);
-	_EngineDevice.DeviceContext->PSSetShader(_smProgram->getPixelShader(), NULL, 0);
+	DeviceContext->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
+	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
+	DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
+	DeviceContext->GSSetShader(_smProgram->getGeometryShader(), NULL, 0);
+	DeviceContext->PSSetShader(_smProgram->getPixelShader(), NULL, 0);
 
-	struct
-	{
-		XMMATRIX MVP;
-		XMMATRIX projection;
-		XMMATRIX view;
-		XMMATRIX model;
-		XMMATRIX normal;
-	} matrix;
-	matrix.MVP = *_ModelMatrix * light->getVPMatrix();
-	matrix.projection = light->getProjectionMatrix();
-	matrix.view = light->getViewMatrix();
-	matrix.model = *_ModelMatrix;
-	matrix.normal = *_NormalMatrix;
-	_matrixBuffer->updateStoreMap(&matrix);
+	_matrix.MVP = *_modelMatrix * light->getVPMatrix();
+	_matrix.projection = light->getProjectionMatrix();
+	_matrix.view = light->getViewMatrix();
+	_matrix.model = *_modelMatrix;
+	_matrix.normal = *_normalMatrix;
+	_matrixBuffer->updateStoreMap(&_matrix);
 
 	ID3D11Buffer *buf[] =
 	{
 		_matrixBuffer->getBuffer(),
 	};
-	_EngineDevice.DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+	DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
-	_EngineDevice.DeviceContext->IASetInputLayout(_pInputLayout);
-	_EngineDevice.DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DeviceContext->IASetInputLayout(_pInputLayout);
+	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (i = 0; i<_tMesh->size(); i++)
 		if ((*_tMesh)[i]->getTransparency() == 1.0f)
 			(*_tMesh)[i]->displayShadow();

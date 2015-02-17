@@ -21,7 +21,7 @@ static void CompileShaderFromFile(const LPCWSTR szFileName, const std::string sz
 	if (pErrorBlob) pErrorBlob->Release();
 }
 
-Engine::ShaderProgram::ShaderProgram(const EngineDevice &EngineDevice, LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps)
+Engine::ShaderProgram::ShaderProgram(LPCWSTR vs, LPCWSTR hs, LPCWSTR ds, LPCWSTR gs, LPCWSTR ps)
 	: _pVertexShader(NULL), _pHullShader(NULL), _pDomainShader(NULL), _pGeometryShader(NULL), _pPixelShader(NULL), _pBlob(NULL)
 {
 	ID3DBlob *pTmpBlob;
@@ -32,38 +32,38 @@ Engine::ShaderProgram::ShaderProgram(const EngineDevice &EngineDevice, LPCWSTR v
 		MessageBox(NULL, TEXT("Need a Vertex Shader for ShaderProgram"), TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
-	CompileShaderFromFile(vs, "main", "vs_" + EngineDevice.ShaderLevel, &_pBlob);
-	EngineDevice.Device->CreateVertexShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pVertexShader);
+	CompileShaderFromFile(vs, "main", "vs_" + ShaderLevel, &_pBlob);
+	Device->CreateVertexShader(_pBlob->GetBufferPointer(), _pBlob->GetBufferSize(), NULL, &_pVertexShader);
 
 	// Compile and create the Hull Shader
 	if (hs != NULL)
 	{
-		CompileShaderFromFile(hs, "main", "hs_" + EngineDevice.ShaderLevel, &pTmpBlob);
-		EngineDevice.Device->CreateHullShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pHullShader);
+		CompileShaderFromFile(hs, "main", "hs_" + ShaderLevel, &pTmpBlob);
+		Device->CreateHullShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pHullShader);
 		pTmpBlob->Release();
 	}
 
 	// Compile and create the Domain Shader
 	if (ds != NULL)
 	{
-		CompileShaderFromFile(ds, "main", "ds_" + EngineDevice.ShaderLevel, &pTmpBlob);
-		EngineDevice.Device->CreateDomainShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pDomainShader);
+		CompileShaderFromFile(ds, "main", "ds_" + ShaderLevel, &pTmpBlob);
+		Device->CreateDomainShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pDomainShader);
 		pTmpBlob->Release();
 	}
 
 	// Compile and create the Geometry Shader
 	if (gs != NULL)
 	{
-		CompileShaderFromFile(gs, "main", "gs_" + EngineDevice.ShaderLevel, &pTmpBlob);
-		EngineDevice.Device->CreateGeometryShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pGeometryShader);
+		CompileShaderFromFile(gs, "main", "gs_" + ShaderLevel, &pTmpBlob);
+		Device->CreateGeometryShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pGeometryShader);
 		pTmpBlob->Release();
 	}
 
 	// Compile and create the Pixel Shader
 	if (ps != NULL)
 	{
-		CompileShaderFromFile(ps, "main", "ps_" + EngineDevice.ShaderLevel, &pTmpBlob);
-		EngineDevice.Device->CreatePixelShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pPixelShader);
+		CompileShaderFromFile(ps, "main", "ps_" + ShaderLevel, &pTmpBlob);
+		Device->CreatePixelShader(pTmpBlob->GetBufferPointer(), pTmpBlob->GetBufferSize(), NULL, &_pPixelShader);
 		pTmpBlob->Release();
 	}
 }

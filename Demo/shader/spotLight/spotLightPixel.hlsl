@@ -1,3 +1,5 @@
+#define LIMIT 50
+
 Texture2D<float4> normalTex : register(t0);
 Texture2D<uint4> materialTex : register(t1);
 Texture2D<float> depthTex : register(t2);
@@ -8,7 +10,6 @@ SamplerComparisonState shadowMapSamplerComparisonState : register(s0);
 
 cbuffer mainInfoBuffer : register (b0)
 {
-	matrix shadowMatrix;
 	matrix IVPMatrix;
 	uint2 screen;
 	vector camPosition;
@@ -16,10 +17,12 @@ cbuffer mainInfoBuffer : register (b0)
 
 cbuffer LightInfoBuffer : register (b1)
 {
+	matrix shadowMatrix;
 	float3 lightColor;
 	float3 lightPosition;
 	float3 lightDirection;
 	float lightSpotCutOff;
+	float lightMaxDistance;
 	bool withShadowMapping;
 }
 
@@ -106,11 +109,23 @@ PS_OUTPUT main(PS_INPUT input)
 	if (withShadowMapping)
 		shadow = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 1.0);
 	float3 L = normalize(lightPosition - position);
+
+	// For the angle
 	float cos_cur_angle = dot(-L, normalize(lightDirection));
 	float cos_outer_cone_angle = cos(lightSpotCutOff);
 	float cos_inner_cone_angle = cos_outer_cone_angle + 0.01;
 	float cos_inner_minus_outer_angle = cos_inner_cone_angle - cos_outer_cone_angle;
 	float spot = clamp((cos_cur_angle - cos_outer_cone_angle) / cos_inner_minus_outer_angle, 0.0, 1.0);
+
+	// For the distance
+	float current_distance = length(lightPosition - position);
+	float inner_distance = lightMaxDistance - LIMIT;
+	if (current_distance >= inner_distance)
+	{
+		float tmp = min(current_distance, lightMaxDistance) - inner_distance;
+		spot *= (LIMIT - tmp) / LIMIT;
+	}
+
 	output.light = calcLight(diffColor, specColor, normal.xyz, L, normalize(camPosition.xyz - position), normal.w) * shadow * spot;
 
 	return output;

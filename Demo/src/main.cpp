@@ -60,7 +60,7 @@ void GameManager::idle(void)
 	heli->genMatNormal();
 
 	cam->position();
-	sun->position(heli->getPosition(), 25);
+	sun->position(cam->getCameraPosition(), 25, 100, 250);
 	torch->position();
 }
 
@@ -86,8 +86,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	game->launch();
 	
 	delete game;
-	delete renderer;
 	delete input;
+	delete renderer;
 
 	if (Engine::Object::getMemoryState() != 0)
 	{

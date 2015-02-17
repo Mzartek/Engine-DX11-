@@ -3,12 +3,13 @@ Texture2D<uint4> materialTex : register(t1);
 Texture2D<float> depthTex : register(t2);
 Texture2D<uint4> stencilTex : register(t3);
 
-Texture2D shadowMap : register(t4);
+Texture2D shadowMap0 : register(t4);
+Texture2D shadowMap1 : register(t5);
+Texture2D shadowMap2 : register(t6);
 SamplerComparisonState shadowMapSamplerComparisonState : register(s0);
 
 cbuffer mainInfoBuffer : register (b0)
 {
-	matrix shadowMatrix;
 	matrix IVPMatrix;
 	uint2 screen;
 	vector camPosition;
@@ -16,6 +17,7 @@ cbuffer mainInfoBuffer : register (b0)
 
 cbuffer LightInfoBuffer : register (b1)
 {
+	matrix shadowMatrix[3];
 	float3 lightColor;
 	float3 lightDirection;
 	bool withShadowMapping;
@@ -49,7 +51,7 @@ float3 getPosition(float2 pixelCoord)
 	return tmp2.xyz / tmp2.w;
 }
 
-float lookUp(float4 coord, float2 offSet, int2 texSize)
+float lookUp(float4 coord, float2 offSet, int2 texSize, Texture2D shadowMap)
 {
 	coord.x = 0.5f + (coord.x / coord.w * 0.5f);
 	coord.y = 0.5f - (coord.y / coord.w * 0.5f);
@@ -63,7 +65,7 @@ float lookUp(float4 coord, float2 offSet, int2 texSize)
 	return shadowMap.SampleCmpLevelZero(shadowMapSamplerComparisonState, coord.xy, coord.z);
 }
 
-float calcShadow(float4 coord, float pcf)
+float calcShadow(float4 coord, float pcf, Texture2D shadowMap)
 {
 	float a, x, y, shadow = 0.0;
 	uint width, height;
@@ -72,7 +74,7 @@ float calcShadow(float4 coord, float pcf)
 	a = (pcf - 1.0) / 2.0;
 	for (x = -a; x <= a; x += 1.0)
 		for (y = -a; y <= a; y += 1.0)
-			shadow += lookUp(coord, float2(x, y), int2(width, height));
+			shadow += lookUp(coord, float2(x, y), int2(width, height), shadowMap);
 	shadow /= (pcf*pcf);
 
 	return shadow;
@@ -99,10 +101,16 @@ PS_OUTPUT main(PS_INPUT input)
 
 	float4 diffColor = unpackUnorm4x8(material.z) * float4(lightColor, 1.0);
 	float4 specColor = unpackUnorm4x8(material.w) * float4(lightColor, 1.0);
-	
+
+	float3 cam_minus_pos = camPosition - position;
 	float shadow = 1.0;
 	if (withShadowMapping)
-		shadow = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 1.0);
+	{
+		float distance = length(cam_minus_pos);
+		if      (distance < 25) shadow = calcShadow(mul(shadowMatrix[0], float4(position, 1.0)), 3.0, shadowMap0);
+		else if (distance < 100) shadow = calcShadow(mul(shadowMatrix[1], float4(position, 1.0)), 1.0, shadowMap1);
+		else                    shadow = calcShadow(mul(shadowMatrix[2], float4(position, 1.0)), 1.0, shadowMap2);
+	}
 	output.light = calcLight(diffColor, specColor, normal.xyz, normalize(-lightDirection), normalize(camPosition.xyz - position), normal.w) * shadow;
 
 	return output;

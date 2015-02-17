@@ -1,8 +1,8 @@
 #include <Engine/Texture.hpp>
 #include <FreeImage.h>
 
-Engine::Texture::Texture(const EngineDevice &EngineDevice)
-	: _EngineDevice(EngineDevice), _pShaderResourceView(NULL), _pSamplerState(NULL)
+Engine::Texture::Texture(void)
+	: _pShaderResourceView(NULL), _pSamplerState(NULL)
 {
 }
 
@@ -55,17 +55,17 @@ void Engine::Texture::load2DTextureFromFile(const CHAR *path)
 	descTexture.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	descTexture.CPUAccessFlags = 0;
 	descTexture.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-	_EngineDevice.Device->CreateTexture2D(&descTexture, NULL, &texture);
+	Device->CreateTexture2D(&descTexture, NULL, &texture);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC descShaderResourceView;
 	descShaderResourceView.Format = descTexture.Format;
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	descShaderResourceView.Texture2D.MostDetailedMip = 0;
 	descShaderResourceView.Texture2D.MipLevels = descTexture.MipLevels;
-	_EngineDevice.Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
+	Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
 
-	_EngineDevice.DeviceContext->UpdateSubresource(texture, 0, NULL, FreeImage_GetBits(image), 4 * descTexture.Width, 4 * descTexture.Width * descTexture.Height);
-	_EngineDevice.DeviceContext->GenerateMips(_pShaderResourceView);
+	DeviceContext->UpdateSubresource(texture, 0, NULL, FreeImage_GetBits(image), 4 * descTexture.Width, 4 * descTexture.Width * descTexture.Height);
+	DeviceContext->GenerateMips(_pShaderResourceView);
 
 	D3D11_SAMPLER_DESC descSampler;
 	descSampler.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -81,7 +81,7 @@ void Engine::Texture::load2DTextureFromFile(const CHAR *path)
 	descSampler.BorderColor[3] = 0.0f;
 	descSampler.MinLOD = 0;
 	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	_EngineDevice.Device->CreateSamplerState(&descSampler, &_pSamplerState);
+	Device->CreateSamplerState(&descSampler, &_pSamplerState);
 
 	FreeImage_Unload(image);
 	texture->Release();
@@ -136,14 +136,14 @@ void Engine::Texture::loadCubeTextureFromFiles(
 		data[i].SysMemPitch = 4 * descTexture.Width;
 		data[i].SysMemSlicePitch = 0;
 	}
-	_EngineDevice.Device->CreateTexture2D(&descTexture, data, &texture);
+	Device->CreateTexture2D(&descTexture, data, &texture);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC descShaderResourceView;
 	descShaderResourceView.Format = descTexture.Format;
 	descShaderResourceView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 	descShaderResourceView.TextureCube.MostDetailedMip = 0;
 	descShaderResourceView.TextureCube.MipLevels = descTexture.MipLevels;
-	_EngineDevice.Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
+	Device->CreateShaderResourceView(texture, &descShaderResourceView, &_pShaderResourceView);
 
 	D3D11_SAMPLER_DESC descSampler;
 	descSampler.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -159,7 +159,7 @@ void Engine::Texture::loadCubeTextureFromFiles(
 	descSampler.BorderColor[3] = 0.0f;
 	descSampler.MinLOD = 0;
 	descSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	_EngineDevice.Device->CreateSamplerState(&descSampler, &_pSamplerState);
+	Device->CreateSamplerState(&descSampler, &_pSamplerState);
 
 	texture->Release();
 }

@@ -8,11 +8,10 @@ namespace Engine
 	class DLLAPI Texture : public Object
 	{
 	private:
-		EngineDevice _EngineDevice;
 		ID3D11ShaderResourceView *_pShaderResourceView;
 		ID3D11SamplerState *_pSamplerState;
 	public:
-		Texture(const EngineDevice &EngineDevice);
+		Texture(void);
 		~Texture(void);
 		ID3D11ShaderResourceView *getShaderResourceView(void);
 		ID3D11SamplerState *getSamplerState(void);

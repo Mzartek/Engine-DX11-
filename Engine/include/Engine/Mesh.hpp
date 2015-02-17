@@ -21,12 +21,6 @@ namespace Engine
 		friend int comparMesh(const void *p1, const void *p2);
 
 	private:
-		EngineDevice _EngineDevice;
-		Texture *_colorTexture;
-		Texture *_NMTexture;
-		Buffer *_vertexBuffer;
-		Buffer *_indexBuffer;
-		Buffer *_materialBuffer;
 		struct material
 		{
 			XMFLOAT4 ambient;
@@ -34,9 +28,15 @@ namespace Engine
 			XMFLOAT4 specular;
 			FLOAT __declspec(align(16)) shininess;
 		} _material;
+
+		Texture *_colorTexture;
+		Texture *_NMTexture;
+		Buffer *_vertexBuffer;
+		Buffer *_indexBuffer;
+		Buffer *_materialBuffer;
 		UINT _numElement;
 	public:
-		Mesh(const EngineDevice &EngineDevice);
+		Mesh(void);
 		~Mesh(void);
 		void setColorTexture(const CHAR *path);
 		void setNMTexture(const CHAR *path);

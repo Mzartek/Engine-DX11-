@@ -5,27 +5,27 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	this->renderer = renderer;
 	this->input = input;
 
-	skyboxProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/skybox/skyboxVertex.hlsl", NULL, NULL, NULL, L"shader/skybox/skyboxPixel.hlsl");
-	objectProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/object/objectVertex.hlsl", NULL, NULL, L"shader/object/objectGeom.hlsl", L"shader/object/objectPixel.hlsl");
-	dirLightProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/dirLight/dirLightVertex.hlsl", NULL, NULL, NULL, L"shader/dirLight/dirLightPixel.hlsl");
-	spotLightProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/spotLight/spotLightVertex.hlsl", NULL, NULL, NULL, L"shader/spotLight/spotLightPixel.hlsl");
-	shadowMapProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/shadowMap/shadowMapVertex.hlsl", NULL, NULL, NULL, L"shader/shadowMap/shadowMapPixel.hlsl");
-	backgroundProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/background/backgroundVertex.hlsl", NULL, NULL, NULL, L"shader/background/backgroundPixel.hlsl");
-	screenProgram = new Engine::ShaderProgram(this->renderer->getEngineDevice(), L"shader/screen/screenVertex.hlsl", NULL, NULL, NULL, L"shader/screen/screenPixel.hlsl");
+	skyboxProgram = new Engine::ShaderProgram(L"shader/skybox/skyboxVertex.hlsl", NULL, NULL, NULL, L"shader/skybox/skyboxPixel.hlsl");
+	objectProgram = new Engine::ShaderProgram(L"shader/object/objectVertex.hlsl", NULL, NULL, L"shader/object/objectGeom.hlsl", L"shader/object/objectPixel.hlsl");
+	dirLightProgram = new Engine::ShaderProgram(L"shader/dirLight/dirLightVertex.hlsl", NULL, NULL, NULL, L"shader/dirLight/dirLightPixel.hlsl");
+	spotLightProgram = new Engine::ShaderProgram(L"shader/spotLight/spotLightVertex.hlsl", NULL, NULL, NULL, L"shader/spotLight/spotLightPixel.hlsl");
+	shadowMapProgram = new Engine::ShaderProgram(L"shader/shadowMap/shadowMapVertex.hlsl", NULL, NULL, NULL, L"shader/shadowMap/shadowMapPixel.hlsl");
+	backgroundProgram = new Engine::ShaderProgram(L"shader/background/backgroundVertex.hlsl", NULL, NULL, NULL, L"shader/background/backgroundPixel.hlsl");
+	screenProgram = new Engine::ShaderProgram(L"shader/screen/screenVertex.hlsl", NULL, NULL, NULL, L"shader/screen/screenPixel.hlsl");
 
-	gBuffer = new Engine::GBuffer(this->renderer->getEngineDevice());
+	gBuffer = new Engine::GBuffer();
 	cam = new Engine::FreeCam;
-	skybox = new Engine::SkyBox(this->renderer->getEngineDevice(), skyboxProgram);
-	sol = new Engine::Model(this->renderer->getEngineDevice(), objectProgram, shadowMapProgram);
-	heli = new Engine::Model(this->renderer->getEngineDevice(), objectProgram, shadowMapProgram);
-	sun = new Engine::DirLight(this->renderer->getEngineDevice(), dirLightProgram);
-	torch = new Engine::SpotLight(this->renderer->getEngineDevice(), spotLightProgram);
-	screen = new Engine::Screen(this->renderer->getEngineDevice(), backgroundProgram, screenProgram);
+	skybox = new Engine::SkyBox(skyboxProgram);
+	sol = new Engine::Model(objectProgram, shadowMapProgram);
+	heli = new Engine::Model(objectProgram, shadowMapProgram);
+	sun = new Engine::DirLight(dirLightProgram);
+	torch = new Engine::SpotLight(spotLightProgram);
+	screen = new Engine::Screen(backgroundProgram, screenProgram);
 
 	octreeSystem = new Engine::OctreeSystem(4, XMVectorSet(0, 0, 0, 0), 1000);
 
 	// GBuffer config
-	gBuffer->config(this->renderer->getWidth(), this->renderer->getHeight());
+	gBuffer->config(renderer->getWidth(), renderer->getHeight());
 
 	// Camera config
 	cam->setCameraPosition(XMVectorSet(30, 10, 0, 1));
@@ -79,6 +79,7 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	torch->setPosition(XMVectorSet(20.0f, 40.0f, 0.0f, 1.0f));
 	torch->setDirection(XMVectorSet(-0.5f, -1.0f, 0.0f, 1.0f));
 	torch->setSpotCutOff(XM_PI / 4);
+	torch->setMaxDistance(100);
 	torch->setShadowMapping(TRUE);
 	torch->configShadowMap(1024, 1024);
 }

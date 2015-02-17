@@ -11,24 +11,24 @@ namespace Engine
 	class ShaderProgram;
 	class GBuffer;
 	class Camera;
-	class Light;
+	class DirLight;
+	class SpotLight;
 
 	class DLLAPI Model : public Object
 	{
 	private:
-		EngineDevice _EngineDevice;
 		BOOL isMirror;
 		std::vector<Mesh *> *_tMesh;
 		Buffer *_matrixBuffer;
 		Buffer *_cameraBuffer;
-		XMMATRIX *_ModelMatrix;
-		XMMATRIX *_NormalMatrix;
+		XMMATRIX *_modelMatrix;
+		XMMATRIX *_normalMatrix;
 		// ShaderProgram
 		ShaderProgram *_gProgram;
 		ShaderProgram *_smProgram;
 		ID3D11InputLayout *_pInputLayout;
 	public:
-		Model(const EngineDevice &EngineDevice, ShaderProgram *gProgram, ShaderProgram *smProgram);
+		Model(ShaderProgram *gProgram, ShaderProgram *smProgram);
 		~Model(void);
 		void initMeshArray(void);
 		void initMeshMirror(Model *m);
@@ -45,9 +45,10 @@ namespace Engine
 		void genMatNormal(void);
 		XMVECTOR getPosition(void) const;
 		Mesh *getMesh(UINT num) const;
-		void display(GBuffer *gbuf, Camera *cam) const;
-		void displayTransparent(GBuffer *gbuf, Camera *cam) const;
-		void displayShadowMap(Light *light) const;
+		void display(GBuffer *gbuf, Camera *cam);
+		void displayTransparent(GBuffer *gbuf, Camera *cam);
+		void displayShadowMap(DirLight *light);
+		void displayShadowMap(SpotLight *light);
 	};
 }
     
