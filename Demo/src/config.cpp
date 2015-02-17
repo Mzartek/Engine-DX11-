@@ -22,6 +22,8 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	torch = new Engine::SpotLight(this->renderer->getEngineDevice(), spotLightProgram);
 	screen = new Engine::Screen(this->renderer->getEngineDevice(), backgroundProgram, screenProgram);
 
+	octreeSystem = new Engine::OctreeSystem(4, XMVectorSet(0, 0, 0, 0), 1000);
+
 	// GBuffer config
 	gBuffer->config(this->renderer->getWidth(), this->renderer->getHeight());
 
@@ -56,12 +58,16 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 		mat_ambient, mat_diffuse, mat_specular, mat_shininess);
 	sol->genMatNormal();
 
+	octreeSystem->addModel(sol, 1000);
+
 	heli->initMeshArray();
 	heli->loadFromFile("resources/heli/corps.mobj");
 	heli->sortMesh();
 	heli->matTranslate(0.0f, 6.0f, 0.0f);
 	heli->matScale(2, 2, 2);
 	heli->genMatNormal();
+
+	octreeSystem->addModel(heli, 40);
 
 	// Light config
 	sun->setColor(XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
@@ -79,6 +85,8 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 
 GameManager::~GameManager(void)
 {
+	delete octreeSystem;
+
 	delete screen;
 	delete torch;
 	delete sun;

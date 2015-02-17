@@ -13,6 +13,8 @@
 #include <Engine/SpotLight.hpp>
 #include <Engine/Screen.hpp>
 
+#include <Engine/OctreeSystem.hpp>
+
 class GameManager : public Engine::GameLoop
 {
 private:
@@ -35,6 +37,8 @@ private:
 	Engine::DirLight *sun;
 	Engine::SpotLight *torch;
 	Engine::Screen *screen;
+
+	Engine::OctreeSystem *octreeSystem;
 public:
 	GameManager(Engine::Renderer *renderer, Engine::Input *input);
 	~GameManager(void);

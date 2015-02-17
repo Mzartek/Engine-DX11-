@@ -15,9 +15,11 @@ namespace Engine
 		XMMATRIX *_viewMatrix;
 		XMMATRIX *_VPMatrix;
 		XMMATRIX *_IVPMatrix;
+		FLOAT _near;
+		FLOAT _far;
 		FLOAT _fov;
-		FLOAT _distance;
-		FLOAT _frusSphereRadian;
+		FLOAT _frusSphereDistance;
+		FLOAT _frusSphereRadius;
 		XMVECTOR *_frusSpherePosition;
 	public:
 		Camera(void);
@@ -32,8 +34,11 @@ namespace Engine
 		XMMATRIX getViewMatrix(void) const;
 		XMMATRIX getVPMatrix(void) const;
 		XMMATRIX getIVPMatrix(void) const;
+		FLOAT getNear(void) const;
+		FLOAT getFar(void) const;
 		FLOAT getFOV(void) const;
-		FLOAT getFrusSphereRadian(void) const;
+		FLOAT getFrusSphereDistance(void) const;
+		FLOAT getFrusSphereRadius(void) const;
 		XMVECTOR getFrusSpherePosition(void) const;
 		void position(void);
 	};

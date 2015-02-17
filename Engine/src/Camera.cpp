@@ -42,9 +42,11 @@ void Engine::Camera::setPerspective(const FLOAT &fov, const UINT &width, const U
 
 	*_projectionMatrix = XMMatrixPerspectiveFovRH(fov, ratio, n, f);
 
+	_near = n;
+	_far = f;
 	_fov = fov * ratio;
-	_distance = n + (f - n) * 0.5f;
-	_frusSphereRadian = XMVectorGetX(XMVector3Length(XMVectorSet(xfar, yfar, f, 0.0f) - XMVectorSet(0.0f, 0.0f, _distance, 0.0f)));
+	_frusSphereDistance = n + (f - n) * 0.5f;
+	_frusSphereRadius = XMVectorGetX(XMVector3Length(XMVectorSet(xfar, yfar, f, 0.0f) - XMVectorSet(0.0f, 0.0f, _frusSphereDistance, 0.0f)));
 }
 
 XMVECTOR Engine::Camera::getCameraPosition(void) const
@@ -82,14 +84,29 @@ XMMATRIX Engine::Camera::getIVPMatrix(void) const
 	return *_IVPMatrix;
 }
 
+FLOAT Engine::Camera::getNear(void) const
+{
+	return _near;
+}
+
+FLOAT Engine::Camera::getFar(void) const
+{
+	return _far;
+}
+
 FLOAT Engine::Camera::getFOV(void) const
 {
 	return _fov;
 }
 
-FLOAT Engine::Camera::getFrusSphereRadian(void) const
+FLOAT Engine::Camera::getFrusSphereDistance(void) const
 {
-	return _frusSphereRadian;
+	return _frusSphereDistance;
+}
+
+FLOAT Engine::Camera::getFrusSphereRadius(void) const
+{
+	return _frusSphereRadius;
 }
 
 XMVECTOR Engine::Camera::getFrusSpherePosition(void) const
@@ -100,7 +117,7 @@ XMVECTOR Engine::Camera::getFrusSpherePosition(void) const
 void Engine::Camera::position(void)
 {
 	*_vview = XMVector3Normalize(*_ptarget - *_pcamera);
-	*_frusSpherePosition = *_vview * _distance;
+	*_frusSpherePosition = *_vview * _frusSphereDistance;
 	*_viewMatrix = XMMatrixLookAtRH(*_pcamera, *_ptarget, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 	*_VPMatrix = *_viewMatrix * *_projectionMatrix;
 	*_IVPMatrix = XMMatrixInverse(NULL, *_VPMatrix);

@@ -2,6 +2,14 @@
 
 void GameManager::display(FLOAT state)
 {
+	static UINT i;
+	static std::vector<Engine::Model *> object;
+
+	// We retrieve object to display from the octree
+	object.clear();
+	octreeSystem->getModel(gBuffer, cam, &object);
+
+	// Clear Buffers
 	renderer->clear();
 	gBuffer->clear();
 	sun->clear();
@@ -11,21 +19,21 @@ void GameManager::display(FLOAT state)
 	skybox->display(gBuffer, cam);
 
 	// Shadow Map
-	sol->displayShadowMap(sun);
 	heli->displayShadowMap(sun);
-	sol->displayShadowMap(torch);
 	heli->displayShadowMap(torch);
 
 	// Opaque Object
-	sol->display(gBuffer, cam);
-	heli->display(gBuffer, cam);
+	for (i = 0; i < object.size(); i++)
+		object[i]->display(gBuffer, cam);
+
 	sun->display(gBuffer, cam);
 	torch->display(gBuffer, cam);
 	screen->background(gBuffer);
 
 	// Transparent Object
-	sol->displayTransparent(gBuffer, cam);
-	heli->displayTransparent(gBuffer, cam);
+	for (i = 0; i < object.size(); i++)
+		object[i]->displayTransparent(gBuffer, cam);
+
 	sun->display(gBuffer, cam);
 	torch->display(gBuffer, cam);
 	screen->background(gBuffer);
