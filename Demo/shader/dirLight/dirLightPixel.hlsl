@@ -108,7 +108,7 @@ PS_OUTPUT main(PS_INPUT input)
 	{
 		float distance = length(cam_minus_pos);
 		if      (distance < 25) shadow = calcShadow(mul(shadowMatrix[0], float4(position, 1.0)), 3.0, shadowMap0);
-		else if (distance < 100) shadow = calcShadow(mul(shadowMatrix[1], float4(position, 1.0)), 1.0, shadowMap1);
+		else if (distance < 50) shadow = calcShadow(mul(shadowMatrix[1], float4(position, 1.0)), 1.0, shadowMap1);
 		else                    shadow = calcShadow(mul(shadowMatrix[2], float4(position, 1.0)), 1.0, shadowMap2);
 	}
 	output.light = calcLight(diffColor, specColor, normal.xyz, normalize(-lightDirection), normalize(camPosition.xyz - position), normal.w) * shadow;

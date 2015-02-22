@@ -106,6 +106,7 @@ Engine::Renderer::Renderer(const LPCWSTR szTitle, const UINT &width, const UINT 
 	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
 	DXGI_SWAP_CHAIN_FULLSCREEN_DESC sfd;
 	sfd.RefreshRate.Numerator = 60;
 	sfd.RefreshRate.Denominator = 1;

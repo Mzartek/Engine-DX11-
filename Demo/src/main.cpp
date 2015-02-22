@@ -56,11 +56,10 @@ void GameManager::idle(void)
 	if (input->getMouseState(0))
 		cam->setSpeed(5.0f);
 
-	heli->matRotate(0.0025f, 0, 1, 0);
-	heli->genMatNormal();
+	heli->setRotation(heli->getRotation() + XMVectorSet(0.0f, 0.0025f, 0.0f, 1.0f));
 
 	cam->position();
-	sun->position(cam->getCameraPosition(), 25, 100, 250);
+	sun->position(cam->getCameraPosition(), 100, 250, 500);
 	torch->position();
 }
 

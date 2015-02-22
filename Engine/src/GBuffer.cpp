@@ -173,6 +173,7 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descDepth.DepthFunc = D3D11_COMPARISON_LESS;
 	descDepth.StencilEnable = FALSE;
 	Device->CreateDepthStencilState(&descDepth, &_pDepthNoWriteState);
+
 	// DepthStencil
 	descDepth.DepthEnable = TRUE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -189,11 +190,13 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descDepth.BackFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
 	descDepth.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 	Device->CreateDepthStencilState(&descDepth, &_pDepthStencilState);
+
 	// NoDepthStencil
 	descDepth.DepthEnable = FALSE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	descDepth.StencilEnable = FALSE;
 	Device->CreateDepthStencilState(&descDepth, &_pNoDepthStencilState);
+
 	// Stencil
 	descDepth.DepthEnable = FALSE;
 	descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
@@ -212,10 +215,12 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	D3D11_BLEND_DESC descBlend;
 	descBlend.AlphaToCoverageEnable = FALSE;
 	descBlend.IndependentBlendEnable = FALSE;
+
 	// No Blending
 	descBlend.RenderTarget[0].BlendEnable = FALSE;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	Device->CreateBlendState(&descBlend, &_pNoBlendState);
+
 	// Additive Blending
 	descBlend.RenderTarget[0].BlendEnable = TRUE;
 	descBlend.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
@@ -226,6 +231,7 @@ void Engine::GBuffer::config(const UINT &width, const UINT &height)
 	descBlend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	descBlend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	Device->CreateBlendState(&descBlend, &_pAdditiveBlendState);
+
 	// Alpha Blending
 	descBlend.RenderTarget[0].BlendEnable = TRUE;
 	descBlend.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;

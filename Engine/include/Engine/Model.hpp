@@ -17,33 +17,40 @@ namespace Engine
 	class DLLAPI Model : public Object
 	{
 	private:
-		BOOL isMirror;
+		BOOL _isMirror;
 		std::vector<Mesh *> *_tMesh;
 		Buffer *_matrixBuffer;
 		Buffer *_cameraBuffer;
+		XMFLOAT3 *_position;
+		XMFLOAT3 *_rotation;
+		XMFLOAT3 *_scale;
 		XMMATRIX *_modelMatrix;
 		XMMATRIX *_normalMatrix;
-		// ShaderProgram
+		BOOL _needMatModel;
+		BOOL _needMatNormal;
 		ShaderProgram *_gProgram;
 		ShaderProgram *_smProgram;
 		ID3D11InputLayout *_pInputLayout;
+		void genMatModel(void) const;
+		void genMatNormal(void) const;
+		void checkMatrix(void);
+		void deleteMesh(void);
 	public:
 		Model(ShaderProgram *gProgram, ShaderProgram *smProgram);
+		Model(Model *model, ShaderProgram *gProgram, ShaderProgram *smProgram);
 		~Model(void);
-		void initMeshArray(void);
-		void initMeshMirror(Model *m);
 		void addMesh(const UINT &numVertex, const Vertex *vertexArray,
 				  const UINT &numIndex, const UINT *indexArray,
 				  const CHAR *colorTexture, const CHAR *NMTexture,
 				  const XMVECTOR &ambient, const XMVECTOR &diffuse, const XMVECTOR &specular, const FLOAT &shininess);
 		void loadFromFile(const CHAR *szFileName);
 		void sortMesh(void);
-		void matIdentity(void);
-		void matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z);
-		void matRotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z);
-		void matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z);
-		void genMatNormal(void);
+		void setPosition(const XMVECTOR &position);
+		void setRotation(const XMVECTOR &rotation);
+		void setScale(const XMVECTOR &scale);
 		XMVECTOR getPosition(void) const;
+		XMVECTOR getRotation(void) const;
+		XMVECTOR getScale(void) const;
 		Mesh *getMesh(UINT num) const;
 		void display(GBuffer *gbuf, Camera *cam);
 		void displayTransparent(GBuffer *gbuf, Camera *cam);

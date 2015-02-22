@@ -28,7 +28,7 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	gBuffer->config(renderer->getWidth(), renderer->getHeight());
 
 	// Camera config
-	cam->setCameraPosition(XMVectorSet(30, 10, 0, 1));
+	cam->setCameraPosition(XMVectorSet(30, 5, 0, 1));
 	cam->setInitialAngle(-XM_PI / 2, 0);
 
 	// Skybox config
@@ -51,29 +51,25 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	XMVECTOR mat_specular = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
 	FLOAT mat_shininess = 20.0f;
 
-	sol->initMeshArray();
 	sol->addMesh(sizeof vertexArray / sizeof(Engine::Vertex), vertexArray,
 		sizeof index / sizeof(UINT), index,
 		"resources/ornaments.jpg", "resources/NM_none.png",
 		mat_ambient, mat_diffuse, mat_specular, mat_shininess);
-	sol->genMatNormal();
 
 	octreeSystem->addModel(sol, 1000);
 
-	heli->initMeshArray();
 	heli->loadFromFile("resources/heli/corps.mobj");
 	heli->sortMesh();
-	heli->matTranslate(0.0f, 6.0f, 0.0f);
-	heli->matScale(2, 2, 2);
-	heli->genMatNormal();
+	heli->setPosition(XMVectorSet(0.0f, 6.0f, 0.0f, 1.0f));
+	heli->setScale(XMVectorSet(2.0f, 2.0f, 2.0f, 1.0f));
 
 	octreeSystem->addModel(heli, 40);
 
 	// Light config
 	sun->setColor(XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
-	sun->setDirection(XMVectorSet(1.0f, -1.0f, 0.0f, 1.0f));
+	sun->setDirection(XMVectorSet(0.5f, -1.0f, 0.0f, 1.0f));
 	sun->setShadowMapping(TRUE);
-	sun->configShadowMap(1024, 1024);
+	sun->configShadowMap(4096, 4096);
 
 	torch->setColor(XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
 	torch->setPosition(XMVectorSet(20.0f, 40.0f, 0.0f, 1.0f));

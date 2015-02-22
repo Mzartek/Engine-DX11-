@@ -27,18 +27,91 @@ static struct
 	XMVECTOR __declspec(align(16)) target;
 } _camera;
 
-Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
-	: _tMesh(NULL), _gProgram(gProgram), _smProgram(smProgram)
+void Engine::Model::genMatModel(void) const
 {
+	*_modelMatrix = XMMatrixScaling(_scale->x, _scale->y, _scale->z) *
+		XMMatrixRotationZ(_rotation->z) *
+		XMMatrixRotationY(_rotation->y) *
+		XMMatrixRotationX(_rotation->x) *
+		XMMatrixTranslation(_position->x, _position->y, _position->z);
+}
+
+void Engine::Model::genMatNormal(void) const
+{
+	*_normalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_modelMatrix));
+}
+
+void Engine::Model::checkMatrix(void)
+{
+	if (_needMatModel == TRUE)
+	{
+		genMatModel();
+		_needMatModel = FALSE;
+	}
+	if (_needMatNormal == TRUE)
+	{
+		genMatNormal();
+		_needMatNormal = FALSE;
+	}
+}
+
+void Engine::Model::deleteMesh(void)
+{
+	if (_tMesh != NULL && _isMirror != TRUE)
+	{
+		for (UINT i = 0; i < _tMesh->size(); i++)
+			delete (*_tMesh)[i];
+		delete _tMesh;
+	}
+}
+
+Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
+	: _isMirror(FALSE), _tMesh(NULL), _needMatModel(TRUE), _needMatNormal(TRUE), _gProgram(gProgram), _smProgram(smProgram)
+{
+	_tMesh = new std::vector<Mesh *>;
 	_matrixBuffer = new Buffer;
 	_cameraBuffer = new Buffer;
+	_position = new XMFLOAT3;
+	_rotation = new XMFLOAT3;
+	_scale = new XMFLOAT3;
 	_modelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_modelMatrix, 16);
 	_normalMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_normalMatrix, 16);
+
+	XMStoreFloat3(_position, XMVectorSet(0, 0, 0, 1));
+	XMStoreFloat3(_rotation, XMVectorSet(0, 0, 0, 1));
+	XMStoreFloat3(_scale, XMVectorSet(1, 1, 1, 1));
 
 	_matrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _matrix, D3D11_USAGE_DYNAMIC);
 	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _camera, D3D11_USAGE_DYNAMIC);
 
-	matIdentity();
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "IN_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "IN_TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 3 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "IN_NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 5 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "IN_TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 8 * sizeof(FLOAT), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	Device->CreateInputLayout(layout, ARRAYSIZE(layout), gProgram->getEntryBufferPointer(), gProgram->getEntryBytecodeLength(), &_pInputLayout);
+}
+
+Engine::Model::Model(Model *model, ShaderProgram *gProgram, ShaderProgram *smProgram)
+	: _isMirror(TRUE), _tMesh(NULL), _needMatModel(TRUE), _needMatNormal(TRUE), _gProgram(gProgram), _smProgram(smProgram)
+{
+	_tMesh = model->_tMesh;
+	_matrixBuffer = new Buffer;
+	_cameraBuffer = new Buffer;
+	_position = new XMFLOAT3;
+	_rotation = new XMFLOAT3;
+	_scale = new XMFLOAT3;
+	_modelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_modelMatrix, 16);
+	_normalMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_normalMatrix, 16);
+
+	XMStoreFloat3(_position, XMVectorSet(0, 0, 0, 1));
+	XMStoreFloat3(_rotation, XMVectorSet(0, 0, 0, 1));
+	XMStoreFloat3(_scale, XMVectorSet(1, 1, 1, 1));
+
+	_matrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _matrix, D3D11_USAGE_DYNAMIC);
+	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _camera, D3D11_USAGE_DYNAMIC);
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -52,44 +125,17 @@ Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
 
 Engine::Model::~Model(void)
 {
-	UINT i;
-	if (_tMesh != NULL && isMirror != TRUE)
-	{
-		for (i = 0; i < _tMesh->size(); i++)
-			delete (*_tMesh)[i];
-		delete _tMesh;
-	}
+	deleteMesh();
+
 	delete _matrixBuffer;
 	delete _cameraBuffer;
+	delete _position;
+	delete _rotation;
+	delete _scale;
 	_aligned_free(_modelMatrix);
 	_aligned_free(_normalMatrix);
+
 	_pInputLayout->Release();
-}
-
-void Engine::Model::initMeshArray(void)
-{
-	UINT i;
-	if (_tMesh != NULL && isMirror != TRUE)
-	{
-		for (i = 0; i < _tMesh->size(); i++)
-			delete (*_tMesh)[i];
-		delete _tMesh;
-	}
-	isMirror = FALSE;
-	_tMesh = new std::vector<Mesh *>;
-}
-
-void Engine::Model::initMeshMirror(Model *m)
-{
-	UINT i;
-	if (_tMesh != NULL && isMirror != TRUE)
-	{
-		for (i = 0; i < _tMesh->size(); i++)
-			delete (*_tMesh)[i];
-		delete _tMesh;
-	}
-	isMirror = TRUE;
-	_tMesh = m->_tMesh;
 }
 
 void Engine::Model::addMesh(const UINT &numVertex, const Vertex *vertexArray,
@@ -130,14 +176,11 @@ void Engine::Model::loadFromFile(const CHAR *szFileName)
 	Assimp::Importer Importer;
 	UINT i, j;
 
-	if (_tMesh == NULL || isMirror == TRUE)
+	if (_isMirror == TRUE)
 	{
 		MessageBox(NULL, TEXT("Error Model configuration"), TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
-	for (i = 0; i<_tMesh->size(); i++)
-		delete (*_tMesh)[i];
-	_tMesh->clear();
 
 	const aiScene *pScene = Importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes);
 	if (!pScene)
@@ -225,34 +268,39 @@ void Engine::Model::sortMesh(void)
 	qsort(&(*_tMesh)[0], _tMesh->size(), sizeof(*_tMesh)[0], comparMesh);
 }
 
-void Engine::Model::matIdentity(void)
+void Engine::Model::setPosition(const XMVECTOR &position)
 {
-	*_modelMatrix = XMMatrixIdentity();
+	XMStoreFloat3(_position, position);
+	_needMatModel = TRUE;
 }
 
-void Engine::Model::matTranslate(const FLOAT &x, const FLOAT &y, const FLOAT &z)
+void Engine::Model::setRotation(const XMVECTOR &rotation)
 {
-	*_modelMatrix = XMMatrixTranslation(x, y, z) * *_modelMatrix;
+	XMStoreFloat3(_rotation, rotation);
+	_needMatModel = TRUE;
+	_needMatNormal = TRUE;
 }
 
-void Engine::Model::matRotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
+void Engine::Model::setScale(const XMVECTOR &scale)
 {
-	*_modelMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle) * *_modelMatrix;
-}
-
-void Engine::Model::matScale(const FLOAT &x, const FLOAT &y, const FLOAT &z)
-{
-	*_modelMatrix = XMMatrixScaling(x, y, z) * *_modelMatrix;
-}
-
-void Engine::Model::genMatNormal(void)
-{
-	*_normalMatrix = XMMatrixTranspose(XMMatrixInverse(NULL, *_modelMatrix));
+	XMStoreFloat3(_scale, scale);
+	_needMatModel = TRUE;
+	_needMatNormal = TRUE;
 }
 
 XMVECTOR Engine::Model::getPosition(void) const
 {
-	return XMVectorSet(XMVectorGetW(_modelMatrix->r[0]), XMVectorGetW(_modelMatrix->r[1]), XMVectorGetW(_modelMatrix->r[2]), XMVectorGetW(_modelMatrix->r[3]));
+	return XMLoadFloat3(_position);
+}
+
+XMVECTOR Engine::Model::getRotation(void) const
+{
+	return XMLoadFloat3(_rotation);
+}
+
+XMVECTOR Engine::Model::getScale(void) const
+{
+	return XMLoadFloat3(_scale);
 }
 
 Engine::Mesh *Engine::Model::getMesh(UINT num) const
@@ -267,7 +315,7 @@ Engine::Mesh *Engine::Model::getMesh(UINT num) const
   
 void Engine::Model::display(GBuffer *gbuf, Camera *cam)
 {
-	UINT i;
+	checkMatrix();
 
 	gbuf->setGeometryState();
 
@@ -297,14 +345,14 @@ void Engine::Model::display(GBuffer *gbuf, Camera *cam)
 
 	DeviceContext->IASetInputLayout(_pInputLayout);
 	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	for (i = 0; i<_tMesh->size(); i++)
+	for (UINT i = 0; i<_tMesh->size(); i++)
 		if ((*_tMesh)[i]->getTransparency() == 1.0f)
 			(*_tMesh)[i]->display();
 }
 
 void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam)
 {
-	UINT i;
+	checkMatrix();
 
 	gbuf->setGeometryState();
 
@@ -334,14 +382,14 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam)
 
 	DeviceContext->IASetInputLayout(_pInputLayout);
 	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	for (i = 0; i<_tMesh->size(); i++)
+	for (UINT i = 0; i<_tMesh->size(); i++)
 		if ((*_tMesh)[i]->getTransparency() != 1.0f)
 			(*_tMesh)[i]->display();
 }
 
 void Engine::Model::displayShadowMap(DirLight *light)
 {
-	UINT i, j;
+	checkMatrix();
 
 	DeviceContext->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
 	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
@@ -355,7 +403,7 @@ void Engine::Model::displayShadowMap(DirLight *light)
 	_matrix.model = *_modelMatrix;
 	_matrix.normal = *_normalMatrix;
 
-	for (i = 0; i < CSM_NUM; i++)
+	for (UINT i = 0; i < CSM_NUM; i++)
 	{
 		light->getShadowMap(i)->setState();
 
@@ -370,7 +418,7 @@ void Engine::Model::displayShadowMap(DirLight *light)
 		};
 		DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
-		for (j = 0; j < _tMesh->size(); j++)
+		for (UINT j = 0; j < _tMesh->size(); j++)
 			if ((*_tMesh)[j]->getTransparency() == 1.0f)
 				(*_tMesh)[j]->displayShadow();
 	}
@@ -378,7 +426,7 @@ void Engine::Model::displayShadowMap(DirLight *light)
 
 void Engine::Model::displayShadowMap(SpotLight *light)
 {
-	UINT i;
+	checkMatrix();
 
 	light->getShadowMap()->setState();
 
@@ -403,7 +451,7 @@ void Engine::Model::displayShadowMap(SpotLight *light)
 
 	DeviceContext->IASetInputLayout(_pInputLayout);
 	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	for (i = 0; i<_tMesh->size(); i++)
+	for (UINT i = 0; i<_tMesh->size(); i++)
 		if ((*_tMesh)[i]->getTransparency() == 1.0f)
 			(*_tMesh)[i]->displayShadow();
 }

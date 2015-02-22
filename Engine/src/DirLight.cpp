@@ -90,10 +90,20 @@ void Engine::DirLight::position(const XMVECTOR &pos, const FLOAT &dim0, const FL
 
 	for (UINT i = 0; i < CSM_NUM; i++)
 	{
-		_projectionMatrix[i] = XMMatrixOrthographicOffCenterRH(-dim[i], dim[i], -dim[i], dim[i], -dim[i], dim[i]);
+		_projectionMatrix[i] = XMMatrixOrthographicOffCenterRH(-dim[i], dim[i], -dim[i], dim[i], -dim[i]/2, dim[i]/2);
 		_viewMatrix[i] = XMMatrixLookAtRH(pos - dir, pos, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 		_VPMatrix[i] = _viewMatrix[i] * _projectionMatrix[i];
 	}
+
+	/*XMFLOAT4X4 mattest;
+	XMStoreFloat4x4(&mattest, _projectionMatrix[0]);
+	std::string test =
+		std::to_string(mattest._11) + " " + std::to_string(mattest._12) + " " + std::to_string(mattest._13) + " " + std::to_string(mattest._14) + "\n" +
+		std::to_string(mattest._21) + " " + std::to_string(mattest._22) + " " + std::to_string(mattest._23) + " " + std::to_string(mattest._24) + "\n" +
+		std::to_string(mattest._31) + " " + std::to_string(mattest._32) + " " + std::to_string(mattest._33) + " " + std::to_string(mattest._34) + "\n" +
+		std::to_string(mattest._41) + " " + std::to_string(mattest._42) + " " + std::to_string(mattest._43) + " " + std::to_string(mattest._44) + "\n";
+	MessageBoxA(NULL, test.c_str(), "DirectX", MB_OK);
+	exit(0);*/
 }
 
 void Engine::DirLight::clear(void) const
