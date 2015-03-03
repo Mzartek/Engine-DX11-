@@ -7,6 +7,7 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 
 	skyboxProgram = new Engine::ShaderProgram(L"shader/skybox/skyboxVertex.hlsl", NULL, NULL, NULL, L"shader/skybox/skyboxPixel.hlsl");
 	objectProgram = new Engine::ShaderProgram(L"shader/object/objectVertex.hlsl", NULL, NULL, L"shader/object/objectGeom.hlsl", L"shader/object/objectPixel.hlsl");
+	reflectObjectProgram = new Engine::ShaderProgram(L"shader/reflectObject/reflectObjectVertex.hlsl", NULL, NULL, L"shader/reflectObject/reflectObjectGeom.hlsl", L"shader/reflectObject/reflectObjectPixel.hlsl");
 	dirLightProgram = new Engine::ShaderProgram(L"shader/dirLight/dirLightVertex.hlsl", NULL, NULL, NULL, L"shader/dirLight/dirLightPixel.hlsl");
 	spotLightProgram = new Engine::ShaderProgram(L"shader/spotLight/spotLightVertex.hlsl", NULL, NULL, NULL, L"shader/spotLight/spotLightPixel.hlsl");
 	shadowMapProgram = new Engine::ShaderProgram(L"shader/shadowMap/shadowMapVertex.hlsl", NULL, NULL, NULL, L"shader/shadowMap/shadowMapPixel.hlsl");
@@ -17,7 +18,7 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	cam = new Engine::FreeCam;
 	skybox = new Engine::SkyBox(skyboxProgram);
 	sol = new Engine::Model(objectProgram, shadowMapProgram);
-	heli = new Engine::Model(objectProgram, shadowMapProgram);
+	heli = new Engine::Model(reflectObjectProgram, shadowMapProgram);
 	sun = new Engine::DirLight(dirLightProgram);
 	torch = new Engine::SpotLight(spotLightProgram);
 	screen = new Engine::Screen(backgroundProgram, screenProgram);
@@ -35,7 +36,6 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	skybox->load("resources/Skybox/rightred2.jpg", "resources/Skybox/leftred2.jpg",
 		"resources/Skybox/topred2.jpg", "resources/Skybox/botred2.jpg",
 		"resources/Skybox/frontred2.jpg", "resources/Skybox/backred2.jpg");
-	skybox->rotate(XM_PI, 1, 0, 0);
 
 	// Model config
 	Engine::Vertex vertexArray[] =
@@ -62,6 +62,7 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	heli->sortMesh();
 	heli->setPosition(XMVectorSet(0.0f, 6.0f, 0.0f, 1.0f));
 	heli->setScale(XMVectorSet(2.0f, 2.0f, 2.0f, 1.0f));
+	heli->setCubeTexture(skybox->getTexture());
 
 	octreeSystem->addModel(heli, 40);
 
@@ -69,7 +70,7 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	sun->setColor(XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
 	sun->setDirection(XMVectorSet(0.5f, -1.0f, 0.0f, 1.0f));
 	sun->setShadowMapping(TRUE);
-	sun->configShadowMap(4096, 4096);
+	sun->configShadowMap(2048, 2048);
 
 	torch->setColor(XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
 	torch->setPosition(XMVectorSet(20.0f, 40.0f, 0.0f, 1.0f));
@@ -77,7 +78,7 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	torch->setSpotCutOff(XM_PI / 4);
 	torch->setMaxDistance(100);
 	torch->setShadowMapping(TRUE);
-	torch->configShadowMap(1024, 1024);
+	torch->configShadowMap(2048, 2048);
 }
 
 GameManager::~GameManager(void)
@@ -98,6 +99,7 @@ GameManager::~GameManager(void)
 	delete shadowMapProgram;
 	delete spotLightProgram;
 	delete dirLightProgram;
+	delete reflectObjectProgram;
 	delete objectProgram;
 	delete skyboxProgram;
 }

@@ -13,6 +13,7 @@ namespace Engine
 	class Camera;
 	class DirLight;
 	class SpotLight;
+	class Texture;
 
 	class DLLAPI Model : public Object
 	{
@@ -28,6 +29,7 @@ namespace Engine
 		XMMATRIX *_normalMatrix;
 		BOOL _needMatModel;
 		BOOL _needMatNormal;
+		Texture *_cubeTexture;
 		ShaderProgram *_gProgram;
 		ShaderProgram *_smProgram;
 		ID3D11InputLayout *_pInputLayout;
@@ -48,10 +50,11 @@ namespace Engine
 		void setPosition(const XMVECTOR &position);
 		void setRotation(const XMVECTOR &rotation);
 		void setScale(const XMVECTOR &scale);
+		void setCubeTexture(Texture *cubeTex);
 		XMVECTOR getPosition(void) const;
 		XMVECTOR getRotation(void) const;
 		XMVECTOR getScale(void) const;
-		Mesh *getMesh(UINT num) const;
+		std::vector<Mesh *> getMeshVector(void) const;
 		void display(GBuffer *gbuf, Camera *cam);
 		void displayTransparent(GBuffer *gbuf, Camera *cam);
 		void displayShadowMap(DirLight *light);

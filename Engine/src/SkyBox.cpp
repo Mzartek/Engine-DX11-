@@ -12,7 +12,6 @@ Engine::SkyBox::SkyBox(ShaderProgram *program)
 	_vertexBuffer = new Buffer;
 	_indexBuffer = new Buffer;
 	_MVPMatrixBuffer = new Buffer;
-	_rotateMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_rotateMatrix, 16);
 
 	FLOAT vertexArray[] =
 	{
@@ -38,7 +37,6 @@ Engine::SkyBox::SkyBox(ShaderProgram *program)
 	_vertexBuffer->createStore(D3D11_BIND_VERTEX_BUFFER, vertexArray, sizeof vertexArray, D3D11_USAGE_IMMUTABLE);
 	_indexBuffer->createStore(D3D11_BIND_INDEX_BUFFER, indexArray, sizeof indexArray, D3D11_USAGE_IMMUTABLE);
 	_MVPMatrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof XMMATRIX, D3D11_USAGE_DYNAMIC);
-	*_rotateMatrix = XMMatrixIdentity();
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -53,7 +51,6 @@ Engine::SkyBox::~SkyBox(void)
 	delete _vertexBuffer;
 	delete _indexBuffer;
 	delete _MVPMatrixBuffer;
-	_aligned_free(_rotateMatrix);
 	_pInputLayout->Release();
 }
 
@@ -64,16 +61,14 @@ void Engine::SkyBox::load(const CHAR *posx, const CHAR *negx,
 	_cubeTexture->loadCubeTextureFromFiles(posx, negx, posy, negy, posz, negz);
 }
 
-void Engine::SkyBox::rotate(const FLOAT &angle, const FLOAT &x, const FLOAT &y, const FLOAT &z)
+Engine::Texture *Engine::SkyBox::getTexture(void) const
 {
-	*_rotateMatrix = XMMatrixRotationAxis(XMVectorSet(x, y, z, 1.0f), angle) * *_rotateMatrix;
+	return _cubeTexture;
 }
 
 void Engine::SkyBox::display(GBuffer *gbuf, Camera *cam)
 {
-	XMMATRIX pos = *_rotateMatrix * 
-		XMMatrixTranslation(XMVectorGetX(cam->getCameraPosition()), XMVectorGetY(cam->getCameraPosition()), XMVectorGetZ(cam->getCameraPosition())) * 
-		cam->getVPMatrix();
+	XMMATRIX pos = XMMatrixTranslation(XMVectorGetX(cam->getCameraPosition()), XMVectorGetY(cam->getCameraPosition()), XMVectorGetZ(cam->getCameraPosition())) * cam->getVPMatrix();
 
 	gbuf->setSkyboxState();
 

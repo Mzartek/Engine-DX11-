@@ -23,6 +23,7 @@ private:
 
 	Engine::ShaderProgram *skyboxProgram;
 	Engine::ShaderProgram *objectProgram;
+	Engine::ShaderProgram *reflectObjectProgram;
 	Engine::ShaderProgram *dirLightProgram;
 	Engine::ShaderProgram *spotLightProgram;
 	Engine::ShaderProgram *shadowMapProgram;

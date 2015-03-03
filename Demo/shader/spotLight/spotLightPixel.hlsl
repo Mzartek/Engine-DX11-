@@ -107,7 +107,7 @@ PS_OUTPUT main(PS_INPUT input)
 
 	float shadow = 1.0;
 	if (withShadowMapping)
-		shadow = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 1.0);
+		shadow = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 3.0);
 	float3 L = normalize(lightPosition - position);
 
 	// For the angle

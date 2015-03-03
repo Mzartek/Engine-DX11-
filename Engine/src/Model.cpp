@@ -7,6 +7,7 @@
 #include <Engine/DirLight.hpp>
 #include <Engine/SpotLight.hpp>
 #include <Engine/ShadowMap.hpp>
+#include <Engine/Texture.hpp>
 
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
@@ -66,7 +67,7 @@ void Engine::Model::deleteMesh(void)
 }
 
 Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
-	: _isMirror(FALSE), _tMesh(NULL), _needMatModel(TRUE), _needMatNormal(TRUE), _gProgram(gProgram), _smProgram(smProgram)
+	: _isMirror(FALSE), _tMesh(NULL), _needMatModel(TRUE), _needMatNormal(TRUE), _cubeTexture(NULL), _gProgram(gProgram), _smProgram(smProgram)
 {
 	_tMesh = new std::vector<Mesh *>;
 	_matrixBuffer = new Buffer;
@@ -95,7 +96,7 @@ Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
 }
 
 Engine::Model::Model(Model *model, ShaderProgram *gProgram, ShaderProgram *smProgram)
-	: _isMirror(TRUE), _tMesh(NULL), _needMatModel(TRUE), _needMatNormal(TRUE), _gProgram(gProgram), _smProgram(smProgram)
+	: _isMirror(TRUE), _tMesh(NULL), _needMatModel(TRUE), _needMatNormal(TRUE), _cubeTexture(NULL), _gProgram(gProgram), _smProgram(smProgram)
 {
 	_tMesh = model->_tMesh;
 	_matrixBuffer = new Buffer;
@@ -288,6 +289,11 @@ void Engine::Model::setScale(const XMVECTOR &scale)
 	_needMatNormal = TRUE;
 }
 
+void Engine::Model::setCubeTexture(Texture *cubeTex)
+{
+	_cubeTexture = cubeTex;
+}
+
 XMVECTOR Engine::Model::getPosition(void) const
 {
 	return XMLoadFloat3(_position);
@@ -303,14 +309,9 @@ XMVECTOR Engine::Model::getScale(void) const
 	return XMLoadFloat3(_scale);
 }
 
-Engine::Mesh *Engine::Model::getMesh(UINT num) const
+std::vector<Engine::Mesh *> Engine::Model::getMeshVector(void) const
 {
-	if (num >= _tMesh->size())
-	{
-		MessageBox(NULL, TEXT("Bad num Object!"), TEXT(__FILE__), MB_OK);
-		exit(1);
-	}
-	return (*_tMesh)[num];
+	return *_tMesh;
 }
   
 void Engine::Model::display(GBuffer *gbuf, Camera *cam)
@@ -347,7 +348,12 @@ void Engine::Model::display(GBuffer *gbuf, Camera *cam)
 	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (UINT i = 0; i<_tMesh->size(); i++)
 		if ((*_tMesh)[i]->getTransparency() == 1.0f)
-			(*_tMesh)[i]->display();
+		{
+			if (_cubeTexture)
+				(*_tMesh)[i]->display(_cubeTexture);
+			else
+				(*_tMesh)[i]->display();
+		}
 }
 
 void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam)
@@ -384,7 +390,12 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam)
 	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (UINT i = 0; i<_tMesh->size(); i++)
 		if ((*_tMesh)[i]->getTransparency() != 1.0f)
-			(*_tMesh)[i]->display();
+		{
+			if (_cubeTexture)
+				(*_tMesh)[i]->display(_cubeTexture);
+			else
+				(*_tMesh)[i]->display();
+		}
 }
 
 void Engine::Model::displayShadowMap(DirLight *light)

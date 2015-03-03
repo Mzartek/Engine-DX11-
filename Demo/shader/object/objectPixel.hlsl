@@ -44,20 +44,20 @@ PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
-	float4 color = colorTex.Sample(colorSampleType, input.texCoord);
-	float3 normal = CalcBumpedNormal(input.TBN, NMTex.Sample(NMSampleType, input.texCoord).xyz);
+		float4 color = colorTex.Sample(colorSampleType, input.texCoord);
+		float3 normal = CalcBumpedNormal(input.TBN, NMTex.Sample(NMSampleType, input.texCoord).xyz);
 
-	if (color.a > 0.5)
-	{
-		output.normal = float4(normal, shininess);
-		output.material.x = packUnorm4x8(color);
-		output.material.y = packUnorm4x8(matAmbient);
-		output.material.z = packUnorm4x8(matDiffuse);
-		output.material.w = packUnorm4x8(matSpecular);
-		output.depth = input.position.z;
-	}
-	else
-		discard;
+		if (color.a > 0.5)
+		{
+			output.normal = float4(normal, shininess);
+			output.material.x = packUnorm4x8(color);
+			output.material.y = packUnorm4x8(matAmbient);
+			output.material.z = packUnorm4x8(matDiffuse);
+			output.material.w = packUnorm4x8(matSpecular);
+			output.depth = input.position.z;
+		}
+		else
+			discard;
 
 	return output;
 }

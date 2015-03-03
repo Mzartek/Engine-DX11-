@@ -3,6 +3,7 @@ struct GS_INPUT
 	float4 position : SV_POSITION;
 	float2 texCoord : IN_TEXCOORD;
 	float3x3 TBN : IN_TBN;
+	float3 objPos : IN_OBJPOS;
 }; 
 
 struct GS_OUTPUT

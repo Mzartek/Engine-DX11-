@@ -103,6 +103,41 @@ void Engine::Mesh::display(void) const
 	DeviceContext->DrawIndexed(_numElement, 0, 0);
 }
 
+void Engine::Mesh::display(Texture *cubeTex) const
+{
+	ID3D11ShaderResourceView *pshr[] =
+	{
+		_colorTexture->getShaderResourceView(),
+		_NMTexture->getShaderResourceView(),
+		cubeTex->getShaderResourceView(),
+	};
+	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
+	ID3D11SamplerState *psam[] =
+	{
+		_colorTexture->getSamplerState(),
+		_NMTexture->getSamplerState(),
+		cubeTex->getSamplerState(),
+	};
+	DeviceContext->PSSetSamplers(0, ARRAYSIZE(psam), psam);
+
+	_materialBuffer->updateStoreMap(&_material);
+	ID3D11Buffer *buf[] =
+	{
+		_materialBuffer->getBuffer(),
+	};
+	DeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+
+	UINT stride = 11 * sizeof(FLOAT), offset = 0;
+	ID3D11Buffer *drawBuf[] =
+	{
+		_vertexBuffer->getBuffer(),
+		_indexBuffer->getBuffer(),
+	};
+	DeviceContext->IASetVertexBuffers(0, 1, &drawBuf[0], &stride, &offset);
+	DeviceContext->IASetIndexBuffer(drawBuf[1], DXGI_FORMAT_R32_UINT, offset);
+	DeviceContext->DrawIndexed(_numElement, 0, 0);
+}
+
 void Engine::Mesh::displayShadow(void) const
 {
 	ID3D11ShaderResourceView *pshr[] =
