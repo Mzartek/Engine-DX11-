@@ -18,7 +18,7 @@ namespace Engine
 
 	class DLLAPI Mesh : public Object
 	{
-		friend int comparMesh(const void *p1, const void *p2);
+		friend struct CompareMesh;
 
 	private:
 		struct material
@@ -51,7 +51,10 @@ namespace Engine
 		void displayShadow(void) const;
 	};
 
-	int comparMesh(const void *p1, const void *p2);
+	struct CompareMesh
+	{
+		bool operator() (const Mesh *first, const Mesh *second);
+	};
 }
 
 
