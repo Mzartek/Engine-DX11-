@@ -34,10 +34,10 @@ VS_OUTPUT main(VS_INPUT input)
 	VS_OUTPUT output = (VS_OUTPUT)0;
 
 	float3 N = mul(normalMatrix, float4(input.normal, 0.0)).xyz;
-	float3 T = mul(normalMatrix, float4(input.tangent, 0.0)).xyz;
-	float3 B = cross(N, T);
+		float3 T = mul(normalMatrix, float4(input.tangent, 0.0)).xyz;
+		float3 B = cross(N, T);
 
-	output.position = mul(MVP, float4(input.position, 1.0));
+		output.position = mul(MVP, float4(input.position, 1.0));
 	output.texCoord = input.texCoord;
 	output.TBN = float3x3(T, B, N);
 	output.eyeVec = mul(modelMatrix, float4(input.position, 1.0)).xyz - camPosition.xyz;

@@ -47,8 +47,8 @@ float3 getPosition(float2 pixelCoord)
 {
 	float depth = depthTex[pixelCoord];
 	float4 tmp1 = float4(pixelCoord.x / screen.x * 2.0 - 1.0, (1.0 - (pixelCoord.y / screen.y)) * 2.0 - 1.0, depth, 1.0);
-	float4 tmp2 = mul(IVPMatrix, tmp1);
-	return tmp2.xyz / tmp2.w;
+		float4 tmp2 = mul(IVPMatrix, tmp1);
+		return tmp2.xyz / tmp2.w;
 }
 
 float lookUp(float4 coord, float2 offSet, int2 texSize, Texture2D shadowMap)
@@ -82,32 +82,32 @@ float calcShadow(float4 coord, float pcf, Texture2D shadowMap)
 
 float4 calcLight(float4 diffColor, float4 specColor, float3 N, float3 L, float3 V, float shininess)
 {
-	float3 R = reflect(-L, N);
-	float4 diff = max(dot(N, L), 0.0) * diffColor;
-	float4 spec = pow(max(dot(R, V), 0.0), shininess) * specColor;
-	return diff + spec;
+	float3 H = normalize(L + V);
+		float4 diff = max(dot(N, L), 0.0) * diffColor;
+		float4 spec = pow(max(dot(N, H), 0.0), shininess) * specColor;
+		return diff + spec;
 }
 
 PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
-	if (stencilTex[input.position.xy].y != 1) 
+	if (stencilTex[input.position.xy].y != 1)
 		discard;
 
 	float3 position = getPosition(input.position.xy);
-	float4 normal = normalTex[input.position.xy];
-	uint4 material = materialTex[input.position.xy];
+		float4 normal = normalTex[input.position.xy];
+		uint4 material = materialTex[input.position.xy];
 
-	float4 diffColor = unpackUnorm4x8(material.z) * float4(lightColor, 1.0);
-	float4 specColor = unpackUnorm4x8(material.w) * float4(lightColor, 1.0);
+		float4 diffColor = unpackUnorm4x8(material.z) * float4(lightColor, 1.0);
+		float4 specColor = unpackUnorm4x8(material.w) * float4(lightColor, 1.0);
 
-	float3 cam_minus_pos = camPosition - position;
-	float shadow = 1.0;
+		float3 cam_minus_pos = camPosition - position;
+		float shadow = 1.0;
 	if (withShadowMapping)
 	{
 		float distance = length(cam_minus_pos);
-		if      (distance < 25) shadow = calcShadow(mul(shadowMatrix[0], float4(position, 1.0)), 3.0, shadowMap0);
+		if (distance < 25) shadow = calcShadow(mul(shadowMatrix[0], float4(position, 1.0)), 3.0, shadowMap0);
 		else if (distance < 50) shadow = calcShadow(mul(shadowMatrix[1], float4(position, 1.0)), 1.0, shadowMap1);
 		else                    shadow = calcShadow(mul(shadowMatrix[2], float4(position, 1.0)), 1.0, shadowMap2);
 	}
