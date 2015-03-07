@@ -13,21 +13,6 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-static struct
-{
-	XMMATRIX MVP;
-	XMMATRIX projection;
-	XMMATRIX view;
-	XMMATRIX model;
-	XMMATRIX normal;
-} _matrix;
-
-static struct
-{
-	XMVECTOR __declspec(align(16)) position;
-	XMVECTOR __declspec(align(16)) target;
-} _camera;
-
 void Engine::Model::genMatModel(void) const
 {
 	*_modelMatrix = XMMatrixScaling(_scale->x, _scale->y, _scale->z) *

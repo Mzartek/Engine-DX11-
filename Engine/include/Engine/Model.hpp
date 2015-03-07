@@ -18,6 +18,21 @@ namespace Engine
 	class DLLAPI Model : public Object
 	{
 	private:
+		struct
+		{
+			XMMATRIX MVP;
+			XMMATRIX projection;
+			XMMATRIX view;
+			XMMATRIX model;
+			XMMATRIX normal;
+		} _matrix;
+
+		struct
+		{
+			XMVECTOR __declspec(align(16)) position;
+			XMVECTOR __declspec(align(16)) target;
+		} _camera;
+
 		BOOL _isMirror;
 		std::vector<Mesh *> *_tMesh;
 		Buffer *_matrixBuffer;
