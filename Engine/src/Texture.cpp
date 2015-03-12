@@ -34,7 +34,7 @@ void Engine::Texture::load2DTextureFromFile(const CHAR *path)
 	image = FreeImage_Load(FreeImage_GetFileType(path), path);
 	if (image == NULL)
 	{
-		std::string text = "Fail to load file: ";
+		std::string text = "Error while loading image: ";
 		text.append(path);
 		MessageBoxA(NULL, text.c_str(), __FILE__, MB_OK);
 		exit(1);
@@ -123,11 +123,34 @@ void Engine::Texture::loadCubeTextureFromFiles(
 	D3D11_SUBRESOURCE_DATA data[6];
 	for (i = 0; i < 6; i++)
 	{
-		if (image == NULL)
+		if (image[i] == NULL)
 		{
-			MessageBox(NULL, TEXT("Fail to load an Image"), TEXT(__FILE__), MB_OK);
+			std::string text = "Error while loading image: ";
+			switch (i)
+			{
+			case 0:
+				text.append(posx);
+				break;
+			case 1:
+				text.append(negx);
+				break;
+			case 2:
+				text.append(posy);
+				break;
+			case 3:
+				text.append(negy);
+				break;
+			case 4:
+				text.append(posz);
+				break;
+			case 5:
+				text.append(negz);
+				break;
+			}
+			MessageBoxA(NULL, text.c_str(), __FILE__, MB_OK);
 			exit(1);
 		}
+
 		tmp = image[i];
 		image[i] = FreeImage_ConvertTo32Bits(image[i]);
 		FreeImage_Unload(tmp);
