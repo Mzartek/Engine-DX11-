@@ -64,7 +64,7 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	heli->setScale(XMVectorSet(2.0f, 2.0f, 2.0f, 1.0f));
 	heli->setCubeTexture(skybox->getTexture());
 
-	octreeSystem->addModel(heli, 40);
+	octreeSystem->addModel(heli, 1000);
 
 	// Light config
 	sun->setColor(XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
