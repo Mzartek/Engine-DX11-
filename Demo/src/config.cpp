@@ -5,14 +5,61 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	this->renderer = renderer;
 	this->input = input;
 
-	skyboxProgram = new Engine::ShaderProgram(L"shader/skybox/skyboxVertex.hlsl", NULL, NULL, NULL, L"shader/skybox/skyboxPixel.hlsl");
-	objectProgram = new Engine::ShaderProgram(L"shader/object/objectVertex.hlsl", NULL, NULL, L"shader/object/objectGeom.hlsl", L"shader/object/objectPixel.hlsl");
-	reflectObjectProgram = new Engine::ShaderProgram(L"shader/reflectObject/reflectObjectVertex.hlsl", NULL, NULL, L"shader/reflectObject/reflectObjectGeom.hlsl", L"shader/reflectObject/reflectObjectPixel.hlsl");
-	dirLightProgram = new Engine::ShaderProgram(L"shader/dirLight/dirLightVertex.hlsl", NULL, NULL, NULL, L"shader/dirLight/dirLightPixel.hlsl");
-	spotLightProgram = new Engine::ShaderProgram(L"shader/spotLight/spotLightVertex.hlsl", NULL, NULL, NULL, L"shader/spotLight/spotLightPixel.hlsl");
-	shadowMapProgram = new Engine::ShaderProgram(L"shader/shadowMap/shadowMapVertex.hlsl", NULL, NULL, NULL, L"shader/shadowMap/shadowMapPixel.hlsl");
-	backgroundProgram = new Engine::ShaderProgram(L"shader/background/backgroundVertex.hlsl", NULL, NULL, NULL, L"shader/background/backgroundPixel.hlsl");
-	screenProgram = new Engine::ShaderProgram(L"shader/screen/screenVertex.hlsl", NULL, NULL, NULL, L"shader/screen/screenPixel.hlsl");
+	skyboxProgram = new Engine::ShaderProgram(
+		L"../shader/skybox/skyboxVertex.hlsl", 
+		NULL, 
+		NULL, 
+		NULL, 
+		L"../shader/skybox/skyboxPixel.hlsl");
+
+	objectProgram = new Engine::ShaderProgram(
+		L"../shader/object/objectVertex.hlsl", 
+		NULL, 
+		NULL, 
+		L"../shader/object/objectGeom.hlsl", 
+		L"../shader/object/objectPixel.hlsl");
+
+	reflectObjectProgram = new Engine::ShaderProgram(
+		L"../shader/reflectObject/reflectObjectVertex.hlsl", 
+		NULL, 
+		NULL, 
+		L"../shader/reflectObject/reflectObjectGeom.hlsl", 
+		L"../shader/reflectObject/reflectObjectPixel.hlsl");
+
+	dirLightProgram = new Engine::ShaderProgram(
+		L"../shader/dirLight/dirLightVertex.hlsl", 
+		NULL, 
+		NULL, 
+		NULL, 
+		L"../shader/dirLight/dirLightPixel.hlsl");
+
+	spotLightProgram = new Engine::ShaderProgram(
+		L"../shader/spotLight/spotLightVertex.hlsl", 
+		NULL, 
+		NULL, 
+		NULL, 
+		L"../shader/spotLight/spotLightPixel.hlsl");
+
+	shadowMapProgram = new Engine::ShaderProgram(
+		L"../shader/shadowMap/shadowMapVertex.hlsl", 
+		NULL, 
+		NULL, 
+		NULL, 
+		L"../shader/shadowMap/shadowMapPixel.hlsl");
+
+	backgroundProgram = new Engine::ShaderProgram(
+		L"../shader/background/backgroundVertex.hlsl", 
+		NULL, 
+		NULL, 
+		NULL, 
+		L"../shader/background/backgroundPixel.hlsl");
+
+	screenProgram = new Engine::ShaderProgram(
+		L"../shader/screen/screenVertex.hlsl", 
+		NULL, 
+		NULL, 
+		NULL, 
+		L"../shader/screen/screenPixel.hlsl");
 
 	gBuffer = new Engine::GBuffer();
 	cam = new Engine::FreeCam;
@@ -33,9 +80,10 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 	cam->setInitialAngle(-XM_PI / 2, 0);
 
 	// Skybox config
-	skybox->load("resources/Skybox/rightred2.jpg", "resources/Skybox/leftred2.jpg",
-		"resources/Skybox/topred2.jpg", "resources/Skybox/botred2.jpg",
-		"resources/Skybox/frontred2.jpg", "resources/Skybox/backred2.jpg");
+	skybox->load(
+		"../resources/Skybox/rightred2.jpg", "../resources/Skybox/leftred2.jpg",
+		"../resources/Skybox/topred2.jpg", "../resources/Skybox/botred2.jpg",
+		"../resources/Skybox/frontred2.jpg", "../resources/Skybox/backred2.jpg");
 
 	// Model config
 	Engine::Vertex vertexArray[] =
@@ -53,12 +101,12 @@ GameManager::GameManager(Engine::Renderer *renderer, Engine::Input *input)
 
 	sol->addMesh(sizeof vertexArray / sizeof(Engine::Vertex), vertexArray,
 		sizeof index / sizeof(UINT), index,
-		"resources/ornaments.jpg", "resources/NM_none.png",
+		"../resources/ornaments.jpg", "../resources/NM_none.png",
 		mat_ambient, mat_diffuse, mat_specular, mat_shininess);
 
 	octreeSystem->addModel(sol, 1000);
 
-	heli->loadFromFile("resources/heli/corps.mobj");
+	heli->loadFromFile("../resources/heli/corps.mobj", "../resources/none.png", "../resources/NM_none.png");
 	heli->sortMesh();
 	heli->setPosition(XMVectorSet(0.0f, 6.0f, 0.0f, 1.0f));
 	heli->setScale(XMVectorSet(2.0f, 2.0f, 2.0f, 1.0f));

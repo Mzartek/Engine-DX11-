@@ -157,7 +157,7 @@ static std::string getDir(const CHAR *file)
 	return path;
 }
 
-void Engine::Model::loadFromFile(const CHAR *szFileName)
+void Engine::Model::loadFromFile(const CHAR *szFileName, const CHAR *defaultTex, const CHAR *defaultNM)
 {
 	Assimp::Importer Importer;
 	UINT i, j;
@@ -217,11 +217,11 @@ void Engine::Model::loadFromFile(const CHAR *szFileName)
 		if (pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
 			colorPath += dir + path.C_Str();
 		else
-			colorPath = "resources/none.png";
+			colorPath = defaultTex;
 		if (pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->GetTexture(aiTextureType_NORMALS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
-			NMPath += dir + "NM_" + path.C_Str();
+			NMPath += dir + path.C_Str();
 		else
-			NMPath = "resources/NM_none.png";
+			NMPath = defaultNM;
 
 		aiColor4D mat_ambient;
 		aiColor4D mat_diffuse;

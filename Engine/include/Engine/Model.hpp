@@ -60,7 +60,7 @@ namespace Engine
 				  const UINT &numIndex, const UINT *indexArray,
 				  const CHAR *colorTexture, const CHAR *NMTexture,
 				  const XMVECTOR &ambient, const XMVECTOR &diffuse, const XMVECTOR &specular, const FLOAT &shininess);
-		void loadFromFile(const CHAR *szFileName);
+		void loadFromFile(const CHAR *szFileName, const CHAR *defaultTex, const CHAR *defaultNM);
 		void sortMesh(void);
 		void setPosition(const XMVECTOR &position);
 		void setRotation(const XMVECTOR &rotation);

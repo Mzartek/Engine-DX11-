@@ -94,7 +94,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		text = std::to_string(Engine::Object::getMemoryState());
 		MessageBoxA(NULL, text.c_str(), __FILE__, MB_OK);
 	}
-	Engine::Object::saveMemoryInfo("memLost.txt");
+	//Engine::Object::saveMemoryInfo("memLost.txt");
 
 	return 0;
 }
