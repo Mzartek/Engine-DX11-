@@ -14,7 +14,9 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <set>
 #include <string>
+#include <algorithm>
 
 #include <Windows.h>
 #include <d3d11_2.h>
