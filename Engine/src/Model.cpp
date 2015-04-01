@@ -7,7 +7,7 @@
 #include <Engine/DirLight.hpp>
 #include <Engine/SpotLight.hpp>
 #include <Engine/ShadowMap.hpp>
-#include <Engine/Texture.hpp>
+#include <Engine/TextureCube.hpp>
 
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
@@ -131,8 +131,8 @@ void Engine::Model::addMesh(const UINT &numVertex, const Vertex *vertexArray,
 {
 	Mesh *newone = new Mesh;
 
-	newone->setColorTexture(colorTexture);
-	newone->setNMTexture(NMTexture);
+	newone->loadColorTexture(colorTexture);
+	newone->loadNMTexture(NMTexture);
 	newone->setAmbient(ambient);
 	newone->setDiffuse(diffuse);
 	newone->setSpecular(specular);
@@ -274,7 +274,7 @@ void Engine::Model::setScale(const XMVECTOR &scale)
 	_needMatNormal = TRUE;
 }
 
-void Engine::Model::setCubeTexture(Texture *cubeTex)
+void Engine::Model::setCubeTexture(TextureCube *cubeTex)
 {
 	_cubeTexture = cubeTex;
 }

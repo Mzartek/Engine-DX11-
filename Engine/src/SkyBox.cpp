@@ -1,5 +1,5 @@
 #include <Engine/SkyBox.hpp>
-#include <Engine/Texture.hpp>
+#include <Engine/TextureCube.hpp>
 #include <Engine/Buffer.hpp>
 #include <Engine/ShaderProgram.hpp>
 #include <Engine/GBuffer.hpp>
@@ -8,7 +8,7 @@
 Engine::SkyBox::SkyBox(ShaderProgram *program)
 	: _program(program)
 {
-	_cubeTexture = new Texture;
+	_cubeTexture = new TextureCube;
 	_vertexBuffer = new Buffer;
 	_indexBuffer = new Buffer;
 	_MVPMatrixBuffer = new Buffer;
@@ -58,10 +58,10 @@ void Engine::SkyBox::load(const CHAR *posx, const CHAR *negx,
 	const CHAR *posy, const CHAR *negy,
 	const CHAR *posz, const CHAR *negz)
 {
-	_cubeTexture->loadCubeTextureFromFiles(posx, negx, posy, negy, posz, negz);
+	_cubeTexture->loadFromFiles(posx, negx, posy, negy, posz, negz);
 }
 
-Engine::Texture *Engine::SkyBox::getTexture(void) const
+Engine::TextureCube *Engine::SkyBox::getTexture(void) const
 {
 	return _cubeTexture;
 }

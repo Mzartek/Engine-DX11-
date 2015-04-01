@@ -1,12 +1,13 @@
 #include <Engine/Mesh.hpp>
-#include <Engine/Texture.hpp>
+#include <Engine/Texture2D.hpp>
+#include <Engine/TextureCube.hpp>
 #include <Engine/Buffer.hpp>
 
 Engine::Mesh::Mesh(void)
 	: _numElement(0)
 {
-	_colorTexture = new Texture;
-	_NMTexture = new Texture;
+	_colorTexture = new Texture2D;
+	_NMTexture = new Texture2D;
 	_vertexBuffer = new Buffer;
 	_indexBuffer = new Buffer;
 	_materialBuffer = new Buffer;
@@ -23,14 +24,14 @@ Engine::Mesh::~Mesh(void)
 	delete _materialBuffer;
 }
 
-void Engine::Mesh::setColorTexture(const CHAR *path)
+void Engine::Mesh::loadColorTexture(const CHAR *path)
 {
-	_colorTexture->load2DTextureFromFile(path);
+	_colorTexture->loadFromFile(path);
 }
 
-void Engine::Mesh::setNMTexture(const CHAR *path)
+void Engine::Mesh::loadNMTexture(const CHAR *path)
 {
-	_NMTexture->load2DTextureFromFile(path);
+	_NMTexture->loadFromFile(path);
 }
 
 void Engine::Mesh::setAmbient(const XMVECTOR &ambient)
@@ -103,7 +104,7 @@ void Engine::Mesh::display(void) const
 	DeviceContext->DrawIndexed(_numElement, 0, 0);
 }
 
-void Engine::Mesh::display(Texture *cubeTex) const
+void Engine::Mesh::display(TextureCube *cubeTex) const
 {
 	ID3D11ShaderResourceView *pshr[] =
 	{

@@ -2,7 +2,8 @@
 
 void GameManager::display(FLOAT state)
 {
-	static UINT i;
+	UNREFERENCED_PARAMETER(state);
+	
 	static std::set<Engine::Model *> object;
 
 	// We retrieve object to display from the octree
@@ -94,7 +95,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		text = std::to_string(Engine::Object::getMemoryState());
 		MessageBoxA(NULL, text.c_str(), __FILE__, MB_OK);
 	}
-	//Engine::Object::saveMemoryInfo("memLost.txt");
 
 	return 0;
 }
