@@ -40,7 +40,6 @@ namespace Engine
 		~Mesh(void);
 		void setColorTexture(const CHAR *path);
 		void setNMTexture(const CHAR *path);
-		void setCubeTexture(Texture *cubeTex);
 		void setAmbient(const XMVECTOR &ambient);
 		void setDiffuse(const XMVECTOR &diffuse);
 		void setSpecular(const XMVECTOR &specular);
