@@ -13,7 +13,7 @@ struct Engine::Octree
 	FLOAT dim;
 	FLOAT dim_2;
 	FLOAT radius;
-	std::vector<Engine::Model *> modelContainer;
+	std::set<Engine::Model *> modelContainer;
 	struct Octree *next;
 };
 
@@ -129,7 +129,7 @@ BOOL Engine::OctreeSystem::_addModelOctree(const UINT &depth, Octree *octree, Mo
 	if (_addModelOctree(depth + 1, &octree->next[6], model, dim)) return TRUE;
 	if (_addModelOctree(depth + 1, &octree->next[7], model, dim)) return TRUE;
 
-	octree->modelContainer.push_back(model);
+	octree->modelContainer.insert(model);
 
 	return TRUE;
 }
@@ -138,10 +138,7 @@ void Engine::OctreeSystem::_removeModelOctree(const UINT &depth, Octree *octree,
 {
 	if (depth >= _maxDepth) return;
 
-	std::vector<Model *>::iterator iterator_begin = octree->modelContainer.begin();
-	std::vector<Model *>::iterator iterator_end = octree->modelContainer.end();
-
-	octree->modelContainer.erase(std::remove(iterator_begin, iterator_end, model), iterator_end);
+	octree->modelContainer.erase(model);
 
 	for (UINT i = 0; i < 8; i++)
 		_removeModelOctree(depth + 1, &(octree->next[i]), model);
