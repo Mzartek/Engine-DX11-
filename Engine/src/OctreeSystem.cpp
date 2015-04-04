@@ -19,7 +19,7 @@ struct Engine::Octree
 
 // Inline functions
 
-static inline BOOL checkCamInOctree(const Engine::Octree *octree, const Engine::Camera *cam)
+inline BOOL checkCamInOctree(const Engine::Octree *octree, const Engine::Camera *cam)
 {
 	const XMVECTOR p = cam->getCameraPosition();
 
@@ -30,7 +30,7 @@ static inline BOOL checkCamInOctree(const Engine::Octree *octree, const Engine::
 	return FALSE;
 }
 
-static inline BOOL checkOctreeInCamSphere(const Engine::Octree *octree, const Engine::Camera *cam)
+inline BOOL checkOctreeInCamSphere(const Engine::Octree *octree, const Engine::Camera *cam)
 {
 	const XMVECTOR octree_position = XMLoadFloat3(&octree->position);
 	const FLOAT distance = XMVectorGetX(XMVector3Length(octree_position - cam->getFrusSpherePosition()));
@@ -40,7 +40,7 @@ static inline BOOL checkOctreeInCamSphere(const Engine::Octree *octree, const En
 	return FALSE;
 }
 
-static inline BOOL checkOctreeInCamFrus(const Engine::Octree *octree, const Engine::Camera *cam)
+inline BOOL checkOctreeInCamFrus(const Engine::Octree *octree, const Engine::Camera *cam)
 {
 	const XMVECTOR camera_position = cam->getCameraPosition();
 	const XMVECTOR view_vector = cam->getViewVector();

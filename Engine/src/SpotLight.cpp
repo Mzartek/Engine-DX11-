@@ -1,14 +1,13 @@
 #include <Engine/SpotLight.hpp>
 #include <Engine/Buffer.hpp>
 #include <Engine/ShaderProgram.hpp>
-#include <Engine/ShadowMap.hpp>
+#include <Engine/DepthMap.hpp>
 #include <Engine/GBuffer.hpp>
 #include <Engine/Camera.hpp>
 
 Engine::SpotLight::SpotLight(ShaderProgram *program)
 	: Light(program)
 {
-	_shadow = new ShadowMap;
 	_projectionMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_projectionMatrix, 16);
 	_viewMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_viewMatrix, 16);
 	_VPMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_VPMatrix, 16);
@@ -24,7 +23,6 @@ Engine::SpotLight::SpotLight(ShaderProgram *program)
 
 Engine::SpotLight::~SpotLight(void)
 {
-	delete _shadow;
 	_aligned_free(_projectionMatrix);
 	_aligned_free(_viewMatrix);
 	_aligned_free(_VPMatrix);
@@ -34,7 +32,7 @@ Engine::SpotLight::~SpotLight(void)
 
 void Engine::SpotLight::setColor(const XMVECTOR &color)
 {
-	 XMStoreFloat3(&_lightInfo.color, color);
+	XMStoreFloat3(&_lightInfo.color, color);
 }
 
 void Engine::SpotLight::setPosition(const XMVECTOR &position)
@@ -55,21 +53,6 @@ void Engine::SpotLight::setSpotCutOff(const FLOAT &spot)
 void Engine::SpotLight::setMaxDistance(const FLOAT &maxDistance)
 {
 	_lightInfo.maxDistance = maxDistance;
-}
-
-void Engine::SpotLight::setShadowMapping(const BOOL &shadow)
-{
-	_lightInfo.withShadowMapping = shadow;
-}
-
-void Engine::SpotLight::configShadowMap(const UINT &width, const UINT &height) const
-{
-	_shadow->config(width, height);
-}
-
-Engine::ShadowMap *Engine::SpotLight::getShadowMap(void) const
-{
-	return _shadow;
 }
 
 XMMATRIX Engine::SpotLight::getProjectionMatrix(void) const
@@ -112,19 +95,16 @@ FLOAT Engine::SpotLight::getMaxDistance(void) const
 	return _lightInfo.maxDistance;
 }
 
-void Engine::SpotLight::position(void) const
+void Engine::SpotLight::position(DepthMap *dmap)
 {
 	XMVECTOR pos = XMVectorSet(_lightInfo.position.x, _lightInfo.position.y, _lightInfo.position.z, 0.0f);
 	XMVECTOR dir = XMVectorSet(_lightInfo.direction.x, _lightInfo.direction.y, _lightInfo.direction.z, 0.0f);
 
-	*_projectionMatrix = XMMatrixPerspectiveFovRH(_lightInfo.spotCutOff * 2, (FLOAT)_shadow->getWidth() / _shadow->getHeight(), 0.1f, 1000.0f);
+	*_projectionMatrix = XMMatrixPerspectiveFovRH(_lightInfo.spotCutOff * 2, (FLOAT)dmap->getWidth() / dmap->getHeight(), 0.1f, _lightInfo.maxDistance);
 	*_viewMatrix = XMMatrixLookAtRH(pos, pos + dir, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 	*_VPMatrix = *_viewMatrix * *_projectionMatrix;
-}
 
-void Engine::SpotLight::clear(void) const
-{
-	_shadow->clear();
+	_lightInfo.shadowMatrix = *_VPMatrix;
 }
 
 void Engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
@@ -140,25 +120,67 @@ void Engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
 	ID3D11ShaderResourceView *gshr[]
 	{
 		gbuf->getShaderResourceView(GBUF_NORMAL),
-		gbuf->getShaderResourceView(GBUF_MATERIAL),
-		gbuf->getShaderResourceView(GBUF_DEPTH),
-		gbuf->getShaderResourceView(GBUF_STENCIL),
+			gbuf->getShaderResourceView(GBUF_MATERIAL),
+			gbuf->getShaderResourceView(GBUF_DEPTH),
+			gbuf->getShaderResourceView(GBUF_STENCIL),
+	};
+	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(gshr), gshr);
+
+	_mainInfo.IVPMatrix = cam->getIVPMatrix();
+	_mainInfo.screen = XMUINT2(gbuf->getWidth(), gbuf->getHeight());
+	_mainInfo.camPosition = cam->getCameraPosition();
+	_mainInfo.withShadowMapping = FALSE;
+
+	_mainInfoBuffer->updateStoreMap(&_mainInfo);
+	_lightInfoBuffer->updateStoreMap(&_lightInfo);
+
+	ID3D11Buffer *buf[] =
+	{
+		_mainInfoBuffer->getBuffer(),
+		_lightInfoBuffer->getBuffer(),
+	};
+	DeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+
+	UINT stride = 2 * sizeof(FLOAT), offset = 0;
+	ID3D11Buffer *drawBuf[] =
+	{
+		_vertexBuffer->getBuffer(),
+	};
+	DeviceContext->IASetVertexBuffers(0, 1, &drawBuf[0], &stride, &offset);
+	DeviceContext->IASetInputLayout(_pInputLayout);
+	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	DeviceContext->Draw(4, 0);
+}
+
+void Engine::SpotLight::display(GBuffer *gbuf, DepthMap *dmap, Camera *cam)
+{
+	gbuf->setLightState();
+
+	DeviceContext->VSSetShader(_program->getVertexShader(), NULL, 0);
+	DeviceContext->HSSetShader(_program->getHullShader(), NULL, 0);
+	DeviceContext->DSSetShader(_program->getDomainShader(), NULL, 0);
+	DeviceContext->GSSetShader(_program->getGeometryShader(), NULL, 0);
+	DeviceContext->PSSetShader(_program->getPixelShader(), NULL, 0);
+
+	ID3D11ShaderResourceView *gshr[]
+	{
+		gbuf->getShaderResourceView(GBUF_NORMAL),
+			gbuf->getShaderResourceView(GBUF_MATERIAL),
+			gbuf->getShaderResourceView(GBUF_DEPTH),
+			gbuf->getShaderResourceView(GBUF_STENCIL),
 	};
 	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(gshr), gshr);
 
 	// ShadowMap
-	if (_lightInfo.withShadowMapping == TRUE)
-	{
-		ID3D11ShaderResourceView *shadowResourceView = _shadow->getShaderResourceView();
-		ID3D11SamplerState *shadowSampler = _shadow->getSamplerComparisonState();
-		DeviceContext->PSSetShaderResources(ARRAYSIZE(gshr), 1, &shadowResourceView);
-		DeviceContext->PSSetSamplers(0, 1, &shadowSampler);
+	ID3D11ShaderResourceView *shadowResourceView = dmap->getShaderResourceView();
+	ID3D11SamplerState *shadowSampler = dmap->getSamplerComparisonState();
+	DeviceContext->PSSetShaderResources(ARRAYSIZE(gshr), 1, &shadowResourceView);
+	DeviceContext->PSSetSamplers(0, 1, &shadowSampler);
 
-		_lightInfo.shadowMatrix = *_VPMatrix;
-	}
 	_mainInfo.IVPMatrix = cam->getIVPMatrix();
 	_mainInfo.screen = XMUINT2(gbuf->getWidth(), gbuf->getHeight());
 	_mainInfo.camPosition = cam->getCameraPosition();
+	_mainInfo.withShadowMapping = TRUE;
 
 	_mainInfoBuffer->updateStoreMap(&_mainInfo);
 	_lightInfoBuffer->updateStoreMap(&_lightInfo);

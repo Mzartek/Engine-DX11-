@@ -1,6 +1,6 @@
 #include <Engine/ShaderProgram.hpp>
 
-static void CompileShaderFromFile(const LPCWSTR szFileName, const std::string szEntryPoint, const std::string szShaderModel, ID3DBlob **ppBlobOut)
+inline void CompileShaderFromFile(const LPCWSTR szFileName, const std::string szEntryPoint, const std::string szShaderModel, ID3DBlob **ppBlobOut)
 {
 	HRESULT hr;
 	ID3DBlob *pErrorBlob = NULL;

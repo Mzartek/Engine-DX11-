@@ -29,7 +29,21 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	return 0;
 }
 
-static std::string ShaderVersion(const D3D_FEATURE_LEVEL &featureLevel)
+inline long long milliseconds_now()
+{
+	static LARGE_INTEGER s_frequency;
+	static BOOL s_use_qpc = QueryPerformanceFrequency(&s_frequency);
+	if (s_use_qpc)
+	{
+		LARGE_INTEGER now;
+		QueryPerformanceCounter(&now);
+		return (1000LL * now.QuadPart) / s_frequency.QuadPart;
+	}
+	else
+		return GetTickCount();
+}
+
+inline std::string ShaderVersion(const D3D_FEATURE_LEVEL &featureLevel)
 {
 	std::string shaderLevel;
 
@@ -232,24 +246,10 @@ HWND Engine::Renderer::getWindow(void)
 	return _hWnd;
 }
 
-static long long milliseconds_now()
-{
-	static LARGE_INTEGER s_frequency;
-	static BOOL s_use_qpc = QueryPerformanceFrequency(&s_frequency);
-	if (s_use_qpc)
-	{
-		LARGE_INTEGER now;
-		QueryPerformanceCounter(&now);
-		return (1000LL * now.QuadPart) / s_frequency.QuadPart;
-	}
-	else
-		return GetTickCount();
-}
-
 void Engine::Renderer::mainLoop(GameLoop *gameLoop)
 {
 	MSG msg;
-	long long currentTime, newTime, frameTime;
+	long long startTime, currentTime, newTime, frameTime;
 	long long accumulator = 0;
 	long long dt = 16;
 
@@ -260,8 +260,12 @@ void Engine::Renderer::mainLoop(GameLoop *gameLoop)
 	}
 
 	_stopLoop = FALSE;
-	currentTime = milliseconds_now();
+
 	gameLoop->reshape(_width, _height);
+
+	startTime = milliseconds_now();
+	currentTime = milliseconds_now() - startTime;
+
 	while (!_stopLoop)
 	{
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -275,11 +279,14 @@ void Engine::Renderer::mainLoop(GameLoop *gameLoop)
 				break;
 			}
 		}
-		newTime = milliseconds_now();
+
+		newTime = milliseconds_now() - startTime;
 		frameTime = newTime - currentTime;
 		currentTime = newTime;
+
 		for (accumulator += frameTime; accumulator >= dt; accumulator -= dt)
-			gameLoop->idle();
+			gameLoop->idle(currentTime);
+
 		gameLoop->display((FLOAT)accumulator / dt);
 		_pSwapChain->Present(0, 0);
 	}

@@ -14,6 +14,7 @@ namespace Engine
 	class DirLight;
 	class SpotLight;
 	class TextureCube;
+	class DepthMap;
 
 	class DLLAPI Model : public Object
 	{
@@ -72,8 +73,9 @@ namespace Engine
 		std::vector<Mesh *> getMeshVector(void) const;
 		void display(GBuffer *gbuf, Camera *cam);
 		void displayTransparent(GBuffer *gbuf, Camera *cam);
-		void displayShadowMap(DirLight *light);
-		void displayShadowMap(SpotLight *light);
+		void displayDepthMap(DepthMap *dmap, Camera *cam);
+		void displayDepthMap(DepthMap *dmaps, DirLight *light);
+		void displayDepthMap(DepthMap *dmap, SpotLight *light);
 	};
 }
     

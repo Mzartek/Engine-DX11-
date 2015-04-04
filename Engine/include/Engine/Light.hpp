@@ -6,7 +6,7 @@
 namespace Engine
 {
 	class Buffer;
-	class ShadowMap;
+	class DepthMap;
 	class ShaderProgram;
 	class GBuffer;
 	class Camera;
@@ -19,6 +19,7 @@ namespace Engine
 			XMMATRIX IVPMatrix;
 			XMUINT2 __declspec(align(16)) screen;
 			XMVECTOR __declspec(align(16)) camPosition;
+			INT withShadowMapping;
 		} _mainInfo;
 
 		Buffer *_vertexBuffer;
@@ -26,16 +27,14 @@ namespace Engine
 		Buffer *_lightInfoBuffer;
 		ShaderProgram *_program;
 		ID3D11InputLayout *_pInputLayout;
-		ShadowMap *_shadow;
 		XMMATRIX *_projectionMatrix;
 		XMMATRIX *_viewMatrix;
 		XMMATRIX *_VPMatrix;
 	public:
 		Light(ShaderProgram *program);
 		~Light(void);
-		virtual void configShadowMap(const UINT &width, const UINT &height) const = 0;
-		virtual void clear(void) const = 0;
 		virtual void display(GBuffer *gbuf, Camera *cam) = 0;
+		virtual void display(GBuffer *gbuf, DepthMap *dmap, Camera *cam) = 0;
 	};
 }
 

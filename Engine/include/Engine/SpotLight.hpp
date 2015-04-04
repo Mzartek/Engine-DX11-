@@ -10,13 +10,12 @@ namespace Engine
 	private:
 		struct
 		{
-			XMMATRIX shadowMatrix;
 			XMFLOAT3 __declspec(align(16)) color;
 			XMFLOAT3 __declspec(align(16)) position;
 			XMFLOAT3 __declspec(align(16)) direction;
 			FLOAT spotCutOff;
 			FLOAT __declspec(align(16)) maxDistance;
-			INT withShadowMapping;
+			XMMATRIX shadowMatrix;
 		} _lightInfo;
 	public:
 		SpotLight(ShaderProgram *program);
@@ -26,9 +25,6 @@ namespace Engine
 		void setDirection(const XMVECTOR &dir);
 		void setSpotCutOff(const FLOAT &spot);
 		void setMaxDistance(const FLOAT &maxDistance);
-		void setShadowMapping(const BOOL &shadow);
-		void configShadowMap(const UINT &width, const UINT &height) const;
-		ShadowMap *getShadowMap(void) const;
 		XMMATRIX getProjectionMatrix(void) const;
 		XMMATRIX getViewMatrix(void) const;
 		XMMATRIX getVPMatrix(void) const;
@@ -37,9 +33,9 @@ namespace Engine
 		XMVECTOR getDirection(void) const;
 		FLOAT getSpotCutOff(void) const;
 		FLOAT getMaxDistance(void) const;
-		void position(void) const;
-		void clear(void) const;
+		void position(DepthMap *dmap);
 		void display(GBuffer *gbuf, Camera *cam);
+		void display(GBuffer *gbuf, DepthMap *dmap, Camera *cam);
 	};
 }
 

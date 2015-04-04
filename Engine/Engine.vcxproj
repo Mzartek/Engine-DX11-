@@ -162,7 +162,7 @@
     <ClInclude Include="include\Engine\PlayerCam.hpp" />
     <ClInclude Include="include\Engine\Screen.hpp" />
     <ClInclude Include="include\Engine\ShaderProgram.hpp" />
-    <ClInclude Include="include\Engine\ShadowMap.hpp" />
+    <ClInclude Include="include\Engine\DepthMap.hpp" />
     <ClInclude Include="include\Engine\SkyBox.hpp" />
     <ClInclude Include="include\Engine\Renderer.hpp" />
     <ClInclude Include="include\Engine\SpotLight.hpp" />
@@ -189,7 +189,7 @@
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Screen.cpp" />
     <ClCompile Include="src\ShaderProgram.cpp" />
-    <ClCompile Include="src\ShadowMap.cpp" />
+    <ClCompile Include="src\DepthMap.cpp" />
     <ClCompile Include="src\SkyBox.cpp" />
     <ClCompile Include="src\SpotLight.cpp" />
     <ClCompile Include="src\Texture.cpp" />

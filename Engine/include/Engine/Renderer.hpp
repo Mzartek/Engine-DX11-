@@ -11,7 +11,7 @@ namespace Engine
 		GameLoop(void);
 		~GameLoop(void);
 		virtual void display(FLOAT state) = 0;
-		virtual void idle(void) = 0;
+		virtual void idle(long long time) = 0;
 		virtual void reshape(UINT w, UINT h) = 0;
 	};
 

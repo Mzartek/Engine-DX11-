@@ -13,16 +13,15 @@ cbuffer mainInfoBuffer : register (b0)
 	matrix IVPMatrix;
 	uint2 screen;
 	vector camPosition;
-}
-
-cbuffer LightInfoBuffer : register (b1)
-{
-	matrix shadowMatrix[3];
-	float3 lightColor;
-	float3 lightDirection;
 	bool withShadowMapping;
 }
 
+cbuffer lightInfoBuffer : register (b1)
+{
+	float3 lightColor;
+	float3 lightDirection;
+	matrix shadowMatrix[3];
+}
 struct PS_INPUT
 {
 	float4 position : SV_POSITION;

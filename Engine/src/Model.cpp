@@ -6,12 +6,26 @@
 #include <Engine/Camera.hpp>
 #include <Engine/DirLight.hpp>
 #include <Engine/SpotLight.hpp>
-#include <Engine/ShadowMap.hpp>
+#include <Engine/DepthMap.hpp>
 #include <Engine/TextureCube.hpp>
 
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
+
+inline std::string getDir(const CHAR *file)
+{
+	UINT size, i;
+	std::string path;
+
+	for (size = i = 0; file[i] != '\0'; i++)
+		if (file[i] == '/')
+			size = i + 1;
+
+	path.insert(0, file, 0, size);
+
+	return path;
+}
 
 void Engine::Model::genMatModel(void) const
 {
@@ -141,20 +155,6 @@ void Engine::Model::addMesh(const UINT &numVertex, const Vertex *vertexArray,
 		numIndex, indexArray);
   
 	_tMesh->push_back(newone);
-}
-
-static std::string getDir(const CHAR *file)
-{
-	UINT size, i;
-	std::string path;
-
-	for (size = i = 0; file[i] != '\0'; i++)
-		if (file[i] == '/')
-			size = i + 1;
-
-	path.insert(0, file, 0, size);
-
-	return path;
 }
 
 void Engine::Model::loadFromFile(const CHAR *szFileName, const CHAR *defaultTex, const CHAR *defaultNM)
@@ -383,7 +383,39 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam)
 		}
 }
 
-void Engine::Model::displayShadowMap(DirLight *light)
+void Engine::Model::displayDepthMap(DepthMap *dmap, Camera *cam)
+{
+	checkMatrix();
+
+	dmap->setState();
+
+	DeviceContext->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
+	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
+	DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
+	DeviceContext->GSSetShader(_smProgram->getGeometryShader(), NULL, 0);
+	DeviceContext->PSSetShader(_smProgram->getPixelShader(), NULL, 0);
+
+	_matrix.MVP = *_modelMatrix * cam->getVPMatrix();
+	_matrix.projection = cam->getProjectionMatrix();
+	_matrix.view = cam->getViewMatrix();
+	_matrix.model = *_modelMatrix;
+	_matrix.normal = *_normalMatrix;
+	_matrixBuffer->updateStoreMap(&_matrix);
+
+	ID3D11Buffer *buf[] =
+	{
+		_matrixBuffer->getBuffer(),
+	};
+	DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
+
+	DeviceContext->IASetInputLayout(_pInputLayout);
+	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	for (UINT i = 0; i<_tMesh->size(); i++)
+		if ((*_tMesh)[i]->getTransparency() == 1.0f)
+			(*_tMesh)[i]->displayShadow();
+}
+
+void Engine::Model::displayDepthMap(DepthMap *dmaps, DirLight *light)
 {
 	checkMatrix();
 
@@ -401,7 +433,7 @@ void Engine::Model::displayShadowMap(DirLight *light)
 
 	for (UINT i = 0; i < CSM_NUM; i++)
 	{
-		light->getShadowMap(i)->setState();
+		dmaps[i].setState();
 
 		_matrix.MVP = *_modelMatrix * light->getVPMatrix(i);
 		_matrix.projection = light->getProjectionMatrix(i);
@@ -420,11 +452,11 @@ void Engine::Model::displayShadowMap(DirLight *light)
 	}
 }
 
-void Engine::Model::displayShadowMap(SpotLight *light)
+void Engine::Model::displayDepthMap(DepthMap *dmap, SpotLight *light)
 {
 	checkMatrix();
 
-	light->getShadowMap()->setState();
+	dmap->setState();
 
 	DeviceContext->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
 	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
