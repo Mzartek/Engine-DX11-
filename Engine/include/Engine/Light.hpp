@@ -9,7 +9,7 @@ namespace Engine
 	class DepthMap;
 	class ShaderProgram;
 	class GBuffer;
-	class Camera;
+	class PerspCamera;
 
 	class DLLAPI Light : public Object
 	{
@@ -33,8 +33,8 @@ namespace Engine
 	public:
 		Light(ShaderProgram *program);
 		~Light(void);
-		virtual void display(GBuffer *gbuf, Camera *cam) = 0;
-		virtual void display(GBuffer *gbuf, DepthMap *dmap, Camera *cam) = 0;
+		virtual void display(GBuffer *gbuf, PerspCamera *cam) = 0;
+		virtual void display(GBuffer *gbuf, DepthMap *dmap, PerspCamera *cam) = 0;
 	};
 }
 

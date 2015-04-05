@@ -1,5 +1,5 @@
 #include <Engine/OctreeSystem.hpp>
-#include <Engine/Camera.hpp>
+#include <Engine/PerspCamera.hpp>
 #include <Engine/Model.hpp>
 #include <Engine/ParticlesManager.hpp>
 #include <Engine/GBuffer.hpp>
@@ -19,7 +19,7 @@ struct Engine::Octree
 
 // Inline functions
 
-inline BOOL checkCamInOctree(const Engine::Octree *octree, const Engine::Camera *cam)
+inline BOOL checkCamInOctree(const Engine::Octree *octree, const Engine::PerspCamera *cam)
 {
 	const XMVECTOR p = cam->getCameraPosition();
 
@@ -30,7 +30,7 @@ inline BOOL checkCamInOctree(const Engine::Octree *octree, const Engine::Camera 
 	return FALSE;
 }
 
-inline BOOL checkOctreeInCamSphere(const Engine::Octree *octree, const Engine::Camera *cam)
+inline BOOL checkOctreeInCamSphere(const Engine::Octree *octree, const Engine::PerspCamera *cam)
 {
 	const XMVECTOR octree_position = XMLoadFloat3(&octree->position);
 	const FLOAT distance = XMVectorGetX(XMVector3Length(octree_position - cam->getFrusSpherePosition()));
@@ -40,7 +40,7 @@ inline BOOL checkOctreeInCamSphere(const Engine::Octree *octree, const Engine::C
 	return FALSE;
 }
 
-inline BOOL checkOctreeInCamFrus(const Engine::Octree *octree, const Engine::Camera *cam)
+inline BOOL checkOctreeInCamFrus(const Engine::Octree *octree, const Engine::PerspCamera *cam)
 {
 	const XMVECTOR camera_position = cam->getCameraPosition();
 	const XMVECTOR view_vector = cam->getViewVector();
@@ -144,7 +144,7 @@ void Engine::OctreeSystem::_removeModelOctree(const UINT &depth, Octree *octree,
 		_removeModelOctree(depth + 1, &(octree->next[i]), model);
 }
 
-void Engine::OctreeSystem::_getModelsOctree(const UINT &depth, Octree *octree, GBuffer *gbuffer, Camera *cam, std::set<Model *> *modelSet) const
+void Engine::OctreeSystem::_getModelsOctree(const UINT &depth, Octree *octree, GBuffer *gbuffer, PerspCamera *cam, std::set<Model *> *modelSet) const
 {
 	if (depth >= _maxDepth)	return;
 
@@ -189,7 +189,7 @@ void Engine::OctreeSystem::removeModel(Model *model) const
 	_removeModelOctree(0, _octree, model);
 }
 
-void Engine::OctreeSystem::getModels(GBuffer *gbuffer, Camera *cam, std::set<Model *> *modelSet) const
+void Engine::OctreeSystem::getModels(GBuffer *gbuffer, PerspCamera *cam, std::set<Model *> *modelSet) const
 {
 	_getModelsOctree(0, _octree, gbuffer, cam, modelSet);
 }

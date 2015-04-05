@@ -11,7 +11,7 @@ namespace Engine
 	class Buffer;
 	class ShaderProgram;
 	class GBuffer;
-	class Camera;
+	class PerspCamera;
 
 	class DLLAPI SkyBox : public Object
 	{
@@ -30,7 +30,7 @@ namespace Engine
 			const CHAR *posy, const CHAR *negy,
 			const CHAR *posz, const CHAR *negz);
 		TextureCube *getTexture(void) const;
-		void display(GBuffer *gbuf, Camera *cam);
+		void display(GBuffer *gbuf, PerspCamera *cam);
 	};
 }
 

@@ -3,7 +3,7 @@
 #include <Engine/DepthMap.hpp>
 #include <Engine/ShaderProgram.hpp>
 #include <Engine/GBuffer.hpp>
-#include <Engine/Camera.hpp>
+#include <Engine/PerspCamera.hpp>
 
 Engine::DirLight::DirLight(ShaderProgram *program)
 	: Light(program)
@@ -90,7 +90,7 @@ void Engine::DirLight::position(const XMVECTOR &pos, const FLOAT &dim0, const FL
 	exit(0);*/
 }
 
-void Engine::DirLight::display(GBuffer *gbuf, Camera *cam)
+void Engine::DirLight::display(GBuffer *gbuf, PerspCamera *cam)
 {
 	gbuf->setLightState();
 
@@ -135,7 +135,7 @@ void Engine::DirLight::display(GBuffer *gbuf, Camera *cam)
 	DeviceContext->Draw(4, 0);
 }
 
-void Engine::DirLight::display(GBuffer *gbuf, DepthMap *dmaps, Camera *cam)
+void Engine::DirLight::display(GBuffer *gbuf, DepthMap *dmaps, PerspCamera *cam)
 {
 	gbuf->setLightState();
 

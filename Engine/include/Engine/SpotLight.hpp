@@ -34,8 +34,8 @@ namespace Engine
 		FLOAT getSpotCutOff(void) const;
 		FLOAT getMaxDistance(void) const;
 		void position(DepthMap *dmap);
-		void display(GBuffer *gbuf, Camera *cam);
-		void display(GBuffer *gbuf, DepthMap *dmap, Camera *cam);
+		void display(GBuffer *gbuf, PerspCamera *cam);
+		void display(GBuffer *gbuf, DepthMap *dmap, PerspCamera *cam);
 	};
 }
 

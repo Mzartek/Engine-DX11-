@@ -7,12 +7,6 @@ cbuffer matrixBuffer : register(b0)
 	matrix normalMatrix;
 }
 
-cbuffer cameraBuffer : register(b1)
-{
-	vector camPosition;
-	vector camTarget;
-}
-
 struct VS_INPUT
 {
 	float3 position : IN_POSITION;

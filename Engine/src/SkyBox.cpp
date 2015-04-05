@@ -3,7 +3,7 @@
 #include <Engine/Buffer.hpp>
 #include <Engine/ShaderProgram.hpp>
 #include <Engine/GBuffer.hpp>
-#include <Engine/Camera.hpp>
+#include <Engine/PerspCamera.hpp>
 
 Engine::SkyBox::SkyBox(ShaderProgram *program)
 	: _program(program)
@@ -66,7 +66,7 @@ Engine::TextureCube *Engine::SkyBox::getTexture(void) const
 	return _cubeTexture;
 }
 
-void Engine::SkyBox::display(GBuffer *gbuf, Camera *cam)
+void Engine::SkyBox::display(GBuffer *gbuf, PerspCamera *cam)
 {
 	XMMATRIX pos = XMMatrixTranslation(XMVectorGetX(cam->getCameraPosition()), XMVectorGetY(cam->getCameraPosition()), XMVectorGetZ(cam->getCameraPosition())) * cam->getVPMatrix();
 

@@ -70,7 +70,6 @@ Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
 {
 	_tMesh = new std::vector<Mesh *>;
 	_matrixBuffer = new Buffer;
-	_cameraBuffer = new Buffer;
 	_position = new XMFLOAT3;
 	_rotation = new XMFLOAT3;
 	_scale = new XMFLOAT3;
@@ -82,7 +81,6 @@ Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
 	XMStoreFloat3(_scale, XMVectorSet(1, 1, 1, 1));
 
 	_matrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _matrix, D3D11_USAGE_DYNAMIC);
-	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _camera, D3D11_USAGE_DYNAMIC);
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -99,7 +97,6 @@ Engine::Model::Model(Model *model, ShaderProgram *gProgram, ShaderProgram *smPro
 {
 	_tMesh = model->_tMesh;
 	_matrixBuffer = new Buffer;
-	_cameraBuffer = new Buffer;
 	_position = new XMFLOAT3;
 	_rotation = new XMFLOAT3;
 	_scale = new XMFLOAT3;
@@ -111,7 +108,6 @@ Engine::Model::Model(Model *model, ShaderProgram *gProgram, ShaderProgram *smPro
 	XMStoreFloat3(_scale, XMVectorSet(1, 1, 1, 1));
 
 	_matrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _matrix, D3D11_USAGE_DYNAMIC);
-	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _camera, D3D11_USAGE_DYNAMIC);
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -128,7 +124,6 @@ Engine::Model::~Model(void)
 	deleteMesh();
 
 	delete _matrixBuffer;
-	delete _cameraBuffer;
 	delete _position;
 	delete _rotation;
 	delete _scale;
@@ -318,14 +313,9 @@ void Engine::Model::display(GBuffer *gbuf, Camera *cam)
 	_matrix.normal = *_normalMatrix;
 	_matrixBuffer->updateStoreMap(&_matrix);
 
-	_camera.position = cam->getCameraPosition();
-	_camera.target = cam->getTargetPosition();
-	_cameraBuffer->updateStoreMap(&_camera);
-
 	ID3D11Buffer *buf[] =
 	{
 		_matrixBuffer->getBuffer(),
-		_cameraBuffer->getBuffer(),
 	};
 	DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
@@ -360,14 +350,9 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, Camera *cam)
 	_matrix.normal = *_normalMatrix;
 	_matrixBuffer->updateStoreMap(&_matrix);
 
-	_camera.position = cam->getCameraPosition();
-	_camera.target = cam->getTargetPosition();
-	_cameraBuffer->updateStoreMap(&_camera);
-
 	ID3D11Buffer *buf[] =
 	{
 		_matrixBuffer->getBuffer(),
-		_cameraBuffer->getBuffer(),
 	};
 	DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 

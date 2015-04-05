@@ -3,7 +3,7 @@
 #include <Engine/ShaderProgram.hpp>
 #include <Engine/DepthMap.hpp>
 #include <Engine/GBuffer.hpp>
-#include <Engine/Camera.hpp>
+#include <Engine/PerspCamera.hpp>
 
 Engine::SpotLight::SpotLight(ShaderProgram *program)
 	: Light(program)
@@ -107,7 +107,7 @@ void Engine::SpotLight::position(DepthMap *dmap)
 	_lightInfo.shadowMatrix = *_VPMatrix;
 }
 
-void Engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
+void Engine::SpotLight::display(GBuffer *gbuf, PerspCamera *cam)
 {
 	gbuf->setLightState();
 
@@ -152,7 +152,7 @@ void Engine::SpotLight::display(GBuffer *gbuf, Camera *cam)
 	DeviceContext->Draw(4, 0);
 }
 
-void Engine::SpotLight::display(GBuffer *gbuf, DepthMap *dmap, Camera *cam)
+void Engine::SpotLight::display(GBuffer *gbuf, DepthMap *dmap, PerspCamera *cam)
 {
 	gbuf->setLightState();
 

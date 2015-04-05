@@ -27,8 +27,8 @@ namespace Engine
 		XMVECTOR getColor(void) const;
 		XMVECTOR getDirection(void) const;
 		void position(const XMVECTOR &pos, const FLOAT &dim0, const FLOAT &dim1, const FLOAT &dim2);
-		void display(GBuffer *gbuf, Camera *cam);
-		void display(GBuffer *gbuf, DepthMap *dmaps, Camera *cam);
+		void display(GBuffer *gbuf, PerspCamera *cam);
+		void display(GBuffer *gbuf, DepthMap *dmaps, PerspCamera *cam);
 	};
 }
 

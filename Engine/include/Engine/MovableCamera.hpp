@@ -1,11 +1,11 @@
 #ifndef MOVABLECAMERA_HEADER
 #define MOVABLECAMERA_HEADER
 
-#include "Camera.hpp"
+#include "PerspCamera.hpp"
 
 namespace Engine
 {
-	class DLLAPI MovableCamera : public Camera
+	class DLLAPI MovableCamera : public PerspCamera
 	{
 	protected:
 		FLOAT _speed;

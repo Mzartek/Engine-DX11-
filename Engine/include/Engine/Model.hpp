@@ -28,16 +28,9 @@ namespace Engine
 			XMMATRIX normal;
 		} _matrix;
 
-		struct
-		{
-			XMVECTOR __declspec(align(16)) position;
-			XMVECTOR __declspec(align(16)) target;
-		} _camera;
-
 		BOOL _isMirror;
 		std::vector<Mesh *> *_tMesh;
 		Buffer *_matrixBuffer;
-		Buffer *_cameraBuffer;
 		XMFLOAT3 *_position;
 		XMFLOAT3 *_rotation;
 		XMFLOAT3 *_scale;
