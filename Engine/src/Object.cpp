@@ -5,6 +5,11 @@ static std::vector<void *> _tmemNew;
 static std::vector<void *> _tmemDelete;
 static std::vector<void *> _tmem;
 
+D3D_FEATURE_LEVEL Engine::FeatureLevel;
+std::string Engine::ShaderLevel;
+ID3D11Device1 *Engine::Device;
+ID3D11DeviceContext1 *Engine::DeviceContext;
+
 Engine::Object::Object(void)
 {
 }

@@ -1,20 +1,7 @@
 #ifndef DEMO_HEADER
 #define DEMO_HEADER
 
-#include <Engine/Renderer.hpp>
-#include <Engine/Input.hpp>
-#include <Engine/ShaderProgram.hpp>
-#include <Engine/GBuffer.hpp>
-#include <Engine/DepthMap.hpp>
-#include <Engine/FreeCam.hpp>
-#include <Engine/SkyBox.hpp>
-#include <Engine/Model.hpp>
-#include <Engine/Mesh.hpp>
-#include <Engine/DirLight.hpp>
-#include <Engine/SpotLight.hpp>
-#include <Engine/Screen.hpp>
-
-#include <Engine/OctreeSystem.hpp>
+#include <Engine/Engine.hpp>
 
 class Demo : public Engine::GameLoop
 {

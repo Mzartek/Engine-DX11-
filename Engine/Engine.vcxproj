@@ -147,7 +147,7 @@
     <ClInclude Include="include\Engine\Buffer.hpp" />
     <ClInclude Include="include\Engine\Camera.hpp" />
     <ClInclude Include="include\Engine\DirLight.hpp" />
-    <ClInclude Include="include\Engine\EngineHead.hpp" />
+    <ClInclude Include="include\Engine\Engine.hpp" />
     <ClInclude Include="include\Engine\FrameBuffer.hpp" />
     <ClInclude Include="include\Engine\FreeCam.hpp" />
     <ClInclude Include="include\Engine\GBuffer.hpp" />

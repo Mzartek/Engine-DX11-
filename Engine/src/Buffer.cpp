@@ -1,4 +1,4 @@
-#include "Engine/Buffer.hpp"
+#include <Engine/Buffer.hpp>
 
 Engine::Buffer::Buffer()
 	: _target(D3D11_BIND_VERTEX_BUFFER), _pBuffer(NULL), _size(0)
