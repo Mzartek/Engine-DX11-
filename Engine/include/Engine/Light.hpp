@@ -18,7 +18,7 @@ namespace Engine
 		{
 			XMMATRIX IVPMatrix;
 			XMUINT2 __declspec(align(16)) screen;
-			XMVECTOR __declspec(align(16)) camPosition;
+			XMVECTOR camPosition;
 			INT withShadowMapping;
 		} _mainInfo;
 

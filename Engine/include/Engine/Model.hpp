@@ -11,6 +11,7 @@ namespace Engine
 	class ShaderProgram;
 	class GBuffer;
 	class Camera;
+	class PerspCamera;
 	class DirLight;
 	class SpotLight;
 	class TextureCube;
@@ -28,9 +29,16 @@ namespace Engine
 			XMMATRIX normal;
 		} _matrix;
 
+		struct
+		{
+			XMVECTOR position;
+			XMVECTOR target;
+		} _camera;
+
 		BOOL _isMirror;
 		std::vector<Mesh *> *_tMesh;
 		Buffer *_matrixBuffer;
+		Buffer *_cameraBuffer;
 		XMFLOAT3 *_position;
 		XMFLOAT3 *_rotation;
 		XMFLOAT3 *_scale;
@@ -64,8 +72,8 @@ namespace Engine
 		XMVECTOR getRotation(void) const;
 		XMVECTOR getScale(void) const;
 		std::vector<Mesh *> getMeshVector(void) const;
-		void display(GBuffer *gbuf, Camera *cam);
-		void displayTransparent(GBuffer *gbuf, Camera *cam);
+		void display(GBuffer *gbuf, PerspCamera *cam);
+		void displayTransparent(GBuffer *gbuf, PerspCamera *cam);
 		void displayDepthMap(DepthMap *dmap, Camera *cam);
 		void displayDepthMap(DepthMap *dmaps, DirLight *light);
 		void displayDepthMap(DepthMap *dmap, SpotLight *light);
