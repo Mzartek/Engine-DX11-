@@ -390,8 +390,8 @@ void Engine::Model::displayDepthMap(DepthMap *dmap, Camera *cam)
 	dmap->setState();
 
 	DeviceContext->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
-	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
-	DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
+	DeviceContext->HSSetShader(_smProgram->getHullShader(), NULL, 0);
+	DeviceContext->DSSetShader(_smProgram->getDomainShader(), NULL, 0);
 	DeviceContext->GSSetShader(_smProgram->getGeometryShader(), NULL, 0);
 	DeviceContext->PSSetShader(_smProgram->getPixelShader(), NULL, 0);
 
@@ -420,8 +420,8 @@ void Engine::Model::displayDepthMap(DepthMap *dmaps, DirLight *light)
 	checkMatrix();
 
 	DeviceContext->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
-	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
-	DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
+	DeviceContext->HSSetShader(_smProgram->getHullShader(), NULL, 0);
+	DeviceContext->DSSetShader(_smProgram->getDomainShader(), NULL, 0);
 	DeviceContext->GSSetShader(_smProgram->getGeometryShader(), NULL, 0);
 	DeviceContext->PSSetShader(_smProgram->getPixelShader(), NULL, 0);
 
@@ -459,8 +459,8 @@ void Engine::Model::displayDepthMap(DepthMap *dmap, SpotLight *light)
 	dmap->setState();
 
 	DeviceContext->VSSetShader(_smProgram->getVertexShader(), NULL, 0);
-	DeviceContext->HSSetShader(_gProgram->getHullShader(), NULL, 0);
-	DeviceContext->DSSetShader(_gProgram->getDomainShader(), NULL, 0);
+	DeviceContext->HSSetShader(_smProgram->getHullShader(), NULL, 0);
+	DeviceContext->DSSetShader(_smProgram->getDomainShader(), NULL, 0);
 	DeviceContext->GSSetShader(_smProgram->getGeometryShader(), NULL, 0);
 	DeviceContext->PSSetShader(_smProgram->getPixelShader(), NULL, 0);
 
