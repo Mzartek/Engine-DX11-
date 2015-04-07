@@ -8,6 +8,7 @@ namespace Engine
 	class Texture2D;
 	class TextureCube;
 	class Buffer;
+	class Material;
 
 	struct Vertex
 	{
@@ -36,6 +37,10 @@ namespace Engine
 		Buffer *_indexBuffer;
 		Buffer *_materialBuffer;
 		UINT _numElement;
+
+		Material *_materia;
+		ID3D11ShaderResourceView *_pshr[10];
+		ID3D11SamplerState *_psam[10];
 	public:
 		Mesh(void);
 		~Mesh(void);
@@ -45,6 +50,7 @@ namespace Engine
 		void setDiffuse(const XMVECTOR &diffuse);
 		void setSpecular(const XMVECTOR &specular);
 		void setShininess(const FLOAT &shininess);
+		void setMaterial(Material *material);
 		FLOAT getTransparency(void);
 		void load(const UINT &numVertex, const Vertex *vertexArray,
 			const UINT &numIndex, const UINT *indexArray);

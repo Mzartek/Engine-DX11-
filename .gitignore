@@ -23,8 +23,6 @@
 # Compiled Shader
 *.cso
 
-memLost.txt
-
 *.log
 *.tlog
 *.pdb
@@ -33,8 +31,8 @@ memLost.txt
 *.exp
 *.lastbuildstate
 *.metagen
-
 *.layout
 *.depend
 *.sdf
 *.suo
+*.opensdf
