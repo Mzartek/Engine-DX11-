@@ -5,15 +5,10 @@
 #include <Engine/Material.hpp>
 
 Engine::Mesh::Mesh(void)
-	: _numElement(0), _materia(NULL)
+	: _numElement(0), _material(NULL)
 {
-	_colorTexture = new Texture2D;
-	_NMTexture = new Texture2D;
 	_vertexBuffer = new Buffer;
 	_indexBuffer = new Buffer;
-	_materialBuffer = new Buffer;
-
-	_materialBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _material, D3D11_USAGE_DYNAMIC);
 
 	ZeroMemory(_pshr, sizeof _pshr);
 	ZeroMemory(_psam, sizeof _psam);
@@ -21,41 +16,8 @@ Engine::Mesh::Mesh(void)
 
 Engine::Mesh::~Mesh(void)
 {
-	delete _colorTexture;
-	delete _NMTexture;
 	delete _vertexBuffer;
 	delete _indexBuffer;
-	delete _materialBuffer;
-}
-
-void Engine::Mesh::loadColorTexture(const CHAR *path)
-{
-	_colorTexture->loadFromFile(path);
-}
-
-void Engine::Mesh::loadNMTexture(const CHAR *path)
-{
-	_NMTexture->loadFromFile(path);
-}
-
-void Engine::Mesh::setAmbient(const XMVECTOR &ambient)
-{
-	XMStoreFloat4(&_material.ambient, ambient);
-}
-
-void Engine::Mesh::setDiffuse(const XMVECTOR &diffuse)
-{
-	XMStoreFloat4(&_material.diffuse, diffuse);
-}
-
-void Engine::Mesh::setSpecular(const XMVECTOR &specular)
-{
-	XMStoreFloat4(&_material.specular, specular);
-}
-
-void Engine::Mesh::setShininess(const FLOAT &shininess)
-{
-	_material.shininess = shininess;
 }
 
 void Engine::Mesh::setMaterial(Material *material)
@@ -63,72 +25,72 @@ void Engine::Mesh::setMaterial(Material *material)
 	ZeroMemory(_pshr, sizeof _pshr);
 	ZeroMemory(_psam, sizeof _psam);
 
-	_materia = material;
+	_material = material;
 
-	if (_materia->hasDiffuseTexture())
+	if (_material->hasDiffuseTexture())
 	{
-		_pshr[0] = _materia->getDiffuseTexture()->getShaderResourceView();
-		_psam[0] = _materia->getDiffuseTexture()->getSamplerState();
+		_pshr[0] = _material->getDiffuseTexture()->getShaderResourceView();
+		_psam[0] = _material->getDiffuseTexture()->getSamplerState();
 	}
 
-	if (_materia->hasSpecularTexture())
+	if (_material->hasSpecularTexture())
 	{
-		_pshr[1] = _materia->getSpecularTexture()->getShaderResourceView();
-		_psam[1] = _materia->getSpecularTexture()->getSamplerState();
+		_pshr[1] = _material->getSpecularTexture()->getShaderResourceView();
+		_psam[1] = _material->getSpecularTexture()->getSamplerState();
 	}
 
-	if (_materia->hasAmbientTexture())
+	if (_material->hasAmbientTexture())
 	{
-		_pshr[2] = _materia->getAmbientTexture()->getShaderResourceView();
-		_psam[2] = _materia->getAmbientTexture()->getSamplerState();
+		_pshr[2] = _material->getAmbientTexture()->getShaderResourceView();
+		_psam[2] = _material->getAmbientTexture()->getSamplerState();
 	}
 
-	if (_materia->hasEmissiveTexture())
+	if (_material->hasEmissiveTexture())
 	{
-		_pshr[3] = _materia->getEmissiveTexture()->getShaderResourceView();
-		_psam[3] = _materia->getEmissiveTexture()->getSamplerState();
+		_pshr[3] = _material->getEmissiveTexture()->getShaderResourceView();
+		_psam[3] = _material->getEmissiveTexture()->getSamplerState();
 	}
 
-	if (_materia->hasShininessTexture())
+	if (_material->hasShininessTexture())
 	{
-		_pshr[4] = _materia->getShininessTexture()->getShaderResourceView();
-		_psam[4] = _materia->getShininessTexture()->getSamplerState();
+		_pshr[4] = _material->getShininessTexture()->getShaderResourceView();
+		_psam[4] = _material->getShininessTexture()->getSamplerState();
 	}
 
-	if (_materia->hasOpacityTexture())
+	if (_material->hasOpacityTexture())
 	{
-		_pshr[5] = _materia->getOpacityTexture()->getShaderResourceView();
-		_psam[5] = _materia->getOpacityTexture()->getSamplerState();
+		_pshr[5] = _material->getOpacityTexture()->getShaderResourceView();
+		_psam[5] = _material->getOpacityTexture()->getSamplerState();
 	}
 
-	if (_materia->hasBumpMap())
+	if (_material->hasBumpMap())
 	{
-		_pshr[6] = _materia->getBumpMap()->getShaderResourceView();
-		_psam[6] = _materia->getBumpMap()->getSamplerState();
+		_pshr[6] = _material->getBumpMap()->getShaderResourceView();
+		_psam[6] = _material->getBumpMap()->getSamplerState();
 	}
 
-	if (_materia->hasNormalMap())
+	if (_material->hasNormalMap())
 	{
-		_pshr[7] = _materia->getNormalMap()->getShaderResourceView();
-		_psam[7] = _materia->getNormalMap()->getSamplerState();
+		_pshr[7] = _material->getNormalMap()->getShaderResourceView();
+		_psam[7] = _material->getNormalMap()->getSamplerState();
 	}
 
-	if (_materia->hasDisplacementMap())
+	if (_material->hasDisplacementMap())
 	{
-		_pshr[8] = _materia->getDisplacementMap()->getShaderResourceView();
-		_psam[8] = _materia->getDisplacementMap()->getSamplerState();
+		_pshr[8] = _material->getDisplacementMap()->getShaderResourceView();
+		_psam[8] = _material->getDisplacementMap()->getSamplerState();
 	}
 
-	if (_materia->hasLightMap())
+	if (_material->hasLightMap())
 	{
-		_pshr[9] = _materia->getLightMap()->getShaderResourceView();
-		_psam[9] = _materia->getLightMap()->getSamplerState();
+		_pshr[9] = _material->getLightMap()->getShaderResourceView();
+		_psam[9] = _material->getLightMap()->getSamplerState();
 	}
 }
 
-FLOAT Engine::Mesh::getTransparency(void)
+Engine::Material *Engine::Mesh::getMaterial(void) const
 {
-	return _material.diffuse.w;
+	return _material;
 }
 
 void Engine::Mesh::load(const UINT &numVertex, const Vertex *vertexArray,
@@ -145,23 +107,13 @@ void Engine::Mesh::load(const UINT &numVertex, const Vertex *vertexArray,
 
 void Engine::Mesh::display(void) const
 {
-	ID3D11ShaderResourceView *pshr[] =
-	{
-		_colorTexture->getShaderResourceView(),
-		_NMTexture->getShaderResourceView(),
-	};
-	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
-	ID3D11SamplerState *psam[] =
-	{
-		_colorTexture->getSamplerState(),
-		_NMTexture->getSamplerState(),
-	};
-	DeviceContext->PSSetSamplers(0, ARRAYSIZE(psam), psam);
+	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(_pshr), _pshr);
+	DeviceContext->PSSetSamplers(0, ARRAYSIZE(_psam), _psam);
 
-	_materialBuffer->updateStoreMap(&_material);
 	ID3D11Buffer *buf[] =
 	{
-		_materialBuffer->getBuffer(),
+		_material->getMatBuffer(),
+		_material->getStateBuffer(),
 	};
 	DeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
@@ -178,25 +130,19 @@ void Engine::Mesh::display(void) const
 
 void Engine::Mesh::display(TextureCube *cubeTex) const
 {
-	ID3D11ShaderResourceView *pshr[] =
-	{
-		_colorTexture->getShaderResourceView(),
-		_NMTexture->getShaderResourceView(),
-		cubeTex->getShaderResourceView(),
-	};
-	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
-	ID3D11SamplerState *psam[] =
-	{
-		_colorTexture->getSamplerState(),
-		_NMTexture->getSamplerState(),
-		cubeTex->getSamplerState(),
-	};
-	DeviceContext->PSSetSamplers(0, ARRAYSIZE(psam), psam);
+	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(_pshr), _pshr);
+	DeviceContext->PSSetSamplers(0, ARRAYSIZE(_psam), _psam);
 
-	_materialBuffer->updateStoreMap(&_material);
+	ID3D11ShaderResourceView *pcube_shr = cubeTex->getShaderResourceView();
+	ID3D11SamplerState *pcube_sam = cubeTex->getSamplerState();
+
+	DeviceContext->PSSetShaderResources(ARRAYSIZE(_pshr), 1, &pcube_shr);
+	DeviceContext->PSSetSamplers(ARRAYSIZE(_psam), 1, &pcube_sam);
+
 	ID3D11Buffer *buf[] =
 	{
-		_materialBuffer->getBuffer(),
+		_material->getMatBuffer(),
+		_material->getStateBuffer(),
 	};
 	DeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
@@ -213,16 +159,8 @@ void Engine::Mesh::display(TextureCube *cubeTex) const
 
 void Engine::Mesh::displayShadow(void) const
 {
-	ID3D11ShaderResourceView *pshr[] =
-	{
-		_colorTexture->getShaderResourceView(),
-	};
-	DeviceContext->PSSetShaderResources(0, ARRAYSIZE(pshr), pshr);
-	ID3D11SamplerState *psam[] =
-	{
-		_colorTexture->getSamplerState(),
-	};
-	DeviceContext->PSSetSamplers(0, ARRAYSIZE(psam), psam);
+	DeviceContext->PSSetShaderResources(0, 1, _pshr);
+	DeviceContext->PSSetSamplers(0, 1, _psam);
 
 	UINT stride = 11 * sizeof(FLOAT), offset = 0;
 	ID3D11Buffer *drawBuf[] =
@@ -237,7 +175,9 @@ void Engine::Mesh::displayShadow(void) const
 
 bool Engine::CompareMesh::operator()(const Mesh *first, const Mesh *second)
 {
-	if (first->_material.diffuse.z > second->_material.diffuse.z)
+	if (first->_material == NULL)
+		return false;
+	if (first->_material->getOpacity() < second->_material->getOpacity())
 		return true;
 	return false;
 }

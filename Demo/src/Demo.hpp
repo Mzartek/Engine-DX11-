@@ -3,6 +3,8 @@
 
 #include <Engine/Engine.hpp>
 
+#include "Ground.hpp"
+
 class Demo : public Engine::GameLoop
 {
 private:
@@ -22,7 +24,7 @@ private:
 	Engine::DepthMap *dMaps;
 	Engine::FreeCam *cam;
 	Engine::SkyBox *skybox;
-	Engine::Model *sol;
+	Ground *ground;
 	Engine::Model *heli;
 	Engine::DirLight *sun;
 	Engine::SpotLight *torch;

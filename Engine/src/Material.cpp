@@ -138,7 +138,7 @@ void Engine::Material::setOpacityTexture(Texture2D *tex)
 	_stateBuffer->updateStoreSub(&_state);
 }
 
-void Engine::Material::setbumpMap(Texture2D *map)
+void Engine::Material::setBumpMap(Texture2D *map)
 {
 	_bumpMap = map;
 
@@ -186,112 +186,142 @@ void Engine::Material::setLightMap(Texture2D *map)
 	_stateBuffer->updateStoreSub(&_state);
 }
 
-BOOL Engine::Material::hasDiffuseTexture(void)
+XMFLOAT3 Engine::Material::getDiffuse(void) const
 {
-	return _state.hasDiffuseTexture;
+	return _mat.diffuse;
 }
 
-BOOL Engine::Material::hasSpecularTexture(void)
+XMFLOAT3 Engine::Material::getSpecular(void) const
 {
-	return _state.hasSpecularTexture;
+	return _mat.specular;
 }
 
-BOOL Engine::Material::hasAmbientTexture(void)
+XMFLOAT3 Engine::Material::getAmbient(void) const
 {
-	return _state.hasAmbientTexture;
+	return _mat.ambient;
 }
 
-BOOL Engine::Material::hasEmissiveTexture(void)
+XMFLOAT3 Engine::Material::getEmissive(void) const
 {
-	return _state.hasEmissiveTexture;
+	return _mat.emissive;
 }
 
-BOOL Engine::Material::hasShininessTexture(void)
+FLOAT Engine::Material::getShininess(void) const
 {
-	return _state.hasShininessTexture;
+	return _mat.shininess;
 }
 
-BOOL Engine::Material::hasOpacityTexture(void)
+FLOAT Engine::Material::getOpacity(void) const
 {
-	return _state.hasOpacityTexture;
+	return _mat.opacity;
 }
 
-BOOL Engine::Material::hasBumpMap(void)
-{
-	return _state.hasBumpMap;
-}
-
-BOOL Engine::Material::hasNormalMap(void)
-{
-	return _state.hasNormalMap;
-}
-
-BOOL Engine::Material::hasDisplacementMap(void)
-{
-	return _state.hasDisplacementMap;
-}
-
-BOOL Engine::Material::hasLightMap(void)
-{
-	return _state.hasLightMap;
-}
-
-Engine::Texture2D *Engine::Material::getDiffuseTexture(void)
+Engine::Texture2D *Engine::Material::getDiffuseTexture(void) const
 {
 	return _diffuseTexture;
 }
 
-Engine::Texture2D *Engine::Material::getSpecularTexture(void)
+Engine::Texture2D *Engine::Material::getSpecularTexture(void) const
 {
 	return _specularTexture;
 }
 
-Engine::Texture2D *Engine::Material::getAmbientTexture(void)
+Engine::Texture2D *Engine::Material::getAmbientTexture(void) const
 {
 	return _ambientTexture;
 }
 
-Engine::Texture2D *Engine::Material::getEmissiveTexture(void)
+Engine::Texture2D *Engine::Material::getEmissiveTexture(void) const
 {
 	return _emissiveTexture;
 }
 
-Engine::Texture2D *Engine::Material::getShininessTexture(void)
+Engine::Texture2D *Engine::Material::getShininessTexture(void) const
 {
 	return _shininessTexture;
 }
 
-Engine::Texture2D *Engine::Material::getOpacityTexture(void)
+Engine::Texture2D *Engine::Material::getOpacityTexture(void) const
 {
 	return _opacityTexture;
 }
 
-Engine::Texture2D *Engine::Material::getBumpMap(void)
+Engine::Texture2D *Engine::Material::getBumpMap(void) const
 {
 	return _bumpMap;
 }
 
-Engine::Texture2D *Engine::Material::getNormalMap(void)
+Engine::Texture2D *Engine::Material::getNormalMap(void) const
 {
 	return _normalMap;
 }
 
-Engine::Texture2D *Engine::Material::getDisplacementMap(void)
+Engine::Texture2D *Engine::Material::getDisplacementMap(void) const
 {
 	return _displacementMap;
 }
 
-Engine::Texture2D *Engine::Material::getLightMap(void)
+Engine::Texture2D *Engine::Material::getLightMap(void) const
 {
 	return _lightMap;
 }
 
-ID3D11Buffer *Engine::Material::getMatBuffer(void)
+BOOL Engine::Material::hasDiffuseTexture(void) const
+{
+	return _state.hasDiffuseTexture;
+}
+
+BOOL Engine::Material::hasSpecularTexture(void) const
+{
+	return _state.hasSpecularTexture;
+}
+
+BOOL Engine::Material::hasAmbientTexture(void) const
+{
+	return _state.hasAmbientTexture;
+}
+
+BOOL Engine::Material::hasEmissiveTexture(void) const
+{
+	return _state.hasEmissiveTexture;
+}
+
+BOOL Engine::Material::hasShininessTexture(void) const
+{
+	return _state.hasShininessTexture;
+}
+
+BOOL Engine::Material::hasOpacityTexture(void) const
+{
+	return _state.hasOpacityTexture;
+}
+
+BOOL Engine::Material::hasBumpMap(void) const
+{
+	return _state.hasBumpMap;
+}
+
+BOOL Engine::Material::hasNormalMap(void) const
+{
+	return _state.hasNormalMap;
+}
+
+BOOL Engine::Material::hasDisplacementMap(void) const
+{
+	return _state.hasDisplacementMap;
+}
+
+BOOL Engine::Material::hasLightMap(void) const
+{
+	return _state.hasLightMap;
+}
+
+ID3D11Buffer *Engine::Material::getMatBuffer(void) const
 {
 	return _matBuffer->getBuffer();
 }
 
-ID3D11Buffer *Engine::Material::getStateBuffer(void)
+ID3D11Buffer *Engine::Material::getStateBuffer(void) const
 {
 	return _stateBuffer->getBuffer();
 }

@@ -20,6 +20,9 @@
     <ClCompile Include="src\Demo.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="src\Ground.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\shader\background\backgroundPixel.hlsl">
@@ -79,6 +82,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Demo.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ground.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>

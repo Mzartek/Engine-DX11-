@@ -1,16 +1,50 @@
-Texture2D colorTex : register(t0);
-Texture2D NMTex : register(t1);
-TextureCube reflectionTex : register(t2);
-SamplerState colorSampleType : register(s0);
-SamplerState NMSampleType : register(s1);
-SamplerState reflectionSampleType : register(s2);
+Texture2D diffuseTex : register(t0);
+Texture2D specularTex : register(t1);
+Texture2D ambientTex : register(t2);
+Texture2D emissiveTex : register(t3);
+Texture2D shininessTex : register(t4);
+Texture2D opacityTex : register(t5);
+Texture2D bumpMap : register(t6);
+Texture2D normalMap : register(t7);
+Texture2D displacementMap : register(t8);
+Texture2D lightMap : register(t9);
+
+SamplerState diffuseSampleType : register(s0);
+SamplerState specularSampleType : register(s1);
+SamplerState ambientSampleType : register(s2);
+SamplerState emissiveSampleType : register(s3);
+SamplerState shininessSampleType : register(s4);
+SamplerState opacitySampleType : register(s5);
+SamplerState bumpSampleType : register(s6);
+SamplerState normalSampleType : register(s7);
+SamplerState displacementSampleType : register(s8);
+SamplerState lightSampleType : register(s9);
+
+TextureCube reflectionTex : register(t10);
+SamplerState reflectionSampleType : register(s10);
 
 cbuffer materialBuffer : register(b0)
 {
-	float4 matAmbient;
-	float4 matDiffuse;
-	float4 matSpecular;
-	float shininess;
+	float3 matDiffuse;
+	float3 matSpecular;
+	float3 matAmbient;
+	float3 matEmissive;
+	float matShininess;
+	float matOpacity;
+}
+
+cbuffer stateBuffer : register(b1)
+{
+	bool hasDiffuseTexture;
+	bool hasSpecularTexture;
+	bool hasAmbientTexture;
+	bool hasEmissiveTexture;
+	bool hasShininessTexture;
+	bool hasOpacityTexture;
+	bool hasBumpMap;
+	bool hasNormalMap;
+	bool hasDisplacementMap;
+	bool hasLightMap;
 }
 
 struct PS_INPUT
@@ -47,23 +81,23 @@ PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 	float3 R = reflect(normalize(input.eyeVec), normalize(input.TBN[2]));
-		float3 colorAlbedo = colorTex.Sample(colorSampleType, input.texCoord).xyz;
-		float3 colorReflection = reflectionTex.Sample(reflectionSampleType, float3(R.x, -R.y, R.z)).xyz;
+	float3 colorAlbedo = diffuseTex.Sample(diffuseSampleType, input.texCoord).xyz;
+	float3 colorReflection = reflectionTex.Sample(reflectionSampleType, float3(R.x, -R.y, R.z)).xyz;
 
-		float4 color = float4(colorAlbedo * 0.8 + colorReflection * 0.2, 1.0);
-		float3 normal = CalcBumpedNormal(input.TBN, NMTex.Sample(NMSampleType, input.texCoord).xyz);
+	float4 color = float4(colorAlbedo * 0.8 + colorReflection * 0.2, 1.0);
+	float3 normal = CalcBumpedNormal(input.TBN, normalMap.Sample(normalSampleType, input.texCoord).xyz);
 
-		if (color.a > 0.5)
-		{
-			output.normal = float4(normal, shininess);
-			output.material.x = packUnorm4x8(color);
-			output.material.y = packUnorm4x8(matAmbient);
-			output.material.z = packUnorm4x8(matDiffuse);
-			output.material.w = packUnorm4x8(matSpecular);
-			output.depth = input.position.z;
-		}
-		else
-			discard;
+	if (color.a > 0.5)
+	{
+		output.normal = float4(normal, matShininess);
+		output.material.x = packUnorm4x8(color);
+		output.material.y = packUnorm4x8(float4(matAmbient, matOpacity));
+		output.material.z = packUnorm4x8(float4(matDiffuse, matOpacity));
+		output.material.w = packUnorm4x8(float4(matSpecular, matOpacity));
+		output.depth = input.position.z;
+	}
+	else
+		discard;
 
 	return output;
 }

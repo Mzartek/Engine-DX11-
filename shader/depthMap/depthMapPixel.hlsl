@@ -1,5 +1,5 @@
-Texture2D colorTex : register(t0);
-SamplerState colorSampleType : register(s0);
+Texture2D diffuseTex : register(t0);
+SamplerState diffuseSampleType : register(s0);
 
 struct PS_INPUT
 {
@@ -16,7 +16,7 @@ PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
-	float transparency = colorTex.Sample(colorSampleType, input.texCoord).w;
+	float transparency = diffuseTex.Sample(diffuseSampleType, input.texCoord).w;
 	if (transparency > 0.5)
 		output.depth = input.position.z;
 	else

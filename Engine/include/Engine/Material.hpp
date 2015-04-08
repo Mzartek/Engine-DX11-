@@ -66,35 +66,42 @@ namespace Engine
 		void setEmissiveTexture(Texture2D *tex);
 		void setShininessTexture(Texture2D *tex);
 		void setOpacityTexture(Texture2D *tex);
-		void setbumpMap(Texture2D *map);
+		void setBumpMap(Texture2D *map);
 		void setNormalMap(Texture2D *map);
 		void setDisplacementMap(Texture2D *map);
 		void setLightMap(Texture2D *map);
 
-		BOOL hasDiffuseTexture(void);
-		BOOL hasSpecularTexture(void);
-		BOOL hasAmbientTexture(void);
-		BOOL hasEmissiveTexture(void);
-		BOOL hasShininessTexture(void);
-		BOOL hasOpacityTexture(void);
-		BOOL hasBumpMap(void);
-		BOOL hasNormalMap(void);
-		BOOL hasDisplacementMap(void);
-		BOOL hasLightMap(void);
-		
-		Texture2D *getDiffuseTexture(void);
-		Texture2D *getSpecularTexture(void);
-		Texture2D *getAmbientTexture(void);
-		Texture2D *getEmissiveTexture(void);
-		Texture2D *getShininessTexture(void);
-		Texture2D *getOpacityTexture(void);
-		Texture2D *getBumpMap(void);
-		Texture2D *getNormalMap(void);
-		Texture2D *getDisplacementMap(void);
-		Texture2D *getLightMap(void);
+		XMFLOAT3 getDiffuse(void) const;
+		XMFLOAT3 getSpecular(void) const;
+		XMFLOAT3 getAmbient(void) const;
+		XMFLOAT3 getEmissive(void) const;
+		FLOAT getShininess(void) const;
+		FLOAT getOpacity(void) const;
 
-		ID3D11Buffer *getMatBuffer(void);
-		ID3D11Buffer *getStateBuffer(void);
+		Texture2D *getDiffuseTexture(void) const;
+		Texture2D *getSpecularTexture(void) const;
+		Texture2D *getAmbientTexture(void) const;
+		Texture2D *getEmissiveTexture(void) const;
+		Texture2D *getShininessTexture(void) const;
+		Texture2D *getOpacityTexture(void) const;
+		Texture2D *getBumpMap(void) const;
+		Texture2D *getNormalMap(void) const;
+		Texture2D *getDisplacementMap(void) const;
+		Texture2D *getLightMap(void) const;
+
+		BOOL hasDiffuseTexture(void) const;
+		BOOL hasSpecularTexture(void) const;
+		BOOL hasAmbientTexture(void) const;
+		BOOL hasEmissiveTexture(void) const;
+		BOOL hasShininessTexture(void) const;
+		BOOL hasOpacityTexture(void) const;
+		BOOL hasBumpMap(void) const;
+		BOOL hasNormalMap(void) const;
+		BOOL hasDisplacementMap(void) const;
+		BOOL hasLightMap(void) const;
+
+		ID3D11Buffer *getMatBuffer(void) const;
+		ID3D11Buffer *getStateBuffer(void) const;
 	};
 }
 

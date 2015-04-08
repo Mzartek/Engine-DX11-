@@ -145,9 +145,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Demo.hpp" />
+    <ClInclude Include="src\Ground.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Demo.cpp" />
+    <ClCompile Include="src\Ground.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>

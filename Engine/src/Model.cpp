@@ -7,7 +7,9 @@
 #include <Engine/DirLight.hpp>
 #include <Engine/SpotLight.hpp>
 #include <Engine/DepthMap.hpp>
+#include <Engine/Texture2D.hpp>
 #include <Engine/TextureCube.hpp>
+#include <Engine/Material.hpp>
 
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
@@ -55,20 +57,11 @@ void Engine::Model::checkMatrix(void)
 	}
 }
 
-void Engine::Model::deleteMesh(void)
-{
-	if (_tMesh != NULL && _isMirror != TRUE)
-	{
-		for (UINT i = 0; i < _tMesh->size(); i++)
-			delete (*_tMesh)[i];
-		delete _tMesh;
-	}
-}
-
 Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
-	: _isMirror(FALSE), _tMesh(NULL), _needMatModel(TRUE), _needMatNormal(TRUE), _cubeTexture(NULL), _gProgram(gProgram), _smProgram(smProgram)
+	: _isMirror(FALSE), _needMatModel(TRUE), _needMatNormal(TRUE), _cubeTexture(NULL), _gProgram(gProgram), _smProgram(smProgram)
 {
-	_tMesh = new std::vector<Mesh *>;
+	_tMesh = new std::vector < Mesh * > ;
+	_tObject = new std::vector < Object * > ;
 	_matrixBuffer = new Buffer;
 	_cameraBuffer = new Buffer;
 	_position = new XMFLOAT3;
@@ -95,9 +88,10 @@ Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
 }
 
 Engine::Model::Model(Model *model, ShaderProgram *gProgram, ShaderProgram *smProgram)
-	: _isMirror(TRUE), _tMesh(NULL), _needMatModel(TRUE), _needMatNormal(TRUE), _cubeTexture(NULL), _gProgram(gProgram), _smProgram(smProgram)
+	: _isMirror(TRUE), _needMatModel(TRUE), _needMatNormal(TRUE), _cubeTexture(NULL), _gProgram(gProgram), _smProgram(smProgram)
 {
 	_tMesh = model->_tMesh;
+	_tObject = new std::vector < Object * >;
 	_matrixBuffer = new Buffer;
 	_cameraBuffer = new Buffer;
 	_position = new XMFLOAT3;
@@ -125,7 +119,11 @@ Engine::Model::Model(Model *model, ShaderProgram *gProgram, ShaderProgram *smPro
 
 Engine::Model::~Model(void)
 {
-	deleteMesh();
+	if (!_isMirror) delete _tMesh;
+
+	for (std::vector<Object *>::iterator it = _tObject->begin(); it != _tObject->end(); it++)
+		delete *it;
+	delete _tObject;
 
 	delete _matrixBuffer;
 	delete _cameraBuffer;
@@ -138,36 +136,26 @@ Engine::Model::~Model(void)
 	_pInputLayout->Release();
 }
 
-void Engine::Model::addMesh(const UINT &numVertex, const Vertex *vertexArray,
-	const UINT &numIndex, const UINT *indexArray,
-	const CHAR *colorTexture, const CHAR *NMTexture,
-	const XMVECTOR &ambient, const XMVECTOR &diffuse, const XMVECTOR &specular, const FLOAT &shininess)
+void Engine::Model::addMesh(Mesh *mesh)
 {
-	Mesh *newone = new Mesh;
-
-	newone->loadColorTexture(colorTexture);
-	newone->loadNMTexture(NMTexture);
-	newone->setAmbient(ambient);
-	newone->setDiffuse(diffuse);
-	newone->setSpecular(specular);
-	newone->setShininess(shininess);
-	newone->load(numVertex, vertexArray,
-		numIndex, indexArray);
-  
-	_tMesh->push_back(newone);
-}
-
-void Engine::Model::loadFromFile(const CHAR *szFileName, const CHAR *defaultTex, const CHAR *defaultNM)
-{
-	Assimp::Importer Importer;
-	UINT i, j;
-
 	if (_isMirror == TRUE)
 	{
 		MessageBox(NULL, TEXT("Error Model configuration"), TEXT(__FILE__), MB_OK);
 		exit(1);
 	}
 
+	_tMesh->push_back(mesh);
+}
+
+void Engine::Model::loadFromFile(const CHAR *szFileName)
+{
+	if (_isMirror == TRUE)
+	{
+		MessageBox(NULL, TEXT("Error Model configuration"), TEXT(__FILE__), MB_OK);
+		exit(1);
+	}
+
+	Assimp::Importer Importer;
 	const aiScene *pScene = Importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes);
 	if (!pScene)
 	{
@@ -177,72 +165,127 @@ void Engine::Model::loadFromFile(const CHAR *szFileName, const CHAR *defaultTex,
 		exit(1);
 	}
 
-	Vertex tmpVertex;
 	std::vector<Vertex> vertices;
 	std::vector<UINT> indices;
-	const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
-	const aiVector3D *pPos;
-	const aiVector3D *pTexCoord;
-	const aiVector3D *pNormal;
-	const aiVector3D *pTangent;
-	for (i = 0; i<pScene->mNumMeshes; i++)
+	for (UINT i = 0; i<pScene->mNumMeshes; i++)
 	{
 		// Vertex Buffer
-		for (j = 0; j<pScene->mMeshes[i]->mNumVertices; j++)
+		for (UINT j = 0; j<pScene->mMeshes[i]->mNumVertices; j++)
 		{
-			pPos = &(pScene->mMeshes[i]->mVertices[j]);
-			pTexCoord = pScene->mMeshes[i]->HasTextureCoords(0) ? &(pScene->mMeshes[i]->mTextureCoords[0][j]) : &Zero3D;
-			pNormal = pScene->mMeshes[i]->HasNormals() ? &(pScene->mMeshes[i]->mNormals[j]) : &Zero3D;
-			pTangent = pScene->mMeshes[i]->HasTangentsAndBitangents() ? &(pScene->mMeshes[i]->mTangents[j]) : &Zero3D;
+			const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
+			const aiVector3D pPos = pScene->mMeshes[i]->mVertices[j];
+			const aiVector3D pTexCoord = pScene->mMeshes[i]->HasTextureCoords(0) ? pScene->mMeshes[i]->mTextureCoords[0][j] : Zero3D;
+			const aiVector3D pNormal = pScene->mMeshes[i]->HasNormals() ? pScene->mMeshes[i]->mNormals[j] : Zero3D;
+			const aiVector3D pTangent = pScene->mMeshes[i]->HasTangentsAndBitangents() ? pScene->mMeshes[i]->mTangents[j] : Zero3D;
 
-			tmpVertex.position.x = pPos->x,      tmpVertex.position.y = pPos->y,      tmpVertex.position.z = pPos->z;
-			tmpVertex.texCoord.x = pTexCoord->x, tmpVertex.texCoord.y = pTexCoord->y;
-			tmpVertex.normal.x = pNormal->x,     tmpVertex.normal.y = pNormal->y,     tmpVertex.normal.z = pNormal->z;
-			tmpVertex.tangent.x = pTangent->x,   tmpVertex.tangent.y = pTangent->y,   tmpVertex.tangent.z = pTangent->z;
+			Vertex newVertex = {
+				{ pPos.x, pPos.y, pPos.z },
+				{ pTexCoord.x, pTexCoord.y },
+				{ pNormal.x, pNormal.y, pNormal.z },
+				{ pTangent.x, pTangent.y, pTangent.z}
+			};
 
-			vertices.push_back(tmpVertex);
+			vertices.push_back(newVertex);
 		}
 
 		// Index Buffer
-		for (j = 0; j < pScene->mMeshes[i]->mNumFaces; j++)
+		for (UINT j = 0; j < pScene->mMeshes[i]->mNumFaces; j++)
 		{
 			indices.push_back(pScene->mMeshes[i]->mFaces[j].mIndices[0]);
 			indices.push_back(pScene->mMeshes[i]->mFaces[j].mIndices[1]);
 			indices.push_back(pScene->mMeshes[i]->mFaces[j].mIndices[2]);
 		}
 
-		aiString path;
-		std::string dir, colorPath, NMPath;
-		dir = getDir(szFileName);
-		if (pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
-			colorPath += dir + path.C_Str();
-		else
-			colorPath = defaultTex;
-		if (pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->GetTexture(aiTextureType_NORMALS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
-			NMPath += dir + path.C_Str();
-		else
-			NMPath = defaultNM;
+		Mesh *newMesh = new Mesh;
+		Material *newMaterial = new Material;
 
-		aiColor4D mat_ambient;
-		aiColor4D mat_diffuse;
-		aiColor4D mat_specular;
-		FLOAT mat_shininess;
-		FLOAT opacity;
+		_tObject->push_back(newMesh);
+		_tObject->push_back(newMaterial);
 
-		pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_AMBIENT, mat_ambient);
-		pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, mat_diffuse);
-		pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_SPECULAR, mat_specular);
-		pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_SHININESS, mat_shininess);
-		pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_OPACITY, opacity);
-		mat_ambient.a = opacity;
-		mat_diffuse.a = opacity;
-		mat_specular.a = opacity;
+		std::string dir = getDir(szFileName);
 
-		addMesh((UINT)vertices.size(), vertices.data(),
-			(UINT)indices.size(), indices.data(),
-			colorPath.c_str(), NMPath.c_str(),
-			XMVectorSet(mat_ambient.r, mat_ambient.g, mat_ambient.b, mat_ambient.a), XMVectorSet(mat_diffuse.r, mat_diffuse.g, mat_diffuse.b, mat_diffuse.a), XMVectorSet(mat_specular.r, mat_specular.g, mat_specular.b, mat_specular.a),
-			mat_shininess);
+		const aiTextureType _textureType[] = {
+			aiTextureType_DIFFUSE, aiTextureType_SPECULAR, 
+			aiTextureType_AMBIENT, aiTextureType_EMISSIVE, 
+			aiTextureType_SHININESS, aiTextureType_OPACITY, 
+			aiTextureType_HEIGHT, aiTextureType_NORMALS, 
+			aiTextureType_DISPLACEMENT, aiTextureType_LIGHTMAP,
+		};
+
+		// Textures
+		for (UINT j = 0; j < ARRAYSIZE(_textureType); j++)
+		{
+			aiString path;
+			if (pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->GetTexture(_textureType[j], 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
+			{
+				std::string filePath = dir + path.C_Str();
+				Texture2D *newTexture = new Texture2D;
+				_tObject->push_back(newTexture);
+
+				newTexture->loadFromFile(filePath.c_str());
+
+				switch (_textureType[j])
+				{
+				case aiTextureType_DIFFUSE:
+					newMaterial->setDiffuseTexture(newTexture);
+					break;
+				case aiTextureType_SPECULAR:
+					newMaterial->setSpecularTexture(newTexture);
+					break;
+				case aiTextureType_AMBIENT:
+					newMaterial->setAmbientTexture(newTexture);
+					break;
+				case aiTextureType_EMISSIVE:
+					newMaterial->setEmissiveTexture(newTexture);
+					break;
+				case aiTextureType_SHININESS:
+					newMaterial->setShininessTexture(newTexture);
+					break;
+				case aiTextureType_OPACITY:
+					newMaterial->setOpacityTexture(newTexture);
+					break;
+				case aiTextureType_HEIGHT:
+					newMaterial->setBumpMap(newTexture);
+					break;
+				case aiTextureType_NORMALS:
+					newMaterial->setNormalMap(newTexture);
+					break;
+				case aiTextureType_DISPLACEMENT:
+					newMaterial->setDisplacementMap(newTexture);
+					break;
+				case aiTextureType_LIGHTMAP:
+					newMaterial->setLightMap(newTexture);
+					break;
+				}
+			}
+		}
+
+		{
+			aiColor4D mat;
+
+			pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, mat);
+			newMaterial->setDiffuse(XMFLOAT3(mat.r, mat.g, mat.b));
+
+			pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_SPECULAR, mat);
+			newMaterial->setSpecular(XMFLOAT3(mat.r, mat.g, mat.b));
+
+			pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_AMBIENT, mat);
+			newMaterial->setAmbient(XMFLOAT3(mat.r, mat.g, mat.b));
+
+			pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_EMISSIVE, mat);
+			newMaterial->setEmissive(XMFLOAT3(mat.r, mat.g, mat.b));
+
+			pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_SHININESS, mat);
+			newMaterial->setShininess(mat.r);
+
+			pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_OPACITY, mat);
+			newMaterial->setOpacity(mat.r);
+		}
+
+		newMesh->setMaterial(newMaterial);
+		newMesh->load((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+
+		addMesh(newMesh);
 
 		vertices.clear();
 		indices.clear();
@@ -331,8 +374,9 @@ void Engine::Model::display(GBuffer *gbuf, PerspCamera *cam)
 
 	DeviceContext->IASetInputLayout(_pInputLayout);
 	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	for (UINT i = 0; i<_tMesh->size(); i++)
-		if ((*_tMesh)[i]->getTransparency() == 1.0f)
+		if ((*_tMesh)[i]->getMaterial()->getOpacity() == 1.0f)
 		{
 			if (_cubeTexture)
 				(*_tMesh)[i]->display(_cubeTexture);
@@ -374,7 +418,7 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, PerspCamera *cam)
 	DeviceContext->IASetInputLayout(_pInputLayout);
 	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (UINT i = 0; i<_tMesh->size(); i++)
-		if ((*_tMesh)[i]->getTransparency() != 1.0f)
+		if ((*_tMesh)[i]->getMaterial()->getOpacity() == 1.0f)
 		{
 			if (_cubeTexture)
 				(*_tMesh)[i]->display(_cubeTexture);
@@ -411,7 +455,7 @@ void Engine::Model::displayDepthMap(DepthMap *dmap, Camera *cam)
 	DeviceContext->IASetInputLayout(_pInputLayout);
 	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (UINT i = 0; i<_tMesh->size(); i++)
-		if ((*_tMesh)[i]->getTransparency() == 1.0f)
+		if ((*_tMesh)[i]->getMaterial()->getOpacity() == 1.0f)
 			(*_tMesh)[i]->displayShadow();
 }
 
@@ -447,7 +491,7 @@ void Engine::Model::displayDepthMap(DepthMap *dmaps, DirLight *light)
 		DeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buf), buf);
 
 		for (UINT j = 0; j < _tMesh->size(); j++)
-			if ((*_tMesh)[j]->getTransparency() == 1.0f)
+			if ((*_tMesh)[j]->getMaterial()->getOpacity() == 1.0f)
 				(*_tMesh)[j]->displayShadow();
 	}
 }
@@ -480,6 +524,6 @@ void Engine::Model::displayDepthMap(DepthMap *dmap, SpotLight *light)
 	DeviceContext->IASetInputLayout(_pInputLayout);
 	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (UINT i = 0; i<_tMesh->size(); i++)
-		if ((*_tMesh)[i]->getTransparency() == 1.0f)
+		if ((*_tMesh)[i]->getMaterial()->getOpacity() == 1.0f)
 			(*_tMesh)[i]->displayShadow();
 }

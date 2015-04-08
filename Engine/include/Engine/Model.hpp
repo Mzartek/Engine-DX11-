@@ -14,8 +14,10 @@ namespace Engine
 	class PerspCamera;
 	class DirLight;
 	class SpotLight;
+	class Texture2D;
 	class TextureCube;
 	class DepthMap;
+	class Material;
 
 	class DLLAPI Model : public Object
 	{
@@ -36,33 +38,39 @@ namespace Engine
 		} _camera;
 
 		BOOL _isMirror;
+
 		std::vector<Mesh *> *_tMesh;
+		std::vector<Object *> *_tObject;
+
 		Buffer *_matrixBuffer;
 		Buffer *_cameraBuffer;
+
 		XMFLOAT3 *_position;
 		XMFLOAT3 *_rotation;
 		XMFLOAT3 *_scale;
+
 		XMMATRIX *_modelMatrix;
 		XMMATRIX *_normalMatrix;
+
 		BOOL _needMatModel;
 		BOOL _needMatNormal;
+
 		TextureCube *_cubeTexture;
+
 		ShaderProgram *_gProgram;
 		ShaderProgram *_smProgram;
+
 		ID3D11InputLayout *_pInputLayout;
+
 		void genMatModel(void) const;
 		void genMatNormal(void) const;
 		void checkMatrix(void);
-		void deleteMesh(void);
 	public:
 		Model(ShaderProgram *gProgram, ShaderProgram *smProgram);
 		Model(Model *model, ShaderProgram *gProgram, ShaderProgram *smProgram);
 		~Model(void);
-		void addMesh(const UINT &numVertex, const Vertex *vertexArray,
-				  const UINT &numIndex, const UINT *indexArray,
-				  const CHAR *colorTexture, const CHAR *NMTexture,
-				  const XMVECTOR &ambient, const XMVECTOR &diffuse, const XMVECTOR &specular, const FLOAT &shininess);
-		void loadFromFile(const CHAR *szFileName, const CHAR *defaultTex, const CHAR *defaultNM);
+		void addMesh(Mesh *mesh);
+		void loadFromFile(const CHAR *szFileName);
 		void sortMesh(void);
 		void setPosition(const XMVECTOR &position);
 		void setRotation(const XMVECTOR &rotation);

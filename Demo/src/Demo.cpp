@@ -67,7 +67,7 @@ Demo::Demo(Engine::Renderer *renderer, Engine::Input *input)
 
 	cam = new Engine::FreeCam;
 	skybox = new Engine::SkyBox(skyboxProgram);
-	sol = new Engine::Model(objectProgram, depthMapProgram);
+	ground = new Ground(objectProgram, depthMapProgram);
 	heli = new Engine::Model(reflectObjectProgram, depthMapProgram);
 	sun = new Engine::DirLight(dirLightProgram);
 	torch = new Engine::SpotLight(spotLightProgram);
@@ -91,28 +91,9 @@ Demo::Demo(Engine::Renderer *renderer, Engine::Input *input)
 		"../resources/textures/skybox/topred2.jpg", "../resources/textures/skybox/botred2.jpg",
 		"../resources/textures/skybox/frontred2.jpg", "../resources/textures/skybox/backred2.jpg");
 
-	// Model config
-	Engine::Vertex vertexArray[] =
-	{
-		XMFLOAT3( -500, 0, -500 ), XMFLOAT2( 0, 0 ), XMFLOAT3( 0, 1, 0 ), XMFLOAT3( 1, 0, 0 ),
-		XMFLOAT3( -500, 0, 500 ), XMFLOAT2( 0, 1 ), XMFLOAT3( 0, 1, 0 ), XMFLOAT3( 1, 0, 0 ),
-		XMFLOAT3( 500, 0, 500 ), XMFLOAT2( 1, 1 ), XMFLOAT3( 0, 1, 0 ), XMFLOAT3( 1, 0, 0 ),
-		XMFLOAT3( 500, 0, -500 ), XMFLOAT2( 1, 0 ), XMFLOAT3( 0, 1, 0 ), XMFLOAT3( 1, 0, 0 ),
-	};
-	UINT index[] = { 2, 0, 1, 0, 2, 3 };
-	XMVECTOR mat_ambient = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
-	XMVECTOR mat_diffuse = XMVectorSet(0.9f, 0.9f, 0.9f, 1.0f);
-	XMVECTOR mat_specular = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
-	FLOAT mat_shininess = 20.0f;
+	octreeSystem->addModel(ground->getModel(), 1000);
 
-	sol->addMesh(sizeof vertexArray / sizeof(Engine::Vertex), vertexArray,
-		sizeof index / sizeof(UINT), index,
-		"../resources/textures/ornaments.jpg", "../resources/textures/NM_none.png",
-		mat_ambient, mat_diffuse, mat_specular, mat_shininess);
-
-	octreeSystem->addModel(sol, 1000);
-
-	heli->loadFromFile("../resources/models/heli/corps.mobj", "../resources/textures/none.png", "../resources/textures/NM_none.png");
+	heli->loadFromFile("../resources/models/heli/corps.mobj");
 	heli->sortMesh();
 	heli->setPosition(XMVectorSet(0.0f, 6.0f, 0.0f, 1.0f));
 	heli->setScale(XMVectorSet(2.0f, 2.0f, 2.0f, 1.0f));
@@ -139,7 +120,7 @@ Demo::~Demo(void)
 	delete torch;
 	delete sun;
 	delete heli;
-	delete sol;
+	delete ground;
 	delete skybox;
 	delete cam;
 
@@ -178,7 +159,7 @@ void Demo::display(FLOAT state)
 		(*it)->display(gBuffer, cam);
 
 	// Lights
-	dMaps[0].clear();
+	/*dMaps[0].clear();
 	heli->displayDepthMap(dMaps, sun);
 	sun->display(gBuffer, dMaps, cam);
 
@@ -186,7 +167,7 @@ void Demo::display(FLOAT state)
 	dMaps[1].clear();
 	dMaps[2].clear();
 	heli->displayDepthMap(dMaps, torch);
-	torch->display(gBuffer, dMaps, cam);
+	torch->display(gBuffer, dMaps, cam);*/
 
 	screen->background(gBuffer);
 
@@ -195,8 +176,8 @@ void Demo::display(FLOAT state)
 		(*it)->displayTransparent(gBuffer, cam);
 
 	// Lights
-	sun->display(gBuffer, cam);
-	torch->display(gBuffer, cam);
+	/*sun->display(gBuffer, cam);
+	torch->display(gBuffer, cam);*/
 
 	screen->background(gBuffer);
 
