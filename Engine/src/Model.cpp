@@ -418,7 +418,7 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, PerspCamera *cam)
 	DeviceContext->IASetInputLayout(_pInputLayout);
 	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (UINT i = 0; i<_tMesh->size(); i++)
-		if ((*_tMesh)[i]->getMaterial()->getOpacity() == 1.0f)
+		if ((*_tMesh)[i]->getMaterial()->getOpacity() < 1.0f)
 		{
 			if (_cubeTexture)
 				(*_tMesh)[i]->display(_cubeTexture);

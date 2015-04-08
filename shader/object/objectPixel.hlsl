@@ -48,7 +48,9 @@ struct PS_INPUT
 {
 	float4 position : SV_POSITION;
 	float2 texCoord : IN_TEXCOORD;
-	float3x3 TBN : IN_TBN;
+	float3 normal : IN_NORMAL;
+	float3 tangent : IN_TANGENT;
+	float3 bitangent : IN_BITANGENT;
 };
 
 struct PS_OUTPUT
@@ -68,17 +70,33 @@ uint packUnorm4x8(float4 v)
 	return res;
 }
 
-float3 CalcBumpedNormal(float3x3 TBN, float3 bumpMapNormal)
+float4 getColor(PS_INPUT input)
 {
-	return normalize(mul(bumpMapNormal* 2.0 - 1.0, TBN));
+	if (hasDiffuseTexture)
+		return diffuseTex.Sample(diffuseSampleType, input.texCoord);
+	else
+		return float4(1.0, 1.0, 1.0, 1.0);
+}
+
+float3 getNormal(PS_INPUT input)
+{
+	if (hasNormalMap)
+	{
+		float3x3 TBN = float3x3(input.tangent, input.bitangent, input.normal);
+		float3 bumpMapNormal = normalMap.Sample(normalSampleType, input.texCoord).xyz;
+
+		return mul(bumpMapNormal * 2.0 - 1.0, TBN);
+	}
+	else
+		return input.normal;
 }
 
 PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 
-	float4 color = diffuseTex.Sample(diffuseSampleType, input.texCoord);
-	float3 normal = CalcBumpedNormal(input.TBN, normalMap.Sample(normalSampleType, input.texCoord).xyz);
+	float4 color = getColor(input);
+	float3 normal = getNormal(input);
 
 	if (color.a > 0.5)
 	{

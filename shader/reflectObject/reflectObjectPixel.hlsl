@@ -51,7 +51,9 @@ struct PS_INPUT
 {
 	float4 position : SV_POSITION;
 	float2 texCoord : IN_TEXCOORD;
-	float3x3 TBN : IN_TBN;
+	float3 normal : IN_NORMAL;
+	float3 tangent : IN_TANGENT;
+	float3 bitangent : IN_BITANGENT;
 	float3 eyeVec : IN_EYEVEC;
 };
 
@@ -72,20 +74,43 @@ uint packUnorm4x8(float4 v)
 	return res;
 }
 
-float3 CalcBumpedNormal(float3x3 TBN, float3 bumpMapNormal)
+float4 getColorAlbedo(PS_INPUT input)
 {
-	return normalize(mul(bumpMapNormal* 2.0 - 1.0, TBN));
+	if (hasDiffuseTexture)
+		return diffuseTex.Sample(diffuseSampleType, input.texCoord);
+	else
+		return float4(1.0, 1.0, 1.0, 1.0);
+}
+
+float3 getNormal(PS_INPUT input)
+{
+	if (hasNormalMap)
+	{
+		float3x3 TBN = float3x3(input.tangent, input.bitangent, input.normal);
+		float3 bumpMapNormal = normalMap.Sample(normalSampleType, input.texCoord).xyz;
+
+		return mul(bumpMapNormal * 2.0 - 1.0, TBN);
+	}
+	else
+		return input.normal;
+}
+
+float3 getColorReflection(float3 eyeVec, float3 normal)
+{
+	float3 R = reflect(eyeVec, normal);
+
+	return reflectionTex.Sample(reflectionSampleType, float3(R.x, -R.y, R.z)).xyz;
 }
 
 PS_OUTPUT main(PS_INPUT input)
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
-	float3 R = reflect(normalize(input.eyeVec), normalize(input.TBN[2]));
-	float3 colorAlbedo = diffuseTex.Sample(diffuseSampleType, input.texCoord).xyz;
-	float3 colorReflection = reflectionTex.Sample(reflectionSampleType, float3(R.x, -R.y, R.z)).xyz;
+	
+	float4 colorAlbedo = getColorAlbedo(input);
+	float3 normal = getNormal(input);
+	float3 colorReflection = getColorReflection(input.eyeVec, normal);
 
-	float4 color = float4(colorAlbedo * 0.8 + colorReflection * 0.2, 1.0);
-	float3 normal = CalcBumpedNormal(input.TBN, normalMap.Sample(normalSampleType, input.texCoord).xyz);
+	float4 color = float4(colorAlbedo.xyz * 0.8 + colorReflection * 0.2, colorAlbedo.w);
 
 	if (color.a > 0.5)
 	{

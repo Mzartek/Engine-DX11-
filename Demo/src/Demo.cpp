@@ -159,15 +159,15 @@ void Demo::display(FLOAT state)
 		(*it)->display(gBuffer, cam);
 
 	// Lights
-	/*dMaps[0].clear();
+	dMaps[0].clear();
+	dMaps[1].clear();
+	dMaps[2].clear();
 	heli->displayDepthMap(dMaps, sun);
 	sun->display(gBuffer, dMaps, cam);
 
 	dMaps[0].clear();
-	dMaps[1].clear();
-	dMaps[2].clear();
 	heli->displayDepthMap(dMaps, torch);
-	torch->display(gBuffer, dMaps, cam);*/
+	torch->display(gBuffer, dMaps, cam);
 
 	screen->background(gBuffer);
 
@@ -176,8 +176,8 @@ void Demo::display(FLOAT state)
 		(*it)->displayTransparent(gBuffer, cam);
 
 	// Lights
-	/*sun->display(gBuffer, cam);
-	torch->display(gBuffer, cam);*/
+	sun->display(gBuffer, cam);
+	torch->display(gBuffer, cam);
 
 	screen->background(gBuffer);
 
