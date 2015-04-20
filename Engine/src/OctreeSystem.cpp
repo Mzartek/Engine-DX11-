@@ -43,19 +43,19 @@ inline BOOL checkOctreeInCamSphere(const Engine::Octree *octree, const Engine::P
 inline BOOL checkOctreeInCamFrus(const Engine::Octree *octree, const Engine::PerspCamera *cam)
 {
 	const XMVECTOR camera_position = cam->getCameraPosition();
-	const XMVECTOR view_vector = cam->getViewVector();
+	const XMVECTOR forward_vector = cam->getForwardVector();
 	const FLOAT fov_2 = cam->getFOV() / 2;
 
 	XMVECTOR position = XMLoadFloat3(&octree->position);
 	XMVECTOR direction = XMVector3Normalize(position - camera_position);
-	FLOAT dot = XMVectorGetX(XMVector3Dot(view_vector, direction));
+	FLOAT dot = XMVectorGetX(XMVector3Dot(forward_vector, direction));
 
 	if (acosf(dot) < fov_2) return TRUE;
 	for (INT i = 0; i < 8; i++)
 	{
 		position = XMLoadFloat3(&octree->vertex[i]);
 		direction = XMVector3Normalize(position - camera_position);
-		dot = XMVectorGetX(XMVector3Dot(view_vector, direction));
+		dot = XMVectorGetX(XMVector3Dot(forward_vector, direction));
 
 		if (acosf(dot) < fov_2) return TRUE;
 	}

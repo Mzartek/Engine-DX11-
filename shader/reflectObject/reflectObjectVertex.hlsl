@@ -10,7 +10,9 @@ cbuffer matrixBuffer : register(b0)
 cbuffer cameraBuffer : register(b1)
 {
 	vector camPosition;
-	vector camTarget;
+	vector camForward;
+	vector camLeft;
+	vector camUp;
 }
 
 struct VS_INPUT

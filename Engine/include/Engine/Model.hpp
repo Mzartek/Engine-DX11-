@@ -34,7 +34,9 @@ namespace Engine
 		struct
 		{
 			XMVECTOR position;
-			XMVECTOR target;
+			XMVECTOR forward;
+			XMVECTOR left;
+			XMVECTOR up;
 		} _camera;
 
 		BOOL _isMirror;

@@ -3,16 +3,20 @@
 Engine::PerspCamera::PerspCamera(void)
 {
 	_pcamera = (XMVECTOR *)_aligned_malloc(sizeof *_pcamera, 16);
-	_ptarget = (XMVECTOR *)_aligned_malloc(sizeof *_ptarget, 16);
-	_vview = (XMVECTOR *)_aligned_malloc(sizeof *_vview, 16);
+	_vforward = (XMVECTOR *)_aligned_malloc(sizeof *_vforward, 16);
+	_vleft = (XMVECTOR *)_aligned_malloc(sizeof *_vleft, 16);
+	_vup = (XMVECTOR *)_aligned_malloc(sizeof *_vup, 16);
+
 	_frusSpherePosition = (XMVECTOR *)_aligned_malloc(sizeof *_frusSpherePosition, 16);
 }
 
 Engine::PerspCamera::~PerspCamera(void)
 {
 	_aligned_free(_pcamera);
-	_aligned_free(_ptarget);
-	_aligned_free(_vview);
+	_aligned_free(_vforward);
+	_aligned_free(_vleft);
+	_aligned_free(_vup);
+
 	_aligned_free(_frusSpherePosition);
 }
 
@@ -21,9 +25,12 @@ void Engine::PerspCamera::setCameraPosition(const XMVECTOR &pos) const
 	*_pcamera = pos;
 }
 
-void Engine::PerspCamera::setTargetPosition(const XMVECTOR &pos) const
+void Engine::PerspCamera::setTargetPosition(const FLOAT &atheta, const FLOAT &aphi) const
 {
-	*_ptarget = pos;
+	FLOAT tmp = cosf(aphi);
+	*_vforward = XMVectorSet(tmp * sinf(atheta), sinf(aphi), tmp * cosf(atheta), 0.0f);
+	*_vleft = XMVector3Normalize(XMVectorSet(XMVectorGetZ(*_vforward), 0.0f, -XMVectorGetX(*_vforward), 0.0f));
+	*_vup = XMVector3Cross(*_vforward, *_vleft);
 }
 
 void Engine::PerspCamera::setPerspective(const FLOAT &fov, const UINT &width, const UINT &height, const FLOAT &n, const FLOAT &f)
@@ -46,14 +53,19 @@ XMVECTOR Engine::PerspCamera::getCameraPosition(void) const
 	return *_pcamera;
 }
 
-XMVECTOR Engine::PerspCamera::getTargetPosition(void) const
+XMVECTOR Engine::PerspCamera::getForwardVector(void) const
 {
-	return *_ptarget;
+	return *_vforward;
 }
 
-XMVECTOR Engine::PerspCamera::getViewVector(void) const
+XMVECTOR Engine::PerspCamera::getLeftVector(void) const
 {
-	return *_vview;
+	return *_vleft;
+}
+
+XMVECTOR Engine::PerspCamera::getUpVector(void) const
+{
+	return *_vup;
 }
 
 FLOAT Engine::PerspCamera::getNear(void) const
@@ -88,9 +100,9 @@ XMVECTOR Engine::PerspCamera::getFrusSpherePosition(void) const
 
 void Engine::PerspCamera::position(void) const
 {
-	*_vview = XMVector3Normalize(*_ptarget - *_pcamera);
-	*_frusSpherePosition = *_vview * _frusSphereDistance;
-	*_viewMatrix = XMMatrixLookAtRH(*_pcamera, *_ptarget, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+	*_frusSpherePosition = *_vforward * _frusSphereDistance;
+
+	*_viewMatrix = XMMatrixLookAtRH(*_pcamera, *_pcamera + * _vforward, *_vup);
 	*_VPMatrix = *_viewMatrix * *_projectionMatrix;
 	*_IVPMatrix = XMMatrixInverse(NULL, *_VPMatrix);
 }

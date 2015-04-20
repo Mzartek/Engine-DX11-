@@ -362,7 +362,9 @@ void Engine::Model::display(GBuffer *gbuf, PerspCamera *cam)
 	_matrixBuffer->updateStoreMap(&_matrix);
 
 	_camera.position = cam->getCameraPosition();
-	_camera.target = cam->getTargetPosition();
+	_camera.forward = cam->getForwardVector();
+	_camera.left = cam->getLeftVector();
+	_camera.up = cam->getUpVector();
 	_cameraBuffer->updateStoreMap(&_camera);
 
 	ID3D11Buffer *buf[] =
@@ -405,7 +407,9 @@ void Engine::Model::displayTransparent(GBuffer *gbuf, PerspCamera *cam)
 	_matrixBuffer->updateStoreMap(&_matrix);
 
 	_camera.position = cam->getCameraPosition();
-	_camera.target = cam->getTargetPosition();
+	_camera.forward = cam->getForwardVector();
+	_camera.left = cam->getLeftVector();
+	_camera.up = cam->getUpVector();
 	_cameraBuffer->updateStoreMap(&_camera);
 
 	ID3D11Buffer *buf[] =

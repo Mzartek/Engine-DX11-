@@ -83,7 +83,6 @@ Demo::Demo(Engine::Renderer *renderer, Engine::Input *input)
 
 	// Camera config
 	cam->setCameraPosition(XMVectorSet(30, 5, 0, 1));
-	cam->setInitialAngle(-XM_PI / 2, 0);
 
 	// Skybox config
 	skybox->load(
