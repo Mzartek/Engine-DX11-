@@ -42,7 +42,7 @@ void Engine::SpotLight::setPosition(const XMVECTOR &position)
 
 void Engine::SpotLight::setDirection(const XMVECTOR &dir)
 {
-	XMStoreFloat3(&_lightInfo.direction, dir);
+	XMStoreFloat3(&_lightInfo.direction, XMVector3Normalize(dir));
 }
 
 void Engine::SpotLight::setSpotCutOff(const FLOAT &spot)

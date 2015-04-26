@@ -9,6 +9,7 @@ namespace Engine
 	{
 	public:
 		PlayerCam(void);
+		PlayerCam(const FLOAT &atheta, const FLOAT &aphi);
 		~PlayerCam(void);
 		void keyboardMove(const BOOL &f, const BOOL &b, const BOOL &l, const BOOL &r);
 	};

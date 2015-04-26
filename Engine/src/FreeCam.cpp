@@ -4,6 +4,11 @@ Engine::FreeCam::FreeCam(void)
 {
 }
 
+Engine::FreeCam::FreeCam(const FLOAT &atheta, const FLOAT &aphi)
+	: MovableCamera(atheta, aphi)
+{
+}
+
 Engine::FreeCam::~FreeCam(void)
 {
 }

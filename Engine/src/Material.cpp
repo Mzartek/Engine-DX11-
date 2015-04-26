@@ -8,9 +8,14 @@ Engine::Material::Material(void)
 {
 	_matBuffer = new Buffer;
 	_stateBuffer = new Buffer;
-
-	_matBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _mat, D3D11_USAGE_DEFAULT);
-	_stateBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _state, D3D11_USAGE_DEFAULT);
+	
+	_mat.diffuse = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	_mat.specular = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	_mat.ambient = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	_mat.emissive = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	_mat.shininess = 1.0f;
+	_mat.opacity = 1.0f;
+	_matBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, &_mat, sizeof _mat, D3D11_USAGE_DEFAULT);
 
 	_state.hasDiffuseTexture = FALSE;
 	_state.hasSpecularTexture = FALSE;
@@ -22,6 +27,7 @@ Engine::Material::Material(void)
 	_state.hasNormalMap = FALSE;
 	_state.hasDisplacementMap = FALSE;
 	_state.hasLightMap = FALSE;
+	_stateBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, &_state, sizeof _state, D3D11_USAGE_DEFAULT);
 }
 
 Engine::Material::~Material(void)

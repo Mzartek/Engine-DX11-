@@ -37,7 +37,7 @@ void Engine::DirLight::setColor(const XMVECTOR &color)
 
 void Engine::DirLight::setDirection(const XMVECTOR &dir)
 {
-	XMStoreFloat3(&_lightInfo.direction, dir);
+	XMStoreFloat3(&_lightInfo.direction, XMVector3Normalize(dir));
 }
 
 XMMATRIX Engine::DirLight::getProjectionMatrix(const UINT &num) const

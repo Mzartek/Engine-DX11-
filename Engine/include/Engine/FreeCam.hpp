@@ -9,6 +9,7 @@ namespace Engine
 	{
 	public:
 		FreeCam(void);
+		FreeCam(const FLOAT &atheta, const FLOAT &aphi);
 		~FreeCam(void);
 		void keyboardMove(const BOOL &f, const BOOL &b, const BOOL &l, const BOOL &r);
 	};

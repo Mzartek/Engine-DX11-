@@ -65,7 +65,7 @@ Demo::Demo(Engine::Renderer *renderer, Engine::Input *input)
 	gBuffer = new Engine::GBuffer;
 	dMaps = new Engine::DepthMap[3];
 
-	cam = new Engine::FreeCam;
+	cam = new Engine::FreeCam(-XM_PI / 2.0f, 0.0f);
 	skybox = new Engine::SkyBox(skyboxProgram);
 	ground = new Ground(objectProgram, depthMapProgram);
 	heli = new Engine::Model(reflectObjectProgram, depthMapProgram);

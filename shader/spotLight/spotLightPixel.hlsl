@@ -50,8 +50,8 @@ float3 getPosition(float2 pixelCoord)
 {
 	float depth = depthTex[pixelCoord];
 	float4 tmp1 = float4(pixelCoord.x / screen.x * 2.0 - 1.0, (1.0 - (pixelCoord.y / screen.y)) * 2.0 - 1.0, depth, 1.0);
-		float4 tmp2 = mul(IVPMatrix, tmp1);
-		return tmp2.xyz / tmp2.w;
+	float4 tmp2 = mul(IVPMatrix, tmp1);
+	return tmp2.xyz / tmp2.w;
 }
 
 float lookUp(float4 coord, float2 offSet, int2 texSize)
@@ -86,9 +86,9 @@ float calcShadow(float4 coord, float pcf)
 float4 calcLight(float4 diffColor, float4 specColor, float3 N, float3 L, float3 V, float shininess)
 {
 	float3 H = normalize(L + V);
-		float4 diff = max(dot(N, L), 0.0) * diffColor;
-		float4 spec = pow(max(dot(N, H), 0.0), shininess) * specColor;
-		return diff + spec;
+	float4 diff = max(dot(N, L), 0.0) * diffColor;
+	float4 spec = pow(max(dot(N, H), 0.0), shininess) * specColor;
+	return diff + spec;
 }
 
 PS_OUTPUT main(PS_INPUT input)
@@ -99,19 +99,19 @@ PS_OUTPUT main(PS_INPUT input)
 		discard;
 
 	float3 position = getPosition(input.position.xy);
-		float4 normal = normalTex[input.position.xy];
-		uint4 material = materialTex[input.position.xy];
+	float4 normal = normalTex[input.position.xy];
+	uint4 material = materialTex[input.position.xy];
 
-		float4 diffColor = unpackUnorm4x8(material.z) * float4(lightColor, 1.0);
-		float4 specColor = unpackUnorm4x8(material.w) * float4(lightColor, 1.0);
+	float4 diffColor = unpackUnorm4x8(material.z) * float4(lightColor, 1.0);
+	float4 specColor = unpackUnorm4x8(material.w) * float4(lightColor, 1.0);
 
-		float shadow = 1.0;
+	float shadow = 1.0;
 	if (withShadowMapping)
 		shadow = calcShadow(mul(shadowMatrix, float4(position, 1.0)), 3.0);
 	float3 L = normalize(lightPosition - position);
 
 		// For the angle
-		float cos_cur_angle = dot(-L, normalize(lightDirection));
+	float cos_cur_angle = dot(-L, lightDirection);
 	float cos_outer_cone_angle = cos(lightSpotCutOff);
 	float cos_inner_cone_angle = cos_outer_cone_angle + 0.01;
 	float cos_inner_minus_outer_angle = cos_inner_cone_angle - cos_outer_cone_angle;
