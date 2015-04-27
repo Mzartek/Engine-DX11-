@@ -48,8 +48,8 @@ namespace Engine
 		Buffer *_cameraBuffer;
 
 		XMFLOAT3 *_position;
-		XMFLOAT3 *_rotation;
 		XMFLOAT3 *_scale;
+		XMVECTOR *_rotation;
 
 		XMMATRIX *_modelMatrix;
 		XMMATRIX *_normalMatrix;
@@ -75,12 +75,13 @@ namespace Engine
 		void loadFromFile(const CHAR *szFileName);
 		void sortMesh(void);
 		void setPosition(const XMVECTOR &position);
-		void setRotation(const XMVECTOR &rotation);
 		void setScale(const XMVECTOR &scale);
+		void setRotation(const XMVECTOR &rotation);
+		void setRotation(const XMVECTOR &axis, const FLOAT &angle);
 		void setCubeTexture(TextureCube *cubeTex);
 		XMVECTOR getPosition(void) const;
-		XMVECTOR getRotation(void) const;
 		XMVECTOR getScale(void) const;
+		std::pair<XMVECTOR, FLOAT> getAxisAngleRotation(void) const;
 		std::vector<Mesh *> getMeshVector(void) const;
 		void display(GBuffer *gbuf, PerspCamera *cam);
 		void displayTransparent(GBuffer *gbuf, PerspCamera *cam);

@@ -31,10 +31,9 @@ inline std::string getDir(const CHAR *file)
 
 void Engine::Model::genMatModel(void) const
 {
-	*_modelMatrix = XMMatrixScaling(_scale->x, _scale->y, _scale->z) *
-		XMMatrixRotationZ(_rotation->z) *
-		XMMatrixRotationY(_rotation->y) *
-		XMMatrixRotationX(_rotation->x) *
+	*_modelMatrix = 
+		XMMatrixScaling(_scale->x, _scale->y, _scale->z) * 
+		XMMatrixRotationQuaternion(*_rotation) * 
 		XMMatrixTranslation(_position->x, _position->y, _position->z);
 }
 
@@ -65,14 +64,14 @@ Engine::Model::Model(ShaderProgram *gProgram, ShaderProgram *smProgram)
 	_matrixBuffer = new Buffer;
 	_cameraBuffer = new Buffer;
 	_position = new XMFLOAT3;
-	_rotation = new XMFLOAT3;
 	_scale = new XMFLOAT3;
+	_rotation = (XMVECTOR *)_aligned_malloc(sizeof *_rotation, 16);
 	_modelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_modelMatrix, 16);
 	_normalMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_normalMatrix, 16);
 
-	XMStoreFloat3(_position, XMVectorSet(0, 0, 0, 1));
-	XMStoreFloat3(_rotation, XMVectorSet(0, 0, 0, 1));
-	XMStoreFloat3(_scale, XMVectorSet(1, 1, 1, 1));
+	XMStoreFloat3(_position, XMVectorSet(0, 0, 0, 0));
+	XMStoreFloat3(_scale, XMVectorSet(1, 1, 1, 0));
+	*_rotation = XMQuaternionIdentity();
 
 	_matrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _matrix, D3D11_USAGE_DYNAMIC);
 	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _camera, D3D11_USAGE_DYNAMIC);
@@ -95,14 +94,14 @@ Engine::Model::Model(Model *model, ShaderProgram *gProgram, ShaderProgram *smPro
 	_matrixBuffer = new Buffer;
 	_cameraBuffer = new Buffer;
 	_position = new XMFLOAT3;
-	_rotation = new XMFLOAT3;
 	_scale = new XMFLOAT3;
+	_rotation = (XMVECTOR *)_aligned_malloc(sizeof *_rotation, 16);
 	_modelMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_modelMatrix, 16);
 	_normalMatrix = (XMMATRIX *)_aligned_malloc(sizeof *_normalMatrix, 16);
 
-	XMStoreFloat3(_position, XMVectorSet(0, 0, 0, 1));
-	XMStoreFloat3(_rotation, XMVectorSet(0, 0, 0, 1));
-	XMStoreFloat3(_scale, XMVectorSet(1, 1, 1, 1));
+	XMStoreFloat3(_position, XMVectorSet(0, 0, 0, 0));
+	XMStoreFloat3(_scale, XMVectorSet(1, 1, 1, 0));
+	*_rotation = XMQuaternionIdentity();
 
 	_matrixBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _matrix, D3D11_USAGE_DYNAMIC);
 	_cameraBuffer->createStore(D3D11_BIND_CONSTANT_BUFFER, NULL, sizeof _camera, D3D11_USAGE_DYNAMIC);
@@ -128,8 +127,8 @@ Engine::Model::~Model(void)
 	delete _matrixBuffer;
 	delete _cameraBuffer;
 	delete _position;
-	delete _rotation;
 	delete _scale;
+	_aligned_free(_rotation);
 	_aligned_free(_modelMatrix);
 	_aligned_free(_normalMatrix);
 
@@ -303,16 +302,23 @@ void Engine::Model::setPosition(const XMVECTOR &position)
 	_needMatModel = TRUE;
 }
 
-void Engine::Model::setRotation(const XMVECTOR &rotation)
+void Engine::Model::setScale(const XMVECTOR &scale)
 {
-	XMStoreFloat3(_rotation, rotation);
+	XMStoreFloat3(_scale, scale);
 	_needMatModel = TRUE;
 	_needMatNormal = TRUE;
 }
 
-void Engine::Model::setScale(const XMVECTOR &scale)
+void Engine::Model::setRotation(const XMVECTOR &rotation)
 {
-	XMStoreFloat3(_scale, scale);
+	*_rotation = XMQuaternionRotationRollPitchYawFromVector(rotation);
+	_needMatModel = TRUE;
+	_needMatNormal = TRUE;
+}
+
+void Engine::Model::setRotation(const XMVECTOR &axis, const FLOAT &angle)
+{
+	*_rotation = XMQuaternionRotationAxis(axis, fmod(angle, XM_PI * 2));
 	_needMatModel = TRUE;
 	_needMatNormal = TRUE;
 }
@@ -327,14 +333,18 @@ XMVECTOR Engine::Model::getPosition(void) const
 	return XMLoadFloat3(_position);
 }
 
-XMVECTOR Engine::Model::getRotation(void) const
-{
-	return XMLoadFloat3(_rotation);
-}
-
 XMVECTOR Engine::Model::getScale(void) const
 {
 	return XMLoadFloat3(_scale);
+}
+
+std::pair<XMVECTOR, FLOAT> Engine::Model::getAxisAngleRotation(void) const
+{
+	std::pair<XMVECTOR, FLOAT> axis_angle;
+
+	XMQuaternionToAxisAngle(&axis_angle.first, &axis_angle.second, *_rotation);
+
+	return axis_angle;
 }
 
 std::vector<Engine::Mesh *> Engine::Model::getMeshVector(void) const

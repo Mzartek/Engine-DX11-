@@ -200,7 +200,8 @@ void Demo::idle(long long time)
 	if (input->getMouseState(0))
 		cam->setSpeed(5.0f);
 
-	heli->setRotation(heli->getRotation() + XMVectorSet(0.0f, 0.0025f, 0.0f, 1.0f));
+	std::pair<XMVECTOR, FLOAT> axis_angle = heli->getAxisAngleRotation();
+	heli->setRotation(XMVectorSet(0, 1, 0, 0), axis_angle.second + 0.0025f);
 
 	cam->position();
 	sun->position(cam->getCameraPosition(), 100, 250, 500);
