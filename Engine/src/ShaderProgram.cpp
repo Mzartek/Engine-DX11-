@@ -16,7 +16,7 @@ inline void CompileShaderFromFile(const LPCWSTR &szFileName, const std::string &
 			MessageBoxA(NULL, (char *)pErrorBlob->GetBufferPointer(), "Error shader", MB_OK);
 			pErrorBlob->Release();
 		}
-		exit(1);
+		abort();
 	}
 	if (pErrorBlob) pErrorBlob->Release();
 }

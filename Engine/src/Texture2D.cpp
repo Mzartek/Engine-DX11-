@@ -29,7 +29,7 @@ void Engine::Texture2D::loadFromFile(const CHAR *path)
 		std::string text = "Error while loading image: ";
 		text.append(path);
 		MessageBoxA(NULL, text.c_str(), __FILE__, MB_OK);
-		exit(1);
+		abort();
 	}
 	tmp = image;
 	image = FreeImage_ConvertTo32Bits(image);

@@ -56,7 +56,7 @@ void Engine::TextureCube::loadFromFiles(
 			std::string text = "Error while loading image: ";
 			text.append(tex[i]);
 			MessageBoxA(NULL, text.c_str(), __FILE__, MB_OK);
-			exit(1);
+			abort();
 		}
 
 		tmp = image[i];

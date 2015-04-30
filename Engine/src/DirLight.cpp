@@ -87,7 +87,7 @@ void Engine::DirLight::position(const XMVECTOR &pos, const FLOAT &dim0, const FL
 	std::to_string(mattest._31) + " " + std::to_string(mattest._32) + " " + std::to_string(mattest._33) + " " + std::to_string(mattest._34) + "\n" +
 	std::to_string(mattest._41) + " " + std::to_string(mattest._42) + " " + std::to_string(mattest._43) + " " + std::to_string(mattest._44) + "\n";
 	MessageBoxA(NULL, test.c_str(), "DirectX", MB_OK);
-	exit(0);*/
+	abort();*/
 }
 
 void Engine::DirLight::display(GBuffer *gbuf, PerspCamera *cam)

@@ -140,7 +140,7 @@ void Engine::Model::addMesh(Mesh *mesh)
 	if (_isMirror == TRUE)
 	{
 		MessageBox(NULL, TEXT("Error Model configuration"), TEXT(__FILE__), MB_OK);
-		exit(1);
+		abort();
 	}
 
 	_tMesh->push_back(mesh);
@@ -151,7 +151,7 @@ void Engine::Model::loadFromFile(const CHAR *szFileName)
 	if (_isMirror == TRUE)
 	{
 		MessageBox(NULL, TEXT("Error Model configuration"), TEXT(__FILE__), MB_OK);
-		exit(1);
+		abort();
 	}
 
 	Assimp::Importer Importer;
@@ -161,7 +161,7 @@ void Engine::Model::loadFromFile(const CHAR *szFileName)
 		std::string mes = "Failed to load File: ";
 		mes.append(szFileName);
 		MessageBoxA(NULL, mes.c_str(), __FILE__, MB_OK);
-		exit(1);
+		abort();
 	}
 
 	std::vector<Vertex> vertices;

@@ -24,7 +24,7 @@ void *Engine::Object::operator new(size_t sz)
 	if (p == NULL)
 	{
 		fprintf(stderr, "Error alloc\n");
-		exit(1);
+		abort();
 	}
 	_memState++;
 	_tmemNew.push_back(p);
@@ -39,7 +39,7 @@ void *Engine::Object::operator new[](size_t sz)
 	if (p == NULL)
 	{
 		fprintf(stderr, "Error alloc\n");
-		exit(1);
+		abort();
 	}
 	_memState++;
 	_tmemNew.push_back(p);

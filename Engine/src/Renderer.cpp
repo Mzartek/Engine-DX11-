@@ -86,7 +86,7 @@ Engine::Renderer::Renderer(const LPCWSTR szTitle, const UINT &width, const UINT 
 	if (_hWnd == NULL)
 	{
 		MessageBox(NULL, TEXT("Failed to create Window"), TEXT(__FILE__), MB_OK);
-		exit(1);
+		abort();
 	}
 	ShowWindow(_hWnd, nCmdShow);
 
@@ -251,7 +251,7 @@ void Engine::Renderer::mainLoop(GameLoop *gameLoop)
 	if (gameLoop == NULL)
 	{
 		MessageBox(NULL, TEXT("Wrong GameLoop"), TEXT(__FILE__), MB_OK);
-		exit(1);
+		abort();
 	}
 
 	_stopLoop = FALSE;
