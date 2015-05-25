@@ -36,3 +36,5 @@
 *.sdf
 *.suo
 *.opensdf
+
+Visual/packages
