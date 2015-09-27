@@ -3,11 +3,19 @@
 *.lo
 *.o
 *.obj
+*.cso
+
+# Precompiled Headers
+*.gch
+*.pch
 
 # Compiled Dynamic libraries
 *.so
 *.dylib
 *.dll
+
+# Fortran module files
+*.mod
 
 # Compiled Static libraries
 *.lai
@@ -20,21 +28,16 @@
 *.out
 *.app
 
-# Compiled Shader
-*.cso
-
+# Others
 *.log
 *.tlog
 *.pdb
 *.ilk
 *.idb
 *.exp
-*.lastbuildstate
-*.metagen
-*.layout
-*.depend
 *.sdf
 *.suo
-*.opensdf
 
-Visual/packages
+# Folders
+packages
+x64

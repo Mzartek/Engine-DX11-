@@ -1,17 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -19,108 +11,52 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7FE3C0AA-20F7-4B72-8970-54080A4DF692}</ProjectGuid>
+    <ProjectGuid>{DF33B504-C07A-4D1F-BA29-201F00DEF2A3}</ProjectGuid>
     <RootNamespace>Engine</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <PropertyGroup Label="UserMacros">
-    <NuGetPackageImportStamp>d36d1ee0</NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)..\Engine\include\;$(IncludePath)</IncludePath>
-  </PropertyGroup>
+  <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)..\Engine\include\;$(IncludePath)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)..\Engine\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)..\Engine\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENGINE_EXPORTS;_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>DXGI.lib;d3d11.lib;d3dcompiler.lib;dinput8.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENGINE_EXPORTS;_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ENGINE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>DXGI.lib;d3d11.lib;d3dcompiler.lib;dinput8.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENGINE_EXPORTS;_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-    </ClCompile>
-    <Link>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>DXGI.lib;d3d11.lib;d3dcompiler.lib;dinput8.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <AdditionalDependencies>DXGI.lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;Xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>Debug</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -130,93 +66,41 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENGINE_EXPORTS;_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <PreprocessorDefinitions>ENGINE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>No</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>DXGI.lib;d3d11.lib;d3dcompiler.lib;dinput8.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <AdditionalDependencies>DXGI.lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;Xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\Engine\Buffer.hpp" />
-    <ClInclude Include="include\Engine\Camera.hpp" />
-    <ClInclude Include="include\Engine\DirLight.hpp" />
-    <ClInclude Include="include\Engine\Engine.hpp" />
-    <ClInclude Include="include\Engine\FrameBuffer.hpp" />
-    <ClInclude Include="include\Engine\FreeCam.hpp" />
-    <ClInclude Include="include\Engine\GBuffer.hpp" />
-    <ClInclude Include="include\Engine\Material.hpp" />
-    <ClInclude Include="include\Engine\Input.hpp" />
-    <ClInclude Include="include\Engine\Light.hpp" />
-    <ClInclude Include="include\Engine\Model.hpp" />
-    <ClInclude Include="include\Engine\MovableCamera.hpp" />
-    <ClInclude Include="include\Engine\Mesh.hpp" />
-    <ClInclude Include="include\Engine\Object.hpp" />
-    <ClInclude Include="include\Engine\OctreeSystem.hpp" />
-    <ClInclude Include="include\Engine\OrthoCamera.hpp" />
-    <ClInclude Include="include\Engine\ParticlesManager.hpp" />
-    <ClInclude Include="include\Engine\PerspCamera.hpp" />
-    <ClInclude Include="include\Engine\PlayerCam.hpp" />
-    <ClInclude Include="include\Engine\Screen.hpp" />
-    <ClInclude Include="include\Engine\ShaderProgram.hpp" />
-    <ClInclude Include="include\Engine\DepthMap.hpp" />
-    <ClInclude Include="include\Engine\SkyBox.hpp" />
-    <ClInclude Include="include\Engine\Renderer.hpp" />
-    <ClInclude Include="include\Engine\SpotLight.hpp" />
-    <ClInclude Include="include\Engine\Texture.hpp" />
-    <ClInclude Include="include\Engine\Texture2D.hpp" />
-    <ClInclude Include="include\Engine\TextureCube.hpp" />
+    <ClInclude Include="include\Engine\GameLoop.h" />
+    <ClInclude Include="include\Engine\Graphics\GraphicsRenderer.h" />
+    <ClInclude Include="include\Engine\Graphics\ShaderProgram.h" />
+    <ClInclude Include="include\Engine\Logger.h" />
+    <ClInclude Include="include\Engine\Object.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Buffer.cpp" />
-    <ClCompile Include="src\Camera.cpp" />
-    <ClCompile Include="src\Material.cpp" />
-    <ClCompile Include="src\Mesh.cpp" />
-    <ClCompile Include="src\DirLight.cpp" />
-    <ClCompile Include="src\FrameBuffer.cpp" />
-    <ClCompile Include="src\FreeCam.cpp" />
-    <ClCompile Include="src\GBuffer.cpp" />
-    <ClCompile Include="src\Input.cpp" />
-    <ClCompile Include="src\Light.cpp" />
-    <ClCompile Include="src\Model.cpp" />
-    <ClCompile Include="src\MovableCamera.cpp" />
+    <ClCompile Include="src\Graphics\GraphicsRenderer.cpp" />
+    <ClCompile Include="src\Graphics\ShaderProgram.cpp" />
+    <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\Object.cpp" />
-    <ClCompile Include="src\OctreeSystem.cpp" />
-    <ClCompile Include="src\OrthoCamera.cpp" />
-    <ClCompile Include="src\ParticlesManager.cpp" />
-    <ClCompile Include="src\PerspCamera.cpp" />
-    <ClCompile Include="src\PlayerCam.cpp" />
-    <ClCompile Include="src\Renderer.cpp" />
-    <ClCompile Include="src\Screen.cpp" />
-    <ClCompile Include="src\ShaderProgram.cpp" />
-    <ClCompile Include="src\DepthMap.cpp" />
-    <ClCompile Include="src\SkyBox.cpp" />
-    <ClCompile Include="src\SpotLight.cpp" />
-    <ClCompile Include="src\Texture.cpp" />
-    <ClCompile Include="src\Texture2D.cpp" />
-    <ClCompile Include="src\TextureCube.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\Visual\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets" Condition="Exists('..\Visual\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" />
-    <Import Project="..\Visual\packages\Assimp.3.0.0\build\native\Assimp.targets" Condition="Exists('..\Visual\packages\Assimp.3.0.0\build\native\Assimp.targets')" />
-    <Import Project="..\Visual\packages\freeimage.redist.3.16.0\build\native\freeimage.redist.targets" Condition="Exists('..\Visual\packages\freeimage.redist.3.16.0\build\native\freeimage.redist.targets')" />
-    <Import Project="..\Visual\packages\freeimage.3.16.0\build\native\freeimage.targets" Condition="Exists('..\Visual\packages\freeimage.3.16.0\build\native\freeimage.targets')" />
+    <Import Project="..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets" Condition="Exists('..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" />
+    <Import Project="..\packages\Assimp.3.0.0\build\native\Assimp.targets" Condition="Exists('..\packages\Assimp.3.0.0\build\native\Assimp.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\Visual\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\Visual\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets'))" />
-    <Error Condition="!Exists('..\Visual\packages\Assimp.3.0.0\build\native\Assimp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\Visual\packages\Assimp.3.0.0\build\native\Assimp.targets'))" />
-    <Error Condition="!Exists('..\Visual\packages\freeimage.redist.3.16.0\build\native\freeimage.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\Visual\packages\freeimage.redist.3.16.0\build\native\freeimage.redist.targets'))" />
-    <Error Condition="!Exists('..\Visual\packages\freeimage.3.16.0\build\native\freeimage.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\Visual\packages\freeimage.3.16.0\build\native\freeimage.targets'))" />
+    <Error Condition="!Exists('..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\Assimp.3.0.0\build\native\Assimp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Assimp.3.0.0\build\native\Assimp.targets'))" />
   </Target>
 </Project>
